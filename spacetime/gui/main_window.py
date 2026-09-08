@@ -210,7 +210,9 @@ class MainWindow(QMainWindow):
         rewind.triggered.connect(lambda: self._step_time(-1, 0.1))
         set_time = coordinates.addAction("Set time...")
         set_time.triggered.connect(self.set_time)
-        zero_time = coordinates.addAction("Set time to zero")
+        zero_time = coordinates.addAction(
+            f"Set time to zero ({self._modifier_name}+0)"
+        )
         zero_time.setShortcut(f"{self._modifier_key}+0")
         zero_time.triggered.connect(self._set_time_zero)
         coordinates.addSeparator()
