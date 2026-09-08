@@ -274,7 +274,7 @@ class Scenario:
             key=lambda event: event.t,
         )
         for index, event in enumerate(changes, start=1):
-            event.label = f"{obj.label}:Δβ{index}"
+            event.label = f"{obj.label}-Δβ{index}"
             event.name = f"eDBeta{obj.name}{index}"
         for boundary in ("birth", "termination"):
             event = self._boundary_event(obj, boundary)

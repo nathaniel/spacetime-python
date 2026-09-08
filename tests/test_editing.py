@@ -40,13 +40,13 @@ def test_programmed_change_creates_and_replaces_delta_beta_event():
     scenario.add_programmed_change(clock, 2.0, 1.0, 0.5)
     first = [event for event in scenario.events if event.beta_change]
     assert len(first) == 1
-    assert first[0].label == "C1:Δβ1"
+    assert first[0].label == "C1-Δβ1"
 
     scenario.add_programmed_change(clock, 2.0, 1.0, 0.6)
     current = [event for event in scenario.events if event.beta_change]
     assert len(current) == 1
     assert current[0].t == pytest.approx(2.0)
-    assert current[0].label == "C1:Δβ1"
+    assert current[0].label == "C1-Δβ1"
 
 
 def test_birth_and_termination_create_boundary_events():
