@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QKeySequence
 from .tables import ObjectTable, EventTable
-from .help_view import HelpView
+from .help_view import HelpView, ShortcutsView
 
 class _TitledPanel(QFrame):
     """Compact framed container with a title drawn over its top border."""
@@ -140,9 +140,14 @@ class MainWindow(QMainWindow):
         tabs=QTabWidget(); tabs.addTab(self.object_table, "Objects"); tabs.addTab(self.event_table, "Events");         self.comments=QTextEdit(); self.comments.setPlainText(scenario.comments); self.comments.textChanged.connect(self.mark_dirty)
         tabs.addTab(self.comments, "Comments")
         self.help_view = HelpView()
-        tabs.addTab(self.help_view, "Help")
+        tabs.addTab(ShortcutsView(), "Shortcuts")
         self.tabs = tabs
         self.table_dock=QDockWidget("Tables", self); self.table_dock.setWidget(tabs); self.addDockWidget(Qt.RightDockWidgetArea, self.table_dock)
+        self.help_dock = QDockWidget("Help", self)
+        self.help_dock.setWidget(self.help_view)
+        self.help_dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.help_dock)
+        self.help_dock.hide()
         self._add_actions()
         self._update_title()
     def _add_actions(self):
@@ -225,9 +230,9 @@ class MainWindow(QMainWindow):
         about=help_menu.addAction("&About"); about.triggered.connect(lambda: QMessageBox.about(self,"About Spacetime","Spacetime — special relativity scenario editor"))
 
     def show_help(self) -> None:
-        """Select and reveal the Help tab."""
-        self.tabs.setCurrentWidget(self.help_view)
-        self.table_dock.raise_()
+        """Reveal the dockable Help panel."""
+        self.help_dock.show()
+        self.help_dock.raise_()
 
     def _step_time(self, direction: int, step: float) -> None:
         """Advance or rewind time using the requested step size."""
