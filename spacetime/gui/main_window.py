@@ -112,7 +112,7 @@ class MainWindow(QMainWindow):
         self.event_table.changed.connect(self.mark_dirty)
         tabs=QTabWidget(); tabs.addTab(self.object_table, "Objects"); tabs.addTab(self.event_table, "Events");         self.comments=QTextEdit(); self.comments.setPlainText(scenario.comments); self.comments.textChanged.connect(self.mark_dirty)
         tabs.addTab(self.comments, "Comments"); tabs.addTab(HelpView(), "Help")
-        dock=QDockWidget("Scenario", self); dock.setWidget(tabs); self.addDockWidget(Qt.RightDockWidgetArea, dock)
+        dock=QDockWidget("Tables", self); dock.setWidget(tabs); self.addDockWidget(Qt.RightDockWidgetArea, dock)
         self._add_actions()
         self._update_title()
     def _add_actions(self):
