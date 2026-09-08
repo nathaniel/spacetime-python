@@ -12,6 +12,7 @@ from ..model.lorentz import transform
 from PySide6.QtWidgets import (
     QDockWidget,
     QFrame,
+    QApplication,
     QInputDialog,
     QLabel,
     QMainWindow,
@@ -220,6 +221,10 @@ class MainWindow(QMainWindow):
         zoom_out = view_menu.addAction("Zoom out")
         zoom_out.setShortcut("-")
         zoom_out.triggered.connect(lambda: self.zoom(1/1.1))
+        increase_font = view_menu.addAction("Increase font size")
+        increase_font.triggered.connect(self.increase_font_size)
+        decrease_font = view_menu.addAction("Decrease font size")
+        decrease_font.triggered.connect(self.decrease_font_size)
         move_left = view_menu.addAction(f"Move left ({self._modifier_name} = 10×)")
         move_left.setShortcut("Left")
         move_left.triggered.connect(lambda: self._move_view(20))
@@ -231,6 +236,23 @@ class MainWindow(QMainWindow):
         help_action.setShortcut("F1")
         help_action.triggered.connect(self.show_help)
         about=help_menu.addAction("&About"); about.triggered.connect(lambda: QMessageBox.about(self,"About Spacetime","Spacetime — special relativity scenario editor"))
+
+    def increase_font_size(self) -> None:
+        """Increase the application-wide Qt font size by one point."""
+        self._change_font_size(1)
+
+    def decrease_font_size(self) -> None:
+        """Decrease the application-wide Qt font size by one point."""
+        self._change_font_size(-1)
+
+    def _change_font_size(self, delta: int) -> None:
+        """Adjust the application-wide Qt font size within a usable range."""
+        app = QApplication.instance()
+        if app is None:
+            return
+        font = app.font()
+        font.setPointSize(max(1, font.pointSize() + delta))
+        app.setFont(font)
 
     def show_help(self) -> None:
         """Reveal the dockable Help panel."""

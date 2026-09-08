@@ -11,6 +11,7 @@ def main() -> int:
     try:
         from PySide6.QtWidgets import QApplication
         from .gui.main_window import MainWindow
+        from .gui.help_view import installed_ui_font
     except ImportError as exc:
         print("PySide6 is required to run the GUI:", exc, file=sys.stderr); return 2
     parser=argparse.ArgumentParser(description="Spacetime special-relativity scenario editor")
@@ -18,5 +19,5 @@ def main() -> int:
     args=parser.parse_args()
     scenario = load_scenario(args.scenario) if args.scenario else Scenario()
     if not scenario.objects and not args.scenario: scenario.add_clock()
-    app=QApplication(sys.argv); window=MainWindow(scenario, path=args.scenario); window.show(); return app.exec()
+    app=QApplication(sys.argv); app.setFont(installed_ui_font()); window=MainWindow(scenario, path=args.scenario); window.show(); return app.exec()
 if __name__ == "__main__": raise SystemExit(main())

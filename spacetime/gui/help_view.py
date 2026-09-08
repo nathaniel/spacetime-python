@@ -10,10 +10,10 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QTextBrowser,
 )
-from PySide6.QtCore import QUrl
+from PySide6.QtCore import QEvent, QUrl
 from PySide6.QtGui import QFont, QFontDatabase
 
-def _installed_ui_font() -> QFont:
+def installed_ui_font() -> QFont:
     """Return a common installed sans-serif font without using Qt aliases."""
     families = set(QFontDatabase.families())
     family = next(
@@ -31,7 +31,7 @@ class HelpView(QTextBrowser):
 
     def __init__(self, parent=None):
         """Load the help document into the browser."""
-        font = _installed_ui_font()
+        font = installed_ui_font()
         if QApplication.instance() is not None:
             QApplication.instance().setFont(font)
         super().__init__(parent)
@@ -45,6 +45,12 @@ class HelpView(QTextBrowser):
             "__UI_FONT__", font.family()
         )
         self.setHtml(html_text)
+
+    def changeEvent(self, event):
+        """Keep the rich-text document synchronized with the app font."""
+        super().changeEvent(event)
+        if event.type() == QEvent.Type.FontChange:
+            self.document().setDefaultFont(self.font())
 
 
 class ShortcutsView(QTableWidget):
@@ -85,3 +91,9 @@ class ShortcutsView(QTableWidget):
         for row, (input_text, action) in enumerate(rows):
             self.setItem(row, 0, QTableWidgetItem(input_text))
             self.setItem(row, 1, QTableWidgetItem(action))
+
+    def changeEvent(self, event):
+        """Resize shortcut rows after a global font-size change."""
+        super().changeEvent(event)
+        if event.type() == QEvent.Type.FontChange:
+            self.resizeRowsToContents()
