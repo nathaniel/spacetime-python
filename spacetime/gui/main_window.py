@@ -216,7 +216,12 @@ class MainWindow(QMainWindow):
         if x is None:
             return
         direction, accepted = QInputDialog.getItem(
-            self, "Create light flash", "Direction:", ["Right (+1)", "Left (-1)"], 0, False
+            self,
+            "Create light flash",
+            "Direction:",
+            ["Right (β = +1)", "Left (β = -1)"],
+            0,
+            False,
         )
         if not accepted:
             return
