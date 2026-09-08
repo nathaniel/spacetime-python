@@ -216,8 +216,16 @@ class _View(QWidget):
         elif event.key() == Qt.Key.Key_Down:
             step_size = 1.0 if event.modifiers() & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier) else 0.1
             self.scenario.time = self.scenario.stepped_time(-1, step=step_size)
-        elif event.key() == Qt.Key.Key_Left: self.pan_horizontal(20)
-        elif event.key() == Qt.Key.Key_Right: self.pan_horizontal(-20)
+        elif event.key() == Qt.Key.Key_Left:
+            distance = 200 if event.modifiers() & (
+                Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier
+            ) else 20
+            self.pan_horizontal(distance)
+        elif event.key() == Qt.Key.Key_Right:
+            distance = 200 if event.modifiers() & (
+                Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier
+            ) else 20
+            self.pan_horizontal(-distance)
         elif event.key() in (Qt.Key.Key_Plus, Qt.Key.Key_Equal):
             self.scale = min(500, self.scale*1.1)
             self.horizontal_view_changed.emit(self.scale, self.offset[0])

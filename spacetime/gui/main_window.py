@@ -132,8 +132,9 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
         self.status_panel = _StatusPanel()
         self.status_panel.set_controls(
-            "Change time: ↑, ↓    Move screen: ←, →    "
-            "Transform up/down: Shift-↑, Shift-↓"
+            "Time: ↑, ↓ (Ctrl/Cmd = 10×)    "
+            "Screen: ←, → (Ctrl/Cmd = 10×)    "
+            "Frame: Shift-↑, Shift-↓"
         )
         self.statusBar().addWidget(self.status_panel, 1)
         self._update_status()
@@ -191,10 +192,10 @@ class MainWindow(QMainWindow):
         original = frames.addAction("Return to original frame")
         original.triggered.connect(lambda: self.history.do(SetFrame(self.scenario, 0.0)) or self.refresh())
         coordinates = self.menuBar().addMenu("&Coordinates")
-        advance=coordinates.addAction("Advance time")
+        advance=coordinates.addAction("Advance time (Ctrl/Cmd = 10×)")
         advance.setShortcut("Up")
         advance.triggered.connect(lambda: self._step_time(1, 0.1))
-        rewind=coordinates.addAction("Rewind time")
+        rewind=coordinates.addAction("Rewind time (Ctrl/Cmd = 10×)")
         rewind.setShortcut("Down")
         rewind.triggered.connect(lambda: self._step_time(-1, 0.1))
         set_time = coordinates.addAction("Set time...")
