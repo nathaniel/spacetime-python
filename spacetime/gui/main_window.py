@@ -4,6 +4,7 @@ from __future__ import annotations
 from ..commands.undo_redo import AddEvent, AddObject, DeleteEvent, DeleteObject, History, SetFrame, SetTime, Snapshot
 from ..persistence.scenario_file import load_scenario, save_scenario
 from pathlib import Path
+import sys
 from .views import HighwayView, SpacetimeDiagramView
 from ..model.scenario import Scenario
 from ..model.lorentz import transform
@@ -108,6 +109,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Spacetime"); self.resize(1100,700)
         self._instruction = ""
         self._hovered_item = None
+        self._modifier_name = "Cmd" if sys.platform == "darwin" else "Ctrl"
         root=QWidget(); layout=QVBoxLayout(root)
         split=QSplitter(Qt.Vertical); self.highway=HighwayView(scenario); self.diagram=SpacetimeDiagramView(scenario)
         self.highway.history = self.history
@@ -132,8 +134,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
         self.status_panel = _StatusPanel()
         self.status_panel.set_controls(
-            "Time: ↑, ↓ (Ctrl/Cmd = 10×)    "
-            "Screen: ←, → (Ctrl/Cmd = 10×)    "
+            f"Time: ↑, ↓ ({self._modifier_name} = 10×)    "
+            f"Screen: ←, → ({self._modifier_name} = 10×)    "
             "Frame: Shift-↑, Shift-↓"
         )
         self.statusBar().addWidget(self.status_panel, 1)
@@ -192,10 +194,14 @@ class MainWindow(QMainWindow):
         original = frames.addAction("Return to original frame")
         original.triggered.connect(lambda: self.history.do(SetFrame(self.scenario, 0.0)) or self.refresh())
         coordinates = self.menuBar().addMenu("&Coordinates")
-        advance=coordinates.addAction("Advance time (Ctrl/Cmd = 10×)")
+        advance=coordinates.addAction(
+            f"Advance time ({self._modifier_name} = 10×)"
+        )
         advance.setShortcut("Up")
         advance.triggered.connect(lambda: self._step_time(1, 0.1))
-        rewind=coordinates.addAction("Rewind time (Ctrl/Cmd = 10×)")
+        rewind=coordinates.addAction(
+            f"Rewind time ({self._modifier_name} = 10×)"
+        )
         rewind.setShortcut("Down")
         rewind.triggered.connect(lambda: self._step_time(-1, 0.1))
         set_time = coordinates.addAction("Set time...")
