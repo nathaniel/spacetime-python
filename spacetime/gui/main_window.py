@@ -99,7 +99,6 @@ class MainWindow(QMainWindow):
         self._instruction = ""
         self._hovered_item = None
         self._modifier_name = "Cmd" if sys.platform == "darwin" else "Ctrl"
-        self._modifier_key = "Meta" if sys.platform == "darwin" else "Ctrl"
         root=QWidget(); layout=QVBoxLayout(root)
         split=QSplitter(Qt.Vertical); self.highway=HighwayView(scenario); self.diagram=SpacetimeDiagramView(scenario)
         self.highway.history = self.history
@@ -198,10 +197,8 @@ class MainWindow(QMainWindow):
         rewind.triggered.connect(lambda: self._step_time(-1, 0.1))
         set_time = coordinates.addAction("Set time...")
         set_time.triggered.connect(self.set_time)
-        zero_time = coordinates.addAction(
-            f"Set time to zero ({self._modifier_name}+0)"
-        )
-        zero_time.setShortcut(f"{self._modifier_key}+0")
+        zero_time = coordinates.addAction("Set time to zero")
+        zero_time.setShortcut("Ctrl+0")
         zero_time.triggered.connect(self._set_time_zero)
         coordinates.addSeparator()
         center_x = coordinates.addAction("Center on x...")
