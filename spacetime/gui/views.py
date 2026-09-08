@@ -263,7 +263,6 @@ class _View(QWidget):
             isinstance(self, HighwayView)
             and self.dragged is not None
             and self.dragged in self.scenario.objects
-            and self.dragged.programmed
         )
         self._drag_before = (
             deepcopy(self.scenario)
