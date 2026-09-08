@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 from PySide6.QtCore import QTimer, Qt
-from PySide6.QtGui import QAction, QKeySequence
+from PySide6.QtGui import QAction, QFont, QKeySequence
 from .tables import ObjectTable, EventTable
 from .help_view import HelpView, ShortcutsView
 
@@ -143,7 +143,8 @@ class MainWindow(QMainWindow):
         tabs=QTabWidget(); tabs.addTab(self.object_table, "Objects"); tabs.addTab(self.event_table, "Events");         self.comments=QTextEdit(); self.comments.setPlainText(scenario.comments); self.comments.textChanged.connect(self.mark_dirty)
         tabs.addTab(self.comments, "Comments")
         self.help_view = HelpView()
-        tabs.addTab(ShortcutsView(), "Shortcuts")
+        self.shortcuts_view = ShortcutsView()
+        tabs.addTab(self.shortcuts_view, "Shortcuts")
         self.tabs = tabs
         self.table_dock=QDockWidget("Tables", self); self.table_dock.setWidget(tabs); self.addDockWidget(Qt.RightDockWidgetArea, self.table_dock)
         self.help_dock = QDockWidget("Help", self)
@@ -253,6 +254,21 @@ class MainWindow(QMainWindow):
         font = app.font()
         font.setPointSize(max(1, font.pointSize() + delta))
         app.setFont(font)
+        for widget in (
+            self.highway,
+            self.diagram,
+            self.event_table,
+            self.help_view,
+            self.shortcuts_view,
+        ):
+            widget.setFont(font)
+        table_font = QFont(font)
+        table_font.setPointSizeF(max(1.0, font.pointSizeF() * 0.9))
+        self.object_table.setFont(table_font)
+        self.highway.update()
+        self.diagram.update()
+        self.object_table.resizeRowsToContents()
+        self.event_table.resizeRowsToContents()
 
     def show_help(self) -> None:
         """Reveal the dockable Help panel."""
