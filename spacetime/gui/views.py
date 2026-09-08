@@ -714,9 +714,12 @@ class HighwayView(_View):
         if allow_light:
             return 1.0 if beta >= 0 else -1.0
         sign = math.copysign(1.0, beta) if beta else 1.0
-        magnitude = min(abs(beta), 1.0 - 1e-12)
+        magnitude = min(abs(beta), MAX_OBJECT_BETA)
         target_gamma = 1.0 / math.sqrt(1.0 - magnitude * magnitude)
-        gamma_values = (1.0 + 0.1 * index for index in range(291))
+        max_gamma_index = math.floor(
+            (1.0 / math.sqrt(1.0 - MAX_OBJECT_BETA * MAX_OBJECT_BETA) - 1.0) / 0.1
+        )
+        gamma_values = (1.0 + 0.1 * index for index in range(max_gamma_index + 1))
         snapped_gamma = min(gamma_values, key=lambda value: abs(value - target_gamma))
         snapped_beta = math.sqrt(1.0 - 1.0 / (snapped_gamma * snapped_gamma))
         return sign * snapped_beta
