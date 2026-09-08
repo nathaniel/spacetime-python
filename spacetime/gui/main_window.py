@@ -287,11 +287,11 @@ class MainWindow(QMainWindow):
         self.history.redo(); self.dirty=True; self.refresh()
     def new_scenario(self):
         """Create a new empty scenario after handling unsaved changes."""
-        if not self.maybe_save(): return
+        if not self.maybe_save("creating a new one"): return
         self._set_scenario(Scenario()); self.path=None; self.dirty=False; self.refresh()
     def open_scenario(self):
         """Open a scenario selected through the file dialog."""
-        if not self.maybe_save(): return
+        if not self.maybe_save("reading a new one"): return
         path,_=QFileDialog.getOpenFileName(self,"Open scenario","","Scenario files (*.sce);;All files (*)")
         if path:
             try: self._set_scenario(load_scenario(path)); self.path=Path(path); self.history=History(); self.dirty=False; self.refresh()
@@ -304,10 +304,21 @@ class MainWindow(QMainWindow):
         """Choose a path and save the current scenario."""
         path,_=QFileDialog.getSaveFileName(self,"Save scenario","","Scenario files (*.sce)")
         if path: self.path=Path(path); self.save()
-    def maybe_save(self):
-        """Prompt to save dirty changes before replacing or closing."""
+    def maybe_save(self, next_action: str = "quitting"):
+        """Prompt to save dirty changes before the next application action."""
         if not self.dirty: return True
-        answer=QMessageBox.question(self,"Unsaved changes","Save changes?",QMessageBox.StandardButton.Save|QMessageBox.StandardButton.Discard|QMessageBox.StandardButton.Cancel)
+        message = (
+            "Do you want to save the current scenario to a scenario file\n"
+            f"before {next_action}?"
+        )
+        answer=QMessageBox.question(
+            self,
+            "Save current scenario?",
+            message,
+            QMessageBox.StandardButton.Save
+            | QMessageBox.StandardButton.Discard
+            | QMessageBox.StandardButton.Cancel,
+        )
         if answer==QMessageBox.StandardButton.Save: self.save(); return not self.dirty
         return answer==QMessageBox.StandardButton.Discard
     def closeEvent(self,event):
