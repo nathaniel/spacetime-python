@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QTextBrowser,
 )
 from PySide6.QtCore import QEvent, QUrl
-from PySide6.QtGui import QFont, QFontDatabase
+from PySide6.QtGui import QDesktopServices, QFont, QFontDatabase
 
 def installed_ui_font() -> QFont:
     """Return a common installed sans-serif font without using Qt aliases."""
@@ -44,7 +44,16 @@ class HelpView(QTextBrowser):
         html_text = html.read_text(encoding="utf-8").replace(
             "__UI_FONT__", font.family()
         )
+        self._help_path = html
+        self.anchorClicked.connect(self._open_help_link)
         self.setHtml(html_text)
+
+    def _open_help_link(self, url: QUrl) -> None:
+        """Open the Help document in the system browser when requested."""
+        if url.scheme() == "help-browser":
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(self._help_path)))
+            return
+        self.setSource(url)
 
     def changeEvent(self, event):
         """Keep the rich-text document synchronized with the app font."""
