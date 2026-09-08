@@ -91,9 +91,15 @@ class MainWindow(QMainWindow):
         layout.addWidget(split)
         self.setCentralWidget(root)
         self.time_status = QLabel()
+        self.controls_status = QLabel(
+            "Change time: ↑, ↓    Move screen: ←, →    "
+            "Transform up/down: Shift-↑, Shift-↓"
+        )
         self.detail_status = QLabel()
-        self.time_status.setFixedWidth(520)
+        self.time_status.setFixedWidth(105)
+        self.controls_status.setFixedWidth(600)
         self.statusBar().addWidget(self.time_status)
+        self.statusBar().addWidget(self.controls_status)
         self.statusBar().addWidget(self.detail_status, 1)
         self._update_status()
         self.object_table = ObjectTable(scenario)
@@ -296,11 +302,7 @@ class MainWindow(QMainWindow):
 
     def _update_status(self) -> None:
         """Refresh the bottom time and interaction details."""
-        self.time_status.setText(
-            f"Time t = {self.scenario.time:.3f}    "
-            "Change time: ↑, ↓    Move screen: ←, →    "
-            "Transform up/down: Shift-↑, Shift-↓"
-        )
+        self.time_status.setText(f"Time t = {self.scenario.time:.3f}")
         if not self.detail_status.text():
             self.detail_status.setText(self._instruction)
     def mark_dirty(self):
