@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spacetime-py"
+version = "0.1.0"
+description = "Special relativity scenario simulator"
+requires-python = ">=3.10"
+dependencies = ["PySide6>=6.5"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+build = ["PyInstaller>=6.0"]
+
+[project.scripts]
+spacetime = "spacetime.app:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
