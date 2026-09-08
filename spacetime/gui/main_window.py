@@ -96,7 +96,7 @@ class _StatusPanel(QWidget):
         super().resizeEvent(event)
         height = self.height()
         self.time_label.setGeometry(0, 0, 105, height)
-        self.controls_label.setGeometry(max(105, self.width() - 600), 0, 600, height)
+        self.controls_label.setGeometry(max(105, self.width() - 700), 0, 700, height)
         self.detail_label.setGeometry(105, 0, max(0, self.width() - 105), height)
 
 class MainWindow(QMainWindow):
@@ -110,6 +110,7 @@ class MainWindow(QMainWindow):
         self._instruction = ""
         self._hovered_item = None
         self._modifier_name = "Cmd" if sys.platform == "darwin" else "Ctrl"
+        self._modifier_key = "Meta" if sys.platform == "darwin" else "Ctrl"
         root=QWidget(); layout=QVBoxLayout(root)
         split=QSplitter(Qt.Vertical); self.highway=HighwayView(scenario); self.diagram=SpacetimeDiagramView(scenario)
         self.highway.history = self.history
@@ -134,9 +135,10 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
         self.status_panel = _StatusPanel()
         self.status_panel.set_controls(
-            f"Time: ↑, ↓ ({self._modifier_name} = 10×)    "
+            f"Time: ↑, ↓ ({self._modifier_name} = 10×), "
+            f"{self._modifier_name}+0 = zero    "
             f"View: ←, → ({self._modifier_name} = 10×)    "
-            "Frame: Shift-↑, Shift-↓"
+            "Frame: Shift-↑, Shift-↓, Shift+0 = original"
         )
         self.statusBar().addWidget(self.status_panel, 1)
         self._update_status()
@@ -193,6 +195,7 @@ class MainWindow(QMainWindow):
         frame_down.setShortcut("Shift+Down")
         frame_down.triggered.connect(lambda: self.change_frame(-0.1))
         original = frames.addAction("Return to original frame")
+        original.setShortcut("Shift+0")
         original.triggered.connect(lambda: self.history.do(SetFrame(self.scenario, 0.0)) or self.refresh())
         coordinates = self.menuBar().addMenu("&Coordinates")
         advance=coordinates.addAction(
@@ -207,6 +210,9 @@ class MainWindow(QMainWindow):
         rewind.triggered.connect(lambda: self._step_time(-1, 0.1))
         set_time = coordinates.addAction("Set time...")
         set_time.triggered.connect(self.set_time)
+        zero_time = coordinates.addAction("Set time to zero")
+        zero_time.setShortcut(f"{self._modifier_key}+0")
+        zero_time.triggered.connect(self._set_time_zero)
         coordinates.addSeparator()
         center_x = coordinates.addAction("Center on x...")
         center_x.triggered.connect(self.center_on_x)
@@ -266,6 +272,11 @@ class MainWindow(QMainWindow):
         if time is None:
             return
         self.history.do(SetTime(self.scenario, time))
+        self.refresh()
+
+    def _set_time_zero(self) -> None:
+        """Set the current time to zero through an undoable command."""
+        self.history.do(SetTime(self.scenario, 0.0))
         self.refresh()
 
     def _number(self, title: str, label: str, value: float = 0.0) -> float | None:
