@@ -142,12 +142,12 @@ class MainWindow(QMainWindow):
         rewind_fast.triggered.connect(lambda: self._step_time(-1, 1.0))
         self.addAction(rewind_fast)
 
-        objects = self.menuBar().addMenu("&Objects")
-        add_clock = objects.addAction("Create clock")
+        create_menu = self.menuBar().addMenu("&Create")
+        add_clock = create_menu.addAction("Clock")
         add_clock.triggered.connect(self.create_clock)
-        add_flash = objects.addAction("Create light flash")
+        add_flash = create_menu.addAction("Light flash")
         add_flash.triggered.connect(self.create_flash)
-        add_event = self.menuBar().addMenu("&Events").addAction("Create event")
+        add_event = create_menu.addAction("Event")
         add_event.triggered.connect(self.create_event)
 
         frames = self.menuBar().addMenu("&Reference frame")
