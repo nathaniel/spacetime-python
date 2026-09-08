@@ -5,13 +5,14 @@ import math
 from PySide6.QtWidgets import QHeaderView, QMenu, QTableWidget, QTableWidgetItem, QMessageBox
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor
-from ..commands.undo_redo import ProgramObject, Snapshot
+from ..commands.undo_redo import DeleteObject, ProgramObject, Snapshot
 from ..model.lorentz import _check_beta, inverse_transform
 
 class ObjectTable(QTableWidget):
     """Table showing and editing scenario objects."""
 
     changed = Signal()
+    jump_requested = Signal(object)
     _read_only_color = QColor(232, 232, 232)
 
     @staticmethod
@@ -46,6 +47,13 @@ class ObjectTable(QTableWidget):
             return
         obj = self.scenario.objects[item.row()]
         menu = QMenu(self)
+        object_type = "Clock" if obj.kind == "clock" else "Light flash"
+        title = menu.addAction(f"{object_type} {obj.label}")
+        title.setEnabled(False)
+        menu.addSeparator()
+        menu.addAction("Delete", lambda: self._delete_object(obj))
+        if obj.kind == "clock":
+            menu.addAction("Jump to object", lambda: self.jump_requested.emit(obj))
         if obj.worldline.has_birth:
             menu.addAction("Cancel birth", lambda: self._cancel_birth(obj))
         else:
@@ -56,6 +64,14 @@ class ObjectTable(QTableWidget):
             menu.addAction("Set termination here && now", lambda: self._set_termination(obj))
         menu.addAction("Program", lambda: self._program(obj))
         menu.exec(self.viewport().mapToGlobal(position))
+
+    def _delete_object(self, obj) -> None:
+        """Delete an object and record the change when possible."""
+        if self.history is None:
+            self.scenario.remove_object(obj)
+        else:
+            self.history.do(DeleteObject(self.scenario, obj))
+        self.changed.emit()
 
     def _set_birth(self, obj) -> None:
         """Set an object's birth point at the current time."""
