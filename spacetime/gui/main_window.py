@@ -351,13 +351,19 @@ class MainWindow(QMainWindow):
     def _set_instruction(self, text: str) -> None:
         """Store an interaction instruction for the bottom status area."""
         self._instruction = text
-        if self._hovered_item is None:
-            self.status_panel.set_detail("")
-        self._update_status()
+        if text:
+            self.status_panel.set_detail(text)
+        elif self._hovered_item is not None:
+            self._show_hover_detail(self._hovered_item)
+        else:
+            self._update_status()
 
     def _show_hover_detail(self, item) -> None:
         """Display Java-style information for the item under the pointer."""
         self._hovered_item = item
+        if self._instruction:
+            self.status_panel.set_detail(self._instruction)
+            return
         if item is None:
             self.status_panel.set_detail("")
             self._update_status()

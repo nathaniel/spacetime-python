@@ -206,6 +206,16 @@ class _View(QWidget):
 
     def keyPressEvent(self, event):
         """Handle keyboard navigation and view controls."""
+        if (
+            event.key() == Qt.Key.Key_Escape
+            and isinstance(self, SpacetimeDiagramView)
+            and self._interval_first_event is not None
+        ):
+            self._interval_first_event = None
+            self.instruction_changed.emit("")
+            self.update()
+            event.accept()
+            return
         step = 0.1
         if event.key() == Qt.Key.Key_Up and event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
             self.scenario.set_frame((self.scenario.beta_rel + step) / (1 + self.scenario.beta_rel * step))
@@ -254,10 +264,10 @@ class _View(QWidget):
         if (
             isinstance(self, SpacetimeDiagramView)
             and self._interval_first_event is not None
-            and candidate in self.scenario.events
         ):
-            self._add_interval(self._interval_first_event, candidate)
-            self._interval_first_event = None
+            if candidate in self.scenario.events and candidate is not self._interval_first_event:
+                self._add_interval(self._interval_first_event, candidate)
+                self._interval_first_event = None
             return
         self.dragged = candidate
         if (
@@ -422,23 +432,24 @@ class _View(QWidget):
                 transform_menu.addAction("Original frame", self._original_frame)
         else:
             if self.hovered in self.scenario.events:
-                title = menu.addAction(f"Event {self.hovered.label}")
+                selected_event = self.hovered
+                title = menu.addAction(f"Event {selected_event.label}")
                 title.setEnabled(False)
                 menu.addSeparator()
                 construct_menu = menu.addMenu("Construct")
                 construct_menu.addAction(
                     "Light cone",
-                    lambda: self._add_decoration("lightcone", self.hovered),
+                    lambda: self._add_decoration("lightcone", selected_event),
                 )
                 construct_menu.addAction(
                     "Invariant hyperbola",
-                    lambda: self._add_decoration("hyperbola", self.hovered),
+                    lambda: self._add_decoration("hyperbola", selected_event),
                 )
                 construct_menu.addAction(
                     "Spacetime interval to . . .",
-                    lambda: self._start_interval(self.hovered),
+                    lambda: self._start_interval(selected_event),
                 )
-                menu.addAction("Delete", lambda: self._delete_event(self.hovered))
+                menu.addAction("Delete", lambda: self._delete_event(selected_event))
             else: menu.addAction("Create event", lambda: self._create_event(point))
         menu.exec(self.mapToGlobal(point))
 
@@ -457,8 +468,11 @@ class _View(QWidget):
 
     def _start_interval(self, event) -> None:
         """Choose the first event for a new spacetime interval."""
+        self.setFocus()
         self._interval_first_event = event
-        self.instruction_changed.emit("Select or click on another event to complete the interval.")
+        self.instruction_changed.emit(
+            "Create invariant interval: select or click on another event. Press Esc to cancel."
+        )
 
     def _add_interval(self, first, second) -> None:
         """Add an interval between two selected events."""
@@ -775,7 +789,26 @@ class SpacetimeDiagramView(_View):
                     # Draw the constant-interval curve through the event.
                     interval_squared = t * t - x * x
                     path = QPainterPath()
-                    if interval_squared > 1e-9:
+                    if abs(interval_squared) <= 1e-9:
+                        if abs(t) > 1e-9 or abs(x) > 1e-9:
+                            direction = 1.0 if t >= 0 else -1.0
+                            branch = 1.0 if x >= 0 else -1.0
+                            sample_x = x_min if branch < 0 else x_max
+                            if branch < 0:
+                                sample_x = min(sample_x, -1e-9)
+                            else:
+                                sample_x = max(sample_x, 1e-9)
+                            start = QPointF(
+                                origin.x() + x * self.scale,
+                                origin.y() - t * self.scale,
+                            )
+                            end = QPointF(
+                                origin.x() + sample_x * self.scale,
+                                origin.y()
+                                - (t + direction * (sample_x - x)) * self.scale,
+                            )
+                            painter.drawLine(start, end)
+                    elif interval_squared > 1e-9:
                         sign = 1.0 if t >= 0 else -1.0
                         radius = math.sqrt(interval_squared)
                         for index in range(161):
