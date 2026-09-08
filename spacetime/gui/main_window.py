@@ -6,16 +6,14 @@ from ..persistence.scenario_file import load_scenario, save_scenario
 from pathlib import Path
 from .views import HighwayView, SpacetimeDiagramView
 from ..model.scenario import Scenario
+from ..model.lorentz import transform
 from PySide6.QtWidgets import (
-    QDoubleSpinBox,
     QDockWidget,
     QFrame,
-    QHBoxLayout,
     QInputDialog,
     QLabel,
     QMainWindow,
     QMessageBox,
-    QPushButton,
     QSplitter,
     QTabWidget,
     QVBoxLayout,
@@ -68,25 +66,9 @@ class MainWindow(QMainWindow):
         super().__init__(parent); self.scenario=scenario; self.history=History()
         self.path=Path(path) if path else None; self.dirty=False
         self.setWindowTitle("Spacetime"); self.resize(1100,700)
+        self._instruction = ""
+        self._hovered_item = None
         root=QWidget(); layout=QVBoxLayout(root)
-        self.time_control=QDoubleSpinBox()
-        self.time_control.setRange(-1e6,1e6)
-        self.time_control.setDecimals(6)
-        self.time_control.setSingleStep(0.1)
-        self.time_control.setValue(scenario.time)
-        self.time_control.setPrefix("t = ")
-        self.time_control.valueChanged.connect(self._time_changed)
-        navigation = QHBoxLayout()
-        navigation.addWidget(self.time_control)
-        left = QPushButton("←")
-        left.setToolTip("Move Highway view left")
-        left.clicked.connect(lambda: self.highway.pan_horizontal(80))
-        right = QPushButton("→")
-        right.setToolTip("Move Highway view right")
-        right.clicked.connect(lambda: self.highway.pan_horizontal(-80))
-        navigation.addWidget(left)
-        navigation.addWidget(right)
-        layout.addLayout(navigation)
         split=QSplitter(Qt.Vertical); self.highway=HighwayView(scenario); self.diagram=SpacetimeDiagramView(scenario)
         self.highway.history = self.history
         self.diagram.history = self.history
@@ -99,13 +81,20 @@ class MainWindow(QMainWindow):
             lambda scale, offset: self._sync_horizontal_view(self.diagram, scale, offset)
         )
         self.highway.changed.connect(self.mark_dirty); self.diagram.changed.connect(self.mark_dirty)
-        self.diagram.instruction_changed.connect(self.statusBar().showMessage)
+        self.highway.hover_changed.connect(lambda item: self._show_hover_detail(item))
+        self.diagram.hover_changed.connect(lambda item: self._show_hover_detail(item))
+        self.diagram.instruction_changed.connect(self._set_instruction)
         highway_panel = _TitledPanel("Highway", self.highway, "bottom-right")
         diagram_panel = _TitledPanel("Spacetime diagram", self.diagram, "top-left")
         split.addWidget(highway_panel)
         split.addWidget(diagram_panel)
         layout.addWidget(split)
         self.setCentralWidget(root)
+        self.time_status = QLabel()
+        self.detail_status = QLabel()
+        self.statusBar().addWidget(self.time_status)
+        self.statusBar().addWidget(self.detail_status, 1)
+        self._update_status()
         self.object_table = ObjectTable(scenario)
         self.event_table = EventTable(scenario)
         self.object_table.history = self.history
@@ -263,9 +252,9 @@ class MainWindow(QMainWindow):
 
     def refresh(self):
         """Refresh all controls and views from the scenario."""
-        self.time_control.blockSignals(True)
-        self.time_control.setValue(self.scenario.time)
-        self.time_control.blockSignals(False)
+        self._update_status()
+        if self._hovered_item is not None:
+            self._show_hover_detail(self._hovered_item)
         self.diagram.center_current_time()
         self.highway.update()
         self.diagram.update()
@@ -273,10 +262,44 @@ class MainWindow(QMainWindow):
         self.event_table.refresh()
         self._update_title()
 
-    def _time_changed(self, value: float) -> None:
-        """Record a change to the displayed time."""
-        self.history.do(SetTime(self.scenario, value))
-        self.refresh()
+    def _set_instruction(self, text: str) -> None:
+        """Store an interaction instruction for the bottom status area."""
+        self._instruction = text
+        if self._hovered_item is None:
+            self.detail_status.clear()
+        self._update_status()
+
+    def _show_hover_detail(self, item) -> None:
+        """Display Java-style information for the item under the pointer."""
+        self._hovered_item = item
+        if item is None:
+            self.detail_status.clear()
+            self._update_status()
+            return
+        if item in self.scenario.events:
+            x, time = transform(item.x, item.t, self.scenario.beta_rel)
+            detail = f"{item.label}:   x = {x:.2f}    t = {time:.2f}"
+        elif item in self.scenario.objects:
+            x, beta = self.scenario.object_state(item, self.scenario.time)
+            gamma_text = (
+                "∞"
+                if item.kind == "flash"
+                else f"{1 / (1 - beta * beta) ** 0.5:.4f}"
+            )
+            detail = f"{item.label}:   x = {x:.2f}    β = {beta:.4f}    γ = {gamma_text}"
+        else:
+            detail = ""
+        if item.note:
+            detail += f" . . . {item.note}"
+        self.detail_status.setText(detail)
+
+    def _update_status(self) -> None:
+        """Refresh the bottom time and interaction details."""
+        self.time_status.setText(
+            f"Time t = {self.scenario.time:.3f}    Change time: ↑, ↓"
+        )
+        if not self.detail_status.text():
+            self.detail_status.setText(self._instruction)
     def mark_dirty(self):
         """Mark the scenario modified and refresh dependent widgets."""
         self.scenario.comments=self.comments.toPlainText()

@@ -19,6 +19,7 @@ class _View(QWidget):
 
     changed = Signal()
     instruction_changed = Signal(str)
+    hover_changed = Signal(object)
     horizontal_view_changed = Signal(float, float)
     def __init__(self, scenario, parent=None):
         """Initialize a view bound to a scenario."""
@@ -276,6 +277,7 @@ class _View(QWidget):
     def mouseMoveEvent(self, event):
         """Update hover state and any active drag."""
         self.hovered = self._hit(event.position().toPoint())
+        self.hover_changed.emit(self.hovered)
         if self.dragged is not None and self._drag_start is not None:
             self._drag_to(event.position(), event.modifiers())
             self.changed.emit()
@@ -306,6 +308,12 @@ class _View(QWidget):
             self.changed.emit()
         self.dragged = self._drag_start = self._drag_before = None
         self._drag_before_scenario = False
+
+    def leaveEvent(self, event):
+        """Clear hover information when the pointer leaves the view."""
+        self.hovered = None
+        self.hover_changed.emit(None)
+        super().leaveEvent(event)
 
     def _hit(self, point):
         """Return the model item nearest a screen point."""
