@@ -187,11 +187,11 @@ class EventTable(QTableWidget):
         super().__init__(0, 4, parent); self.scenario=scenario
         self._updating = False
         self.setHorizontalHeaderLabels(["Event", "x", "t", "Note"]); self.itemChanged.connect(self._edited); self.refresh()
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         header = self.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
-        for column, width in enumerate((100, 65, 65)):
+        for column, width in enumerate((100, 65, 65, 250)):
             self.setColumnWidth(column, width)
-        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
     def refresh(self):
         """Refresh displayed event values from the scenario."""
         self.setRowCount(len(self.scenario.events))
