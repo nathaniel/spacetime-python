@@ -9,9 +9,9 @@
     nav ul { margin: 0.3em 0 0 1.2em; padding: 0; }
     h1, h2 { color: #b00000; }
     h3 { color: #333; margin-top: 1.6em; }
-    figure { margin: 1em auto; text-align: center; }
-    figure img { border: 1px solid #707070; max-width: 100%; }
-    figcaption { color: #555; font-size: 0.9em; margin-top: 0.3em; }
+    .screenshot { margin: 0.8em auto; text-align: center; }
+    .screenshot img { border: 1px solid #707070; max-width: 100%; }
+    .caption { color: #555; font-size: 0.9em; }
     code, .formula { background: #f5f5f5; padding: 0.1em 0.25em; }
     .top { text-align: right; font-size: 0.9em; }
   </style>
@@ -103,40 +103,40 @@ Undo shortcut. Undo restores the related object and event changes together.</p>
 <p>Start with the default clock, or choose <strong>Edit &rarr; Create Clock</strong>.
 Use the Objects table to change its label to <code>Earth</code> and enter a
 note. Notes appear in hover details in the status bar.</p>
-<figure><img src="screenshots/python01.png" alt="Python Spacetime window with the default clock"><figcaption>Python Spacetime default scenario.</figcaption></figure>
+<div class="screenshot"><img src="screenshots/python01.png" alt="Python Spacetime window with the default clock"><br><span class="caption">Python Spacetime default scenario.</span></div>
 
 <h3>2. Create the Alpha Centauri clock</h3>
 <p>Right-click an empty Highway position and choose <strong>Create clock</strong>.
 Place it four light years from Earth, then adjust its position or beta in the
 Objects table if needed.</p>
-<figure><img src="screenshots/python02.png" alt="Python Spacetime Objects table"><figcaption>The Objects table edits labels, position, beta, gamma, readings, and notes.</figcaption></figure>
+<div class="screenshot"><img src="screenshots/python02.png" alt="Python Spacetime Objects table"><br><span class="caption">The Objects table edits labels, position, beta, gamma, readings, and notes.</span></div>
 
 <h3>3. Create the rocket</h3>
 <p>Create another clock at position 0. Set its gamma factor to 2, then label it
 <code>Rocket</code> and add a note. The table accepts beta and formats the
 corresponding gamma value.</p>
-<figure><img src="screenshots/python03.png" alt="Python Spacetime object note editing"><figcaption>Object notes are visible in the table and hover details.</figcaption></figure>
+<div class="screenshot"><img src="screenshots/python03.png" alt="Python Spacetime object note editing"><br><span class="caption">Object notes are visible in the table and hover details.</span></div>
 
 <h3>4. Create the departure event</h3>
 <p>At the current time, right-click the rocket and choose
 <strong>Set birth here and now</strong>. This creates a generated boundary
 event. Select the Events tab to edit its label and note.</p>
-<figure><img src="screenshots/python08.png" alt="Python Spacetime Events table at departure"><figcaption>The Events table displays the departure event.</figcaption></figure>
+<div class="screenshot"><img src="screenshots/python08.png" alt="Python Spacetime Events table at departure"><br><span class="caption">The Events table displays the departure event.</span></div>
 
 <h3>5. Create the turning event</h3>
 <p>Advance time with the Up key or the spacetime diagram scroll gesture until
 the rocket intersects Alpha. Right-click the intersection and choose
 <strong>Create event</strong>. Generated velocity-change events receive labels
 such as <code>Rocket-&Delta;&beta;1</code>.</p>
-<figure><img src="screenshots/python09.png" alt="Python Spacetime turning event"><figcaption>The turning event is visible in the Events table.</figcaption></figure>
-<figure><img src="screenshots/python10.png" alt="Python Spacetime Highway at the turning event"><figcaption>The Highway view at the turning time.</figcaption></figure>
+<div class="screenshot"><img src="screenshots/python09.png" alt="Python Spacetime turning event"><br><span class="caption">The turning event is visible in the Events table.</span></div>
+<div class="screenshot"><img src="screenshots/python10.png" alt="Python Spacetime Highway at the turning event"><br><span class="caption">The Highway view at the turning time.</span></div>
 
 <h3>6. Program the rocket to turn</h3>
 <p>At the turning time, right-click the rocket and choose
 <strong>Program</strong>. Drag it to a lane with gamma 2 in the opposite
 direction, or enter the new beta in the Objects table. A programmed object is
 shown in green until the edit is completed.</p>
-<figure><img src="screenshots/python11.png" alt="Python Spacetime programmed rocket"><figcaption>The programmed rocket is highlighted in green.</figcaption></figure>
+<div class="screenshot"><img src="screenshots/python11.png" alt="Python Spacetime programmed rocket"><br><span class="caption">The programmed rocket is highlighted in green.</span></div>
 
 <p>Dragging or editing an object outside Program mode redefines its worldline
 and removes its birth, termination, and programmed velocity-change events.</p>
@@ -145,20 +145,20 @@ and removes its birth, termination, and programmed velocity-change events.</p>
 <p>Advance time until the rocket meets Earth. Create an event at the
 intersection and label it <code>Arrival</code>. Then choose
 <strong>Set termination here and now</strong> on the rocket.</p>
-<figure><img src="screenshots/python12.png" alt="Python Spacetime completed trip"><figcaption>The completed trip and its events.</figcaption></figure>
+<div class="screenshot"><img src="screenshots/python12.png" alt="Python Spacetime completed trip"><br><span class="caption">The completed trip and its events.</span></div>
 
 <h3>8. Compare reference frames</h3>
 <p>Use <strong>Reference frame</strong> to set beta or transform up and down.
 <strong>Return to original frame</strong> restores the original coordinates.
 The underlying scenario remains in the original frame while displayed
 coordinates change.</p>
-<figure><img src="screenshots/python13.png" alt="Python Spacetime transformed reference frame"><figcaption>The same scenario in a different reference frame.</figcaption></figure>
+<div class="screenshot"><img src="screenshots/python13.png" alt="Python Spacetime transformed reference frame"><br><span class="caption">The same scenario in a different reference frame.</span></div>
 
 <h3>9. Comment and save</h3>
 <p>Use the Comments tab in the Tables panel to add scenario notes. Choose
 <strong>Scenario &rarr; Save</strong> or <strong>Save As</strong> to write a Java-compatible
 <code>.sce</code> file.</p>
-<figure><img src="screenshots/python04.png" alt="Python Spacetime hover details"><figcaption>Hover details include object notes in the status area.</figcaption></figure>
+<div class="screenshot"><img src="screenshots/python04.png" alt="Python Spacetime hover details"><br><span class="caption">Hover details include object notes in the status area.</span></div>
 
 <p><strong>Congratulations.</strong> You have created a complete spacetime
 scenario.</p>
