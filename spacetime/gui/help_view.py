@@ -4,28 +4,47 @@ from pathlib import Path
 import sys
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QApplication,
     QHeaderView,
     QTableWidget,
     QTableWidgetItem,
     QTextBrowser,
 )
 from PySide6.QtCore import QUrl
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QFontDatabase
+
+def _installed_ui_font() -> QFont:
+    """Return a common installed sans-serif font without using Qt aliases."""
+    families = set(QFontDatabase.families())
+    family = next(
+        (
+            name
+            for name in ("Helvetica", "Arial", "Liberation Sans", "DejaVu Sans")
+            if name in families
+        ),
+        next(iter(families), ""),
+    )
+    return QFont(family)
 
 class HelpView(QTextBrowser):
     """Display the bundled HTML help page."""
 
     def __init__(self, parent=None):
         """Load the help document into the browser."""
+        font = _installed_ui_font()
+        if QApplication.instance() is not None:
+            QApplication.instance().setFont(font)
         super().__init__(parent)
-        font = QFont("Helvetica")
         self.setFont(font)
         self.document().setDefaultFont(font)
         html = (
             Path(__file__).parents[1] / "resources" / "help" / "index.html"
         )
         self.document().setBaseUrl(QUrl.fromLocalFile(str(html)))
-        self.setHtml(html.read_text(encoding="utf-8"))
+        html_text = html.read_text(encoding="utf-8").replace(
+            "__UI_FONT__", font.family()
+        )
+        self.setHtml(html_text)
 
 
 class ShortcutsView(QTableWidget):

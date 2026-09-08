@@ -10,7 +10,6 @@ def main() -> int:
     """Parse command-line arguments and run the editor."""
     try:
         from PySide6.QtWidgets import QApplication
-        from PySide6.QtGui import QFont
         from .gui.main_window import MainWindow
     except ImportError as exc:
         print("PySide6 is required to run the GUI:", exc, file=sys.stderr); return 2
@@ -19,5 +18,5 @@ def main() -> int:
     args=parser.parse_args()
     scenario = load_scenario(args.scenario) if args.scenario else Scenario()
     if not scenario.objects and not args.scenario: scenario.add_clock()
-    app=QApplication(sys.argv); app.setFont(QFont("Helvetica")); window=MainWindow(scenario, path=args.scenario); window.show(); return app.exec()
+    app=QApplication(sys.argv); window=MainWindow(scenario, path=args.scenario); window.show(); return app.exec()
 if __name__ == "__main__": raise SystemExit(main())
