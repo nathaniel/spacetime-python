@@ -71,3 +71,19 @@ def test_birth_and_termination_create_boundary_events():
     scenario.cancel_birth(clock)
     scenario.cancel_termination(clock)
     assert not [event for event in scenario.events if event.boundary]
+
+
+def test_manual_object_state_change_removes_boundary_events():
+    """Verify replacing a worldline removes stale boundary events."""
+    scenario = Scenario(time=2.0)
+    clock = scenario.add_clock()
+    scenario.set_birth_here_now(clock)
+    scenario.time = 4.0
+    scenario.set_termination_here_now(clock)
+    assert len(scenario.events) == 2
+
+    scenario.set_object_state(clock, scenario.time, 1.0, 0.25)
+
+    assert not [event for event in scenario.events if event.boundary]
+    assert not clock.worldline.has_birth
+    assert not clock.worldline.has_termination
