@@ -98,9 +98,15 @@ compatibility research.
   empty space or pressing Esc cancels it.
 - Event and object labels use the compact beta/gamma axis font size to reduce
   overlap.
-- The bottom status bar shows time and live hover details only. Hover details
-  use `;   ` before notes, matching the spacing used elsewhere.
-- Keyboard shortcut documentation is in the Help tab, not the status bar.
+- Flash worldlines use orange, and Highway object/event labels are positioned
+  above the plotted worldline area to avoid overlap.
+- The bottom status bar shows the current time, live hover details, and a
+  persistent hint directing users to the keyboard shortcuts.
+- Spacetime interval selection can be cancelled by pressing Esc or clicking
+  empty space. While selection is active, its instruction takes priority over
+  hover details.
+- Help opens in a dockable panel with a dedicated shortcuts table. The Help
+  content also documents mouse and trackpad interactions.
 
 ## Menus and shortcuts
 
@@ -131,6 +137,8 @@ Shortcuts:
 - Plus/Minus: zoom.
 - Undo/Redo use Qt platform-standard sequences; macOS Undo is Cmd-Z and
   Redo is Cmd-Shift-Z.
+- The window title's dirty marker is derived by comparing the current scenario
+  with the last saved snapshot, so undoing back to the saved state clears it.
 
 macOS may inject standard system services such as Writing Tools, Autofill,
 Dictation, and Emoji & Symbols into the native Edit menu. This is normal
@@ -145,6 +153,13 @@ platform behavior and is intentionally accepted.
 - Preserve literal backslashes, tabs, carriage returns, form feeds, and Unicode
   escapes.
 - Restore multiline comments exactly when loading.
+- Preserve notes on generated birth and termination events when synchronizing
+  boundary events after loading.
+- Preserve the synchronized horizontal diagram view range using the `sx1` and
+  `sx2` properties.
+
+The Event table supports horizontal scrolling when needed, and its Note column
+resizes to fit the current content.
 
 The bundled scenarios are useful compatibility fixtures. Pay particular
 attention to scenarios containing `Δβ` labels and escaped multiline comments.
