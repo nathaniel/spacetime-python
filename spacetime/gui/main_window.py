@@ -111,8 +111,11 @@ class MainWindow(QMainWindow):
         self.object_table.changed.connect(self.mark_dirty)
         self.event_table.changed.connect(self.mark_dirty)
         tabs=QTabWidget(); tabs.addTab(self.object_table, "Objects"); tabs.addTab(self.event_table, "Events");         self.comments=QTextEdit(); self.comments.setPlainText(scenario.comments); self.comments.textChanged.connect(self.mark_dirty)
-        tabs.addTab(self.comments, "Comments"); tabs.addTab(HelpView(), "Help")
-        dock=QDockWidget("Tables", self); dock.setWidget(tabs); self.addDockWidget(Qt.RightDockWidgetArea, dock)
+        tabs.addTab(self.comments, "Comments")
+        self.help_view = HelpView()
+        tabs.addTab(self.help_view, "Help")
+        self.tabs = tabs
+        self.table_dock=QDockWidget("Tables", self); self.table_dock.setWidget(tabs); self.addDockWidget(Qt.RightDockWidgetArea, self.table_dock)
         self._add_actions()
         self._update_title()
     def _add_actions(self):
@@ -149,10 +152,24 @@ class MainWindow(QMainWindow):
         frame_down.triggered.connect(lambda: self.change_frame(-0.1))
         original = frames.addAction("Return to original frame")
         original.triggered.connect(lambda: self.history.do(SetFrame(self.scenario, 0.0)) or self.refresh())
+        view_menu = self.menuBar().addMenu("&View")
+        zoom_menu = view_menu.addMenu("Zoom")
+        zoom_in = zoom_menu.addAction("Zoom in")
+        zoom_in.setShortcut("+")
+        zoom_in.triggered.connect(lambda: self.zoom(1.1))
+        zoom_out = zoom_menu.addAction("Zoom out")
+        zoom_out.setShortcut("-")
+        zoom_out.triggered.connect(lambda: self.zoom(1/1.1))
         help_menu=self.menuBar().addMenu("&Help")
+        help_action = help_menu.addAction("&Help")
+        help_action.setShortcut("F1")
+        help_action.triggered.connect(self.show_help)
         about=help_menu.addAction("&About"); about.triggered.connect(lambda: QMessageBox.about(self,"About Spacetime","Spacetime — special relativity scenario editor"))
-        zoom_in=help_menu.addAction("Zoom in"); zoom_in.setShortcut("+"); zoom_in.triggered.connect(lambda: self.zoom(1.1))
-        zoom_out=help_menu.addAction("Zoom out"); zoom_out.setShortcut("-"); zoom_out.triggered.connect(lambda: self.zoom(1/1.1))
+
+    def show_help(self) -> None:
+        """Select and reveal the Help tab."""
+        self.tabs.setCurrentWidget(self.help_view)
+        self.table_dock.raise_()
 
     def _number(self, title: str, label: str, value: float = 0.0) -> float | None:
         """Prompt for a bounded floating-point value."""
