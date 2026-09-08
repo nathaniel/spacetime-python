@@ -10,7 +10,7 @@ from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import QWidget, QMenu
 
 from ..commands.undo_redo import AddEvent, AddObject, DeleteEvent, DeleteObject, ProgramObject, Snapshot
-from ..model.lorentz import gamma, inverse_transform, transform, velocity_add
+from ..model.lorentz import classify_interval, gamma, inverse_transform, transform, velocity_add
 from ..model.scenario import MAX_OBJECT_BETA
 
 
@@ -681,7 +681,53 @@ class SpacetimeDiagramView(_View):
             if getattr(d, "first", None) and getattr(d, "second", None):
                 a,b=d.first,d.second
                 ax,at=transform(a.x,a.t,self.scenario.beta_rel); bx,bt=transform(b.x,b.t,self.scenario.beta_rel)
-                painter.setPen(QPen(QColor("#6a1b9a"),2)); painter.drawLine(QPointF(origin.x()+ax*self.scale,origin.y()-at*self.scale),QPointF(origin.x()+bx*self.scale,origin.y()-bt*self.scale))
+                first_point = QPointF(origin.x() + ax * self.scale, origin.y() - at * self.scale)
+                second_point = QPointF(origin.x() + bx * self.scale, origin.y() - bt * self.scale)
+                interval_color = QColor("#ffafaf")
+                painter.setPen(QPen(interval_color, 1))
+                painter.setBrush(Qt.BrushStyle.NoBrush)
+                painter.drawEllipse(first_point, 4, 4)
+                painter.drawEllipse(second_point, 4, 4)
+                painter.drawLine(first_point, second_point)
+
+                dx = abs(a.x - b.x)
+                dt = abs(a.t - b.t)
+                interval_squared = d.squared
+                interval_type = {
+                    "lightlike": "L",
+                    "timelike": "T",
+                    "spacelike": "S",
+                }[classify_interval(b.x - a.x, b.t - a.t)]
+                interval_value = math.sqrt(abs(interval_squared))
+                label = (
+                    f"{interval_type}: {interval_value:.2f}; "
+                    f"Δx={dx:.2f}; Δt={dt:.2f}"
+                )
+                midpoint = QPointF(
+                    origin.x() + (ax + bx) * self.scale / 2.0,
+                    origin.y() - (at + bt) * self.scale / 2.0,
+                )
+                metrics = painter.fontMetrics()
+                label_width = metrics.horizontalAdvance(label)
+                label_height = metrics.height()
+                label_rect = QRectF(
+                    midpoint.x() - label_width / 2.0 - 1.5,
+                    midpoint.y() - label_height + label_height / 3.0 - 8.0 - 1.5,
+                    label_width + 3.0,
+                    label_height + 3.0,
+                )
+                painter.setPen(Qt.PenStyle.NoPen)
+                painter.setBrush(QColor(250, 150, 150, 200))
+                painter.drawRoundedRect(label_rect, 8.0, 8.0)
+                painter.setPen(QPen(Qt.GlobalColor.black, 1))
+                painter.setBrush(Qt.BrushStyle.NoBrush)
+                painter.drawText(
+                    QPointF(
+                        midpoint.x() - label_width / 2.0,
+                        midpoint.y() + label_height / 3.0 - 8.0,
+                    ),
+                    label,
+                )
             elif getattr(d,"event",None):
                 x,t=transform(d.event.x,d.event.t,self.scenario.beta_rel)
                 painter.setPen(QPen(QColor("#ffb0b0"), 1.5, Qt.PenStyle.SolidLine))
