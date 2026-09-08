@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
     QTextBrowser,
 )
 from PySide6.QtCore import QUrl
+from PySide6.QtGui import QFont
 
 class HelpView(QTextBrowser):
     """Display the bundled HTML help page."""
@@ -17,6 +18,9 @@ class HelpView(QTextBrowser):
     def __init__(self, parent=None):
         """Load the help document into the browser."""
         super().__init__(parent)
+        font = QFont("Helvetica")
+        self.setFont(font)
+        self.document().setDefaultFont(font)
         html = (
             Path(__file__).parents[1] / "resources" / "help" / "index.html"
         )
