@@ -235,6 +235,11 @@ class _View(QWidget):
             self._context_menu(point); return
         if event.button() != Qt.MouseButton.LeftButton: return
         candidate = self._hit(event.position().toPoint())
+        if isinstance(self, HighwayView):
+            for obj in self.scenario.objects:
+                if obj.programmed and obj is not candidate:
+                    obj.programmed = False
+                    self.changed.emit()
         if (
             isinstance(self, SpacetimeDiagramView)
             and self._interval_first_event is not None
