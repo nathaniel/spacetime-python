@@ -73,7 +73,6 @@ class _StatusPanel(QWidget):
             font = label.font()
             font.setBold(True)
             label.setFont(font)
-        self.detail_label.setStyleSheet("QLabel { background: palette(window); }")
         self.detail_label.hide()
 
     def set_time(self, text: str) -> None:
