@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QTextEdit,
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QAction, QKeySequence
 from .tables import ObjectTable, EventTable
 from .help_view import HelpView, ShortcutsView
@@ -150,6 +150,7 @@ class MainWindow(QMainWindow):
         self.help_dock.hide()
         self._add_actions()
         self._update_title()
+        QTimer.singleShot(0, self._apply_scenario_horizontal_view)
     def _add_actions(self):
         """Create menus and connect their actions."""
         menu=self.menuBar().addMenu("&Scenario")
@@ -416,13 +417,13 @@ class MainWindow(QMainWindow):
     def new_scenario(self):
         """Create a new empty scenario after handling unsaved changes."""
         if not self.maybe_save("creating a new one"): return
-        self._set_scenario(Scenario()); self._saved_scenario=deepcopy(self.scenario); self.path=None; self.dirty=False; self.refresh()
+        self._set_scenario(Scenario()); self._saved_scenario=deepcopy(self.scenario); self.path=None; self.dirty=False; self._apply_scenario_horizontal_view(); self.refresh()
     def open_scenario(self):
         """Open a scenario selected through the file dialog."""
         if not self.maybe_save("reading a new one"): return
         path,_=QFileDialog.getOpenFileName(self,"Open scenario","","Scenario files (*.sce);;All files (*)")
         if path:
-            try: self._set_scenario(load_scenario(path)); self.path=Path(path); self.history=History(); self._saved_scenario=deepcopy(self.scenario); self.dirty=False; self.refresh()
+            try: self._set_scenario(load_scenario(path)); self.path=Path(path); self.history=History(); self._saved_scenario=deepcopy(self.scenario); self.dirty=False; self._apply_scenario_horizontal_view(); self.refresh()
             except Exception as exc: QMessageBox.critical(self,"Open failed",str(exc))
     def save(self):
         """Save the current scenario to its associated path."""
@@ -476,5 +477,25 @@ class MainWindow(QMainWindow):
         target.offset = (offset_x, target.offset[1])
         if target is self.diagram:
             target.center_current_time()
+        width = max(1.0, source.width())
+        self.scenario.view_xmin = -(width / 2.0 + offset_x) / scale
+        self.scenario.view_xmax = (width / 2.0 - offset_x) / scale
         target.update()
         self._syncing_horizontal_view = False
+
+    def _apply_scenario_horizontal_view(self) -> None:
+        """Set the synchronized horizontal view from the scenario range."""
+        width = max(1.0, self.highway.width())
+        span = self.scenario.view_xmax - self.scenario.view_xmin
+        if span <= 0:
+            return
+        scale = max(5.0, min(500.0, width / span))
+        center = (self.scenario.view_xmin + self.scenario.view_xmax) / 2.0
+        offset = -center * scale
+        self.highway.scale = scale
+        self.diagram.scale = scale
+        self.highway.offset = (offset, self.highway.offset[1])
+        self.diagram.offset = (offset, self.diagram.offset[1])
+        self.diagram.center_current_time()
+        self.highway.update()
+        self.diagram.update()
