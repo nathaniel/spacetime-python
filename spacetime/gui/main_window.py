@@ -63,13 +63,11 @@ class _StatusPanel(QWidget):
     """Java-style bottom status area with prioritized hover details."""
 
     def __init__(self, parent=None):
-        """Create the time, detail, and keyboard-hint labels."""
+        """Create the time and detail labels."""
         super().__init__(parent)
         self.time_label = QLabel(self)
         self.detail_label = QLabel(self)
-        self.controls_label = QLabel(self)
         self.time_label.setFixedWidth(105)
-        self.controls_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         for label in (self.time_label, self.detail_label):
             font = label.font()
             font.setBold(True)
@@ -87,16 +85,11 @@ class _StatusPanel(QWidget):
         if text:
             self.detail_label.raise_()
 
-    def set_controls(self, text: str) -> None:
-        """Set the right-aligned keyboard hints."""
-        self.controls_label.setText(text)
-
     def resizeEvent(self, event):
-        """Keep labels positioned so details cover hints when necessary."""
+        """Keep the time and detail labels positioned."""
         super().resizeEvent(event)
         height = self.height()
         self.time_label.setGeometry(0, 0, 105, height)
-        self.controls_label.setGeometry(max(105, self.width() - 700), 0, 700, height)
         self.detail_label.setGeometry(105, 0, max(0, self.width() - 105), height)
 
 class MainWindow(QMainWindow):
@@ -134,12 +127,6 @@ class MainWindow(QMainWindow):
         layout.addWidget(split)
         self.setCentralWidget(root)
         self.status_panel = _StatusPanel()
-        self.status_panel.set_controls(
-            f"Time: ↑, ↓ ({self._modifier_name} = 10×), "
-            f"{self._modifier_name}+0 = zero    "
-            f"View: ←, → ({self._modifier_name} = 10×)    "
-            "Frame: Shift-↑, Shift-↓, Shift+0 = original"
-        )
         self.statusBar().addWidget(self.status_panel, 1)
         self._update_status()
         self.object_table = ObjectTable(scenario)
