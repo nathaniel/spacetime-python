@@ -72,6 +72,7 @@ class MainWindow(QMainWindow):
         self.time_control=QDoubleSpinBox()
         self.time_control.setRange(-1e6,1e6)
         self.time_control.setDecimals(6)
+        self.time_control.setSingleStep(0.1)
         self.time_control.setValue(scenario.time)
         self.time_control.setPrefix("t = ")
         self.time_control.valueChanged.connect(self._time_changed)
@@ -130,8 +131,16 @@ class MainWindow(QMainWindow):
         redo=menu.addAction("&Redo"); redo.setShortcut(QKeySequence.StandardKey.Redo); redo.triggered.connect(self.redo)
         menu.addSeparator()
         quit_action=menu.addAction("&Quit"); quit_action.setShortcut("Ctrl+Q"); quit_action.triggered.connect(self.close)
-        advance=menu.addAction("Advance time"); advance.triggered.connect(lambda: self.history.do(SetTime(self.scenario,self.scenario.stepped_time(1))) or self.refresh())
-        rewind=menu.addAction("Rewind time"); rewind.triggered.connect(lambda: self.history.do(SetTime(self.scenario,self.scenario.stepped_time(-1))) or self.refresh())
+        advance=menu.addAction("Advance time"); advance.setShortcut("Up"); advance.triggered.connect(lambda: self._step_time(1, 0.1))
+        rewind=menu.addAction("Rewind time"); rewind.setShortcut("Down"); rewind.triggered.connect(lambda: self._step_time(-1, 0.1))
+        advance_fast = QAction(self)
+        advance_fast.setShortcuts(["Ctrl+Up", "Meta+Up"])
+        advance_fast.triggered.connect(lambda: self._step_time(1, 1.0))
+        self.addAction(advance_fast)
+        rewind_fast = QAction(self)
+        rewind_fast.setShortcuts(["Ctrl+Down", "Meta+Down"])
+        rewind_fast.triggered.connect(lambda: self._step_time(-1, 1.0))
+        self.addAction(rewind_fast)
 
         objects = self.menuBar().addMenu("&Objects")
         add_clock = objects.addAction("Create clock")
@@ -169,6 +178,16 @@ class MainWindow(QMainWindow):
         """Select and reveal the Help tab."""
         self.tabs.setCurrentWidget(self.help_view)
         self.table_dock.raise_()
+
+    def _step_time(self, direction: int, step: float) -> None:
+        """Advance or rewind time using the requested step size."""
+        self.history.do(
+            SetTime(
+                self.scenario,
+                self.scenario.stepped_time(direction, step=step),
+            )
+        )
+        self.refresh()
 
     def _number(self, title: str, label: str, value: float = 0.0) -> float | None:
         """Prompt for a bounded floating-point value."""
