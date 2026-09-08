@@ -376,7 +376,7 @@ class MainWindow(QMainWindow):
         else:
             detail = ""
         if item.note:
-            detail += f"; {item.note}"
+            detail += f";   {item.note}"
         self.status_panel.set_detail(detail)
 
     def _update_status(self) -> None:
