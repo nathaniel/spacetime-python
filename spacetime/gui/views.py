@@ -363,7 +363,11 @@ class _View(QWidget):
         menu=QMenu(self)
         if isinstance(self, HighwayView):
             if self.hovered:
-                menu.addAction("Delete object", lambda: self._delete_object(self.hovered))
+                object_type = "Clock" if self.hovered.kind == "clock" else "Light flash"
+                title = menu.addAction(f"{object_type} {self.hovered.label}")
+                title.setEnabled(False)
+                menu.addSeparator()
+                menu.addAction("Delete", lambda: self._delete_object(self.hovered))
                 if self.hovered.kind == "clock":
                     menu.addAction("Jump to object", lambda: self._jump_to_object(self.hovered))
                 if self.hovered.worldline.has_birth:
@@ -396,6 +400,9 @@ class _View(QWidget):
                 transform_menu.addAction("Original frame", self._original_frame)
         else:
             if self.hovered in self.scenario.events:
+                title = menu.addAction(f"Event {self.hovered.label}")
+                title.setEnabled(False)
+                menu.addSeparator()
                 construct_menu = menu.addMenu("Construct")
                 construct_menu.addAction(
                     "Light cone",
