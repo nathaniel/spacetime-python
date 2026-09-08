@@ -125,7 +125,9 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
         self.status_panel = _StatusPanel()
         self.statusBar().addWidget(self.status_panel, 1)
-        self.shortcut_hint = QLabel("See Help for keyboard shortcuts", self)
+        self.shortcut_hint = QLabel(
+            "See Shortcuts for keyboard/mouse/trackpad shortcuts", self
+        )
         hint_font = self.shortcut_hint.font()
         hint_font.setItalic(True)
         self.shortcut_hint.setFont(hint_font)
