@@ -1117,6 +1117,7 @@ class HighwayView(_View):
                     self._beta_to_screen(new_beta),
                     QColor("#00c000") if obj.programmed else color,
                 )
+            painter.setPen(QPen(color, 1))
             painter.drawText(QPointF(px + 10, py + 4), obj.label)
 
         for event in self.scenario.events:
