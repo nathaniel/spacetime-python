@@ -162,8 +162,6 @@ class MainWindow(QMainWindow):
         redo=menu.addAction("&Redo"); redo.setShortcut(QKeySequence.StandardKey.Redo); redo.triggered.connect(self.redo)
         menu.addSeparator()
         quit_action=menu.addAction("&Quit"); quit_action.setShortcut("Ctrl+Q"); quit_action.triggered.connect(self.close)
-        advance=menu.addAction("Advance time"); advance.setShortcut("Up"); advance.triggered.connect(lambda: self._step_time(1, 0.1))
-        rewind=menu.addAction("Rewind time"); rewind.setShortcut("Down"); rewind.triggered.connect(lambda: self._step_time(-1, 0.1))
         advance_fast = QAction(self)
         advance_fast.setShortcuts(["Ctrl+Up", "Meta+Up"])
         advance_fast.triggered.connect(lambda: self._step_time(1, 1.0))
@@ -192,6 +190,18 @@ class MainWindow(QMainWindow):
         frame_down.triggered.connect(lambda: self.change_frame(-0.1))
         original = frames.addAction("Return to original frame")
         original.triggered.connect(lambda: self.history.do(SetFrame(self.scenario, 0.0)) or self.refresh())
+        coordinates = self.menuBar().addMenu("&Coordinates")
+        advance=coordinates.addAction("Advance time")
+        advance.setShortcut("Up")
+        advance.triggered.connect(lambda: self._step_time(1, 0.1))
+        rewind=coordinates.addAction("Rewind time")
+        rewind.setShortcut("Down")
+        rewind.triggered.connect(lambda: self._step_time(-1, 0.1))
+        set_time = coordinates.addAction("Set time...")
+        set_time.triggered.connect(self.set_time)
+        coordinates.addSeparator()
+        center_x = coordinates.addAction("Center on x...")
+        center_x.triggered.connect(self.center_on_x)
         view_menu = self.menuBar().addMenu("&View")
         zoom_in = view_menu.addAction("Zoom in")
         zoom_in.setShortcut("+")
@@ -218,6 +228,26 @@ class MainWindow(QMainWindow):
                 self.scenario.stepped_time(direction, step=step),
             )
         )
+        self.refresh()
+
+    def center_on_x(self) -> None:
+        """Center both synchronized views on a chosen current-frame x."""
+        x = self._number("Center on x", "Coordinate x:", 0.0)
+        if x is None:
+            return
+        self.highway.offset = (-x * self.highway.scale, self.highway.offset[1])
+        self.highway.horizontal_view_changed.emit(
+            self.highway.scale,
+            self.highway.offset[0],
+        )
+        self.highway.update()
+
+    def set_time(self) -> None:
+        """Set the current time through an undoable coordinate command."""
+        time = self._number("Set time", "Time t:", self.scenario.time)
+        if time is None:
+            return
+        self.history.do(SetTime(self.scenario, time))
         self.refresh()
 
     def _number(self, title: str, label: str, value: float = 0.0) -> float | None:
