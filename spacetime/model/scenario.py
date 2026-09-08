@@ -225,7 +225,7 @@ class Scenario:
         """Make one object the currently programmed object."""
         for other in self.objects:
             other.programmed = other is obj
-        obj.worldline.has_termination = False
+        self.cancel_termination(obj)
 
     def add_programmed_change(self, obj: STObject, time: float, x: float, beta: float) -> None:
         """Add a velocity change while preserving the programmed worldline."""
