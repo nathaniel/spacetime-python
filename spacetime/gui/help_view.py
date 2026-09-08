@@ -55,7 +55,8 @@ class ShortcutsView(QTableWidget):
         self.verticalHeader().setVisible(False)
         self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         self.horizontalHeader().setStretchLastSection(True)
-        self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
+        self.setColumnWidth(0, 150)
         for row, (input_text, action) in enumerate(rows):
             self.setItem(row, 0, QTableWidgetItem(input_text))
             self.setItem(row, 1, QTableWidgetItem(action))
