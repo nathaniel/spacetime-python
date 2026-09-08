@@ -103,8 +103,8 @@ def test_manual_object_state_change_removes_delta_beta_events():
     assert not clock.programmed
 
 
-def test_programming_cancels_termination_but_preserves_future_changes():
-    """Verify programming matches Java's termination behavior."""
+def test_programming_preserves_termination_until_a_new_beta():
+    """Verify programming waits for a beta change before removing termination."""
     scenario = Scenario(time=2.0)
     clock = scenario.add_clock()
     scenario.program_object(clock)
@@ -118,5 +118,10 @@ def test_programming_cancels_termination_but_preserves_future_changes():
 
     assert any(record.t > 2.0 for record in clock.worldline.records)
     assert any(event.beta_change for event in scenario.events)
+    assert any(event.boundary == "termination" for event in scenario.events)
+    assert clock.worldline.has_termination
+
+    scenario.add_programmed_change(clock, 2.0, 1.0, 0.75)
+
     assert not any(event.boundary == "termination" for event in scenario.events)
     assert not clock.worldline.has_termination

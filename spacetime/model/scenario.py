@@ -225,13 +225,13 @@ class Scenario:
         """Make one object the currently programmed object."""
         for other in self.objects:
             other.programmed = other is obj
-        self.cancel_termination(obj)
 
     def add_programmed_change(self, obj: STObject, time: float, x: float, beta: float) -> None:
         """Add a velocity change while preserving the programmed worldline."""
         if obj.kind != "flash":
             beta = max(-MAX_OBJECT_BETA, min(MAX_OBJECT_BETA, beta))
         _check_beta(beta, allow_light=obj.kind == "flash")
+        self.cancel_termination(obj)
         original_x, original_t = inverse_transform(x, time, self.beta_rel)
         original_beta = velocity_add(beta, self.beta_rel)
         if obj.kind == "flash":
