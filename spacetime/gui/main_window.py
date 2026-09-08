@@ -92,6 +92,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
         self.time_status = QLabel()
         self.detail_status = QLabel()
+        self.time_status.setFixedWidth(520)
         self.statusBar().addWidget(self.time_status)
         self.statusBar().addWidget(self.detail_status, 1)
         self._update_status()
@@ -296,7 +297,9 @@ class MainWindow(QMainWindow):
     def _update_status(self) -> None:
         """Refresh the bottom time and interaction details."""
         self.time_status.setText(
-            f"Time t = {self.scenario.time:.3f}    Change time: ↑, ↓"
+            f"Time t = {self.scenario.time:.3f}    "
+            "Change time: ↑, ↓    Move screen: ←, →    "
+            "Transform up/down: Shift-↑, Shift-↓"
         )
         if not self.detail_status.text():
             self.detail_status.setText(self._instruction)

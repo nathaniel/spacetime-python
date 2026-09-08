@@ -34,6 +34,7 @@ class _View(QWidget):
         self._drag_before_scenario = False
         self._interval_first_event = None
         self.history = None
+        self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setMinimumSize(300, 180)
 
