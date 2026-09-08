@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         self.status_panel = _StatusPanel()
         self.status_panel.set_controls(
             f"Time: ↑, ↓ ({self._modifier_name} = 10×)    "
-            f"Screen: ←, → ({self._modifier_name} = 10×)    "
+            f"View: ←, → ({self._modifier_name} = 10×)    "
             "Frame: Shift-↑, Shift-↓"
         )
         self.statusBar().addWidget(self.status_panel, 1)
@@ -216,6 +216,12 @@ class MainWindow(QMainWindow):
         zoom_out = view_menu.addAction("Zoom out")
         zoom_out.setShortcut("-")
         zoom_out.triggered.connect(lambda: self.zoom(1/1.1))
+        move_left = view_menu.addAction(f"Move left ({self._modifier_name} = 10×)")
+        move_left.setShortcut("Left")
+        move_left.triggered.connect(lambda: self._move_view(20))
+        move_right = view_menu.addAction(f"Move right ({self._modifier_name} = 10×)")
+        move_right.setShortcut("Right")
+        move_right.triggered.connect(lambda: self._move_view(-20))
         help_menu=self.menuBar().addMenu("&Help")
         help_action = help_menu.addAction("&Help")
         help_action.setShortcut("F1")
@@ -236,6 +242,10 @@ class MainWindow(QMainWindow):
             )
         )
         self.refresh()
+
+    def _move_view(self, pixels: float) -> None:
+        """Move both synchronized views horizontally."""
+        self.highway.pan_horizontal(pixels)
 
     def center_on_x(self) -> None:
         """Center both synchronized views on a chosen current-frame x."""
