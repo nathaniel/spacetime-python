@@ -10,7 +10,8 @@ from .decorations import Decoration, Interval, LightCone, Hyperbola
 from .lorentz import _check_beta, inverse_transform, transform, velocity_add
 from .worldline import WorldlineRecord
 
-MAX_OBJECT_BETA = 0.9999
+# Match Java's maximum Highway gamma of 30.0.
+MAX_OBJECT_BETA = (1.0 - 1.0 / 30.0**2) ** 0.5
 
 @dataclass
 class Scenario:

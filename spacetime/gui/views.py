@@ -11,6 +11,7 @@ from PySide6.QtWidgets import QWidget, QMenu
 
 from ..commands.undo_redo import AddEvent, AddObject, DeleteEvent, DeleteObject, ProgramObject, Snapshot
 from ..model.lorentz import gamma, inverse_transform, transform, velocity_add
+from ..model.scenario import MAX_OBJECT_BETA
 
 
 class _View(QWidget):
@@ -330,7 +331,7 @@ class _View(QWidget):
                 x = self._snap_tenth(x)
             beta = self._snap_beta(beta, allow_light=self.dragged.kind == "flash")
             if self.dragged.kind != "flash":
-                beta = max(-0.9999, min(0.9999, beta))
+                beta = max(-MAX_OBJECT_BETA, min(MAX_OBJECT_BETA, beta))
             if self.dragged.programmed and not modifiers & (
                 Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier
             ):
