@@ -186,12 +186,15 @@ class EventTable(QTableWidget):
         """Create a table bound to a scenario."""
         super().__init__(0, 4, parent); self.scenario=scenario
         self._updating = False
-        self.setHorizontalHeaderLabels(["Event", "x", "t", "Note"]); self.itemChanged.connect(self._edited); self.refresh()
+        self.setHorizontalHeaderLabels(["Event", "x", "t", "Note"]); self.itemChanged.connect(self._edited)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         header = self.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
-        for column, width in enumerate((100, 65, 65, 250)):
+        for column, width in enumerate((100, 65, 65)):
             self.setColumnWidth(column, width)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+        self.refresh()
+        self.resizeColumnToContents(3)
     def refresh(self):
         """Refresh displayed event values from the scenario."""
         self.setRowCount(len(self.scenario.events))
@@ -205,6 +208,7 @@ class EventTable(QTableWidget):
                     item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
                     item.setBackground(self._read_only_color)
                 self.setItem(row,col,item)
+        self.resizeColumnToContents(3)
         self._updating = False
     def _edited(self,item):
         """Apply an edited event cell to the model."""
