@@ -32,6 +32,7 @@ class _View(QWidget):
         self._drag_start = None
         self._drag_before = None
         self._drag_before_scenario = False
+        self._drag_moved = False
         self._interval_first_event = None
         self.history = None
         self.setMouseTracking(True)
@@ -282,12 +283,14 @@ class _View(QWidget):
             else None
         )
         self._drag_start = event.position()
+        self._drag_moved = False
 
     def mouseMoveEvent(self, event):
         """Update hover state and any active drag."""
         self.hovered = self._hit(event.position().toPoint())
         self.hover_changed.emit(self.hovered)
         if self.dragged is not None and self._drag_start is not None:
+            self._drag_moved |= event.position() != self._drag_start
             self._drag_to(event.position(), event.modifiers())
             self.changed.emit()
         self.update()
@@ -304,7 +307,7 @@ class _View(QWidget):
             if (
                 self.history is not None
                 and self._drag_before is not None
-                and changed
+                and (changed or (self._drag_before_scenario and self._drag_moved))
             ):
                 self.history.do(
                     Snapshot(
@@ -317,6 +320,7 @@ class _View(QWidget):
             self.changed.emit()
         self.dragged = self._drag_start = self._drag_before = None
         self._drag_before_scenario = False
+        self._drag_moved = False
 
     def leaveEvent(self, event):
         """Clear hover information when the pointer leaves the view."""
