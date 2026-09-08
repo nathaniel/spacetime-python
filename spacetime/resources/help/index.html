@@ -1,9 +1,271 @@
-<html><head><title>Spacetime help</title></head><body>
-<h1>Spacetime</h1>
-<p>Coordinates use units where the speed of light is 1. The diagram shows position
-on the horizontal axis and time upward. Clocks accumulate proper time along their
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Spacetime Help</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.35; margin: 1em; }
+    nav { background: #f1f1f1; border: 1px solid #c8c8c8; padding: 0.8em; }
+    nav ul { margin: 0.3em 0 0 1.2em; padding: 0; }
+    h1, h2 { color: #b00000; }
+    h3 { color: #333; margin-top: 1.6em; }
+    figure { margin: 1em auto; text-align: center; }
+    figure img { border: 1px solid #707070; max-width: 100%; }
+    figcaption { color: #555; font-size: 0.9em; margin-top: 0.3em; }
+    code, .formula { background: #f5f5f5; padding: 0.1em 0.25em; }
+    .top { text-align: right; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+<h1 id="top">Help for Spacetime</h1>
+
+<p>Spacetime is a computer program for developing an intuition for special
+relativity. It can be used to analyze exercises and projects or to explore
+relativistic motion independently.</p>
+
+<p>The application has two synchronized displays: the <a href="#highway">Highway</a>
+shows a snapshot of objects moving at different velocities, while the
+<a href="#spacetime_diagram">Spacetime diagram</a> plots their positions and
+worldlines over time. Tables and comments are available in the dockable Tables
+panel; this Help page is available in the dockable Help panel.</p>
+
+<nav>
+  <strong>Help contents</strong>
+  <ul>
+    <li><a href="#preface">Preface</a></li>
+    <li><a href="#highway">Highway display</a></li>
+    <li><a href="#spacetime_diagram">Spacetime diagram display</a></li>
+    <li><a href="#tutorial">Quick tutorial</a></li>
+    <li><a href="#how_to">Instructions</a>
+      <ul>
+        <li><a href="#animation">Animation and time</a></li>
+        <li><a href="#creating_objects">Creating objects</a></li>
+        <li><a href="#deleting_objects">Deleting objects</a></li>
+        <li><a href="#creating_events">Creating events</a></li>
+        <li><a href="#deleting_events">Deleting events</a></li>
+        <li><a href="#creating_intervals">Creating intervals</a></li>
+        <li><a href="#creating_hyperbolas">Creating invariant hyperbolas</a></li>
+        <li><a href="#creating_lightcones">Creating light cones</a></li>
+        <li><a href="#jumping_to_objects">Jumping to objects</a></li>
+        <li><a href="#transforming_up_and_down">Transforming frames</a></li>
+        <li><a href="#shifting_screen">Shifting the view</a></li>
+        <li><a href="#programming_objects">Programming objects</a></li>
+        <li><a href="#setting_birth_and_termination">Birth and termination</a></li>
+        <li><a href="#zooming">Zooming</a></li>
+        <li><a href="#using_tables">Using the tables</a></li>
+        <li><a href="#using_comments">Using comments</a></li>
+      </ul>
+    </li>
+    <li><a href="#history">A little bit of history</a></li>
+  </ul>
+</nav>
+
+<h2 id="preface">Preface</h2>
+<p>Coordinates use units where the speed of light is 1. Position is horizontal
+and time increases upward. Clocks accumulate proper time along their
 piecewise-constant-velocity worldlines; flashes travel at the speed of light.</p>
-<p>Use the Coordinates menu to inspect synchronized positions. The reference-frame
-menu applies a Lorentz transform without changing the underlying scenario.</p>
-<p>Keyboard, mouse, and trackpad controls are listed in the Shortcuts panel.</p>
-</body></html>
+
+<h2 id="highway">The Highway display</h2>
+<p>The Highway represents a snapshot of a movie of the objects. Changing the
+current time changes the snapshot. Objects on the center strip have zero
+velocity. Objects above the center move right; objects below it move left.
+The top and bottom lanes correspond to the speed of light and are reserved for
+light flashes.</p>
+
+<p>The vertical ruler shows <strong>&beta;</strong>, velocity as a fraction of
+the speed of light. The scale runs from +1 at the top through 0 at the center
+to -1 at the bottom and is intentionally nonlinear, allowing more useful
+velocities near the speed of light to fit on screen. The adjacent
+<strong>&gamma;</strong> scale shows the time-stretch factor:</p>
+<p class="formula">&gamma; = 1 / &radic;(1 - &beta;<sup>2</sup>)</p>
+<p>Moving clocks run slow by the factor &gamma;, and moving rods are contracted
+by the same factor along their direction of motion.</p>
+
+<h2 id="spacetime_diagram">The Spacetime diagram display</h2>
+<p>The horizontal axis represents position and the vertical axis represents
+time. A <strong>worldline</strong> traces the trajectory of an object through
+spacetime. Objects shown on the Highway appear as worldlines here.</p>
+
+<p>The thick blue line is the line of simultaneity for the current time in the
+current reference frame. Events simultaneous at that time lie on this line.
+The current time is shown in the status bar. The Highway and diagram share
+their horizontal scale and pan position.</p>
+
+<h2 id="tutorial">Quick tutorial: a trip to Alpha Centauri</h2>
+<p>This tutorial creates a trip from Earth to Alpha Centauri and back. The
+bundled scenario <code>scenarios/Trip to Alpha.sce</code> contains the completed
+example.</p>
+
+<p>If you make a mistake, use Undo from the Edit menu or the platform-standard
+Undo shortcut. Undo restores the related object and event changes together.</p>
+
+<h3>1. Create the Earth clock</h3>
+<p>Start with the default clock, or choose <strong>Edit &rarr; Create Clock</strong>.
+Use the Objects table to change its label to <code>Earth</code> and enter a
+note. Notes appear in hover details in the status bar.</p>
+<figure><img src="screenshots/python01.png" alt="Python Spacetime window with the default clock"><figcaption>Python Spacetime default scenario.</figcaption></figure>
+
+<h3>2. Create the Alpha Centauri clock</h3>
+<p>Right-click an empty Highway position and choose <strong>Create clock</strong>.
+Place it four light years from Earth, then adjust its position or beta in the
+Objects table if needed.</p>
+<figure><img src="screenshots/python02.png" alt="Python Spacetime Objects table"><figcaption>The Objects table edits labels, position, beta, gamma, readings, and notes.</figcaption></figure>
+
+<h3>3. Create the rocket</h3>
+<p>Create another clock at position 0. Set its gamma factor to 2, then label it
+<code>Rocket</code> and add a note. The table accepts beta and formats the
+corresponding gamma value.</p>
+<figure><img src="screenshots/python03.png" alt="Python Spacetime object note editing"><figcaption>Object notes are visible in the table and hover details.</figcaption></figure>
+
+<h3>4. Create the departure event</h3>
+<p>At the current time, right-click the rocket and choose
+<strong>Set birth here and now</strong>. This creates a generated boundary
+event. Select the Events tab to edit its label and note.</p>
+<figure><img src="screenshots/python08.png" alt="Python Spacetime Events table at departure"><figcaption>The Events table displays the departure event.</figcaption></figure>
+
+<h3>5. Create the turning event</h3>
+<p>Advance time with the Up key or the spacetime diagram scroll gesture until
+the rocket intersects Alpha. Right-click the intersection and choose
+<strong>Create event</strong>. Generated velocity-change events receive labels
+such as <code>Rocket-&Delta;&beta;1</code>.</p>
+<figure><img src="screenshots/python09.png" alt="Python Spacetime turning event"><figcaption>The turning event is visible in the Events table.</figcaption></figure>
+<figure><img src="screenshots/python10.png" alt="Python Spacetime Highway at the turning event"><figcaption>The Highway view at the turning time.</figcaption></figure>
+
+<h3>6. Program the rocket to turn</h3>
+<p>At the turning time, right-click the rocket and choose
+<strong>Program</strong>. Drag it to a lane with gamma 2 in the opposite
+direction, or enter the new beta in the Objects table. A programmed object is
+shown in green until the edit is completed.</p>
+<figure><img src="screenshots/python11.png" alt="Python Spacetime programmed rocket"><figcaption>The programmed rocket is highlighted in green.</figcaption></figure>
+
+<p>Dragging or editing an object outside Program mode redefines its worldline
+and removes its birth, termination, and programmed velocity-change events.</p>
+
+<h3>7. Create the arrival event</h3>
+<p>Advance time until the rocket meets Earth. Create an event at the
+intersection and label it <code>Arrival</code>. Then choose
+<strong>Set termination here and now</strong> on the rocket.</p>
+<figure><img src="screenshots/python12.png" alt="Python Spacetime completed trip"><figcaption>The completed trip and its events.</figcaption></figure>
+
+<h3>8. Compare reference frames</h3>
+<p>Use <strong>Reference frame</strong> to set beta or transform up and down.
+<strong>Return to original frame</strong> restores the original coordinates.
+The underlying scenario remains in the original frame while displayed
+coordinates change.</p>
+<figure><img src="screenshots/python13.png" alt="Python Spacetime transformed reference frame"><figcaption>The same scenario in a different reference frame.</figcaption></figure>
+
+<h3>9. Comment and save</h3>
+<p>Use the Comments tab in the Tables panel to add scenario notes. Choose
+<strong>Scenario &rarr; Save</strong> or <strong>Save As</strong> to write a Java-compatible
+<code>.sce</code> file.</p>
+<figure><img src="screenshots/python04.png" alt="Python Spacetime hover details"><figcaption>Hover details include object notes in the status area.</figcaption></figure>
+
+<p><strong>Congratulations.</strong> You have created a complete spacetime
+scenario.</p>
+
+<h2 id="how_to">Instructions on how to use the software</h2>
+
+<h3 id="animation">Animation and time</h3>
+<p>Use Up and Down to advance or rewind time by 0.1. Use the platform modifier
+with Up or Down for steps of 1.0. The spacetime diagram also responds to
+vertical wheel or two-finger scrolling. Time advances to the next event when
+one lies between regular time steps.</p>
+
+<h3 id="creating_objects">Creating objects</h3>
+<p>Right-click an empty area of the Highway and choose <strong>Create clock</strong>
+or <strong>Create light flash</strong>. Drag the new object or edit its position
+and beta in the Objects table. A manual position or beta change clears that
+object's programmed worldline and boundary events.</p>
+
+<h3 id="deleting_objects">Deleting objects</h3>
+<p>Right-click an object in either diagram or its row in the Objects table and
+choose <strong>Delete</strong>.</p>
+
+<h3 id="creating_events">Creating events</h3>
+<p>Events may be fixed at a worldline intersection, attached to one worldline,
+or free. Right-click an intersection and choose <strong>Create event</strong>
+to create a fixed event. Right-click a worldline to create an attached event.
+Right-click empty space to create a free event. Free events can be dragged and
+edited in the Events table; fixed and worldline-attached coordinates are
+read-only.</p>
+
+<h3 id="deleting_events">Deleting events</h3>
+<p>Right-click an event in the spacetime diagram or its row in the Events table
+and choose <strong>Delete</strong>. Generated boundary and velocity-change
+events are managed by their object actions.</p>
+
+<h3 id="creating_intervals">Creating spacetime intervals</h3>
+<p>Right-click an event and choose <strong>Construct &rarr; Spacetime interval
+to . . .</strong>, then click a second event. The decoration shows whether the
+interval is spacelike (S), timelike (T), or lightlike (L), its invariant value,
+and &Delta;x and &Delta;t. Delete it from its context menu. Press Esc or click
+empty space to cancel an unfinished selection.</p>
+
+<h3 id="creating_hyperbolas">Creating invariant hyperbolas</h3>
+<p>Right-click an event and choose <strong>Construct &rarr; Invariant
+hyperbola</strong>. The decoration follows the event as it moves and can be
+deleted from its own context menu.</p>
+
+<h3 id="creating_lightcones">Creating light cones</h3>
+<p>Right-click an event and choose <strong>Construct &rarr; Light cone</strong>.
+The light cone follows the event and can be deleted from its own context menu.</p>
+
+<h3 id="jumping_to_objects">Jumping to objects</h3>
+<p>Right-click an object in the Highway or its row in the Objects table and
+choose <strong>Jump to this object</strong>. The display changes to that
+object's rest frame.</p>
+
+<h3 id="transforming_up_and_down">Transforming the reference frame</h3>
+<p><strong>Transform up</strong> and <strong>Transform down</strong> apply a
+relative beta of +0.05 or -0.05 to the current frame. Use the Reference frame
+menu or Shift+Up and Shift+Down. Shift+0 returns to the original frame.</p>
+
+<h3 id="shifting_screen">Shifting the view</h3>
+<p>Drag an empty area horizontally, use Left and Right, or use the platform
+modifier with Left and Right for a larger movement. The Highway and spacetime
+diagram remain synchronized. The horizontal view range is saved in the
+scenario.</p>
+
+<h3 id="programming_objects">Programming objects</h3>
+<p>Clocks and flashes can change velocity at programmed events. Right-click an
+object in the Highway and choose <strong>Program</strong>, then drag it to a
+new lane or edit its beta. The object is green while it is being programmed.
+For flashes, programming changes the direction between beta -1 and +1.</p>
+
+<p>Entering a new programmed beta removes a termination after that point and
+continues the programmed worldline. Changing an object manually outside
+Program mode removes its programmed changes.</p>
+
+<h3 id="setting_birth_and_termination">Setting birth and termination</h3>
+<p>Right-click an object in the Highway and choose
+<strong>Set birth here and now</strong> or
+<strong>Set termination here and now</strong>. Once set, the corresponding
+action becomes <strong>Cancel birth</strong> or
+<strong>Cancel termination</strong>. Generated boundary events cannot be
+dragged or edited.</p>
+
+<h3 id="zooming">Zooming in and out</h3>
+<p>Choose <strong>View &rarr; Zoom in</strong> or <strong>Zoom out</strong>, use
+Plus or Minus, or pinch on a trackpad. Both displays share the horizontal
+scale.</p>
+
+<h3 id="using_tables">Using the Object and Event tables</h3>
+<p>The tables list all objects and events. White cells are editable; gray cells
+are read-only. Right-click a row for its context menu. The Event table supports
+horizontal scrolling, and its Note column resizes to fit its content.</p>
+
+<h3 id="using_comments">Using comments</h3>
+<p>Choose the Comments tab in the Tables panel to write scenario comments.
+Comments are saved with the scenario and preserve multiline text.</p>
+
+<h2 id="history">A little bit of history</h2>
+<p>The original Spacetime program was developed at MIT and funded through
+Project Athena in the late 1980s. MIT undergraduates developed the original
+program under the supervision of Edwin F. Taylor for use in a special
+relativity course. This Python version reimplements the essential behavior
+with a contemporary Qt interface while retaining Java-compatible scenario
+files.</p>
+
+<p class="top"><a href="#top">Back to top</a></p>
+</body>
+</html>

@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QTextBrowser,
 )
+from PySide6.QtCore import QUrl
 
 class HelpView(QTextBrowser):
     """Display the bundled HTML help page."""
@@ -18,8 +19,9 @@ class HelpView(QTextBrowser):
         super().__init__(parent)
         html = (
             Path(__file__).parents[1] / "resources" / "help" / "index.html"
-        ).read_text(encoding="utf-8")
-        self.setHtml(html)
+        )
+        self.document().setBaseUrl(QUrl.fromLocalFile(str(html)))
+        self.setHtml(html.read_text(encoding="utf-8"))
 
 
 class ShortcutsView(QTableWidget):

@@ -9,6 +9,7 @@ a = Analysis(
     datas=[
         (str(root.parent / "scenarios"), "scenarios"),
         (str(root / "README.md"), "."),
+        (str(root / "spacetime" / "resources"), "spacetime/resources"),
     ],
     hiddenimports=["PySide6"],
 )
