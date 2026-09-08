@@ -68,10 +68,6 @@ class _StatusPanel(QWidget):
         self.time_label = QLabel(self)
         self.detail_label = QLabel(self)
         self.time_label.setFixedWidth(105)
-        for label in (self.time_label, self.detail_label):
-            font = label.font()
-            font.setBold(True)
-            label.setFont(font)
         self.detail_label.hide()
 
     def set_time(self, text: str) -> None:
