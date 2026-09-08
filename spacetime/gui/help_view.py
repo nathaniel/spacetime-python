@@ -51,7 +51,9 @@ class ShortcutsView(QTableWidget):
         self.setRowCount(len(rows))
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        self.setWordWrap(True)
         self.verticalHeader().setVisible(False)
+        self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         self.horizontalHeader().setStretchLastSection(True)
         self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         for row, (input_text, action) in enumerate(rows):
