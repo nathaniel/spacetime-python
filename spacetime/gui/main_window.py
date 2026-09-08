@@ -117,7 +117,7 @@ class MainWindow(QMainWindow):
         self.highway.hover_changed.connect(lambda item: self._show_hover_detail(item))
         self.diagram.hover_changed.connect(lambda item: self._show_hover_detail(item))
         self.diagram.instruction_changed.connect(self._set_instruction)
-        highway_panel = _TitledPanel("Highway", self.highway, "bottom-right")
+        highway_panel = _TitledPanel("Highway", self.highway, "top-right")
         diagram_panel = _TitledPanel("Spacetime diagram", self.diagram, "top-left")
         split.addWidget(highway_panel)
         split.addWidget(diagram_panel)

@@ -852,9 +852,10 @@ class HighwayView(_View):
         # Match the Java display: velocity is expanded near zero and compressed
         # near the speed-of-light boundaries.
         signed = math.copysign(abs(beta) ** 4, beta) if beta else 0.0
-        bottom_margin = 24.0
-        usable_height = max(1.0, self.height() - bottom_margin)
-        return usable_height / 2 - signed * (usable_height * 0.46)
+        top_margin = 19.0
+        bottom_margin = 5.0
+        usable_height = max(1.0, self.height() - top_margin - bottom_margin)
+        return top_margin + usable_height / 2 - signed * (usable_height * 0.46)
 
     def _snap_beta(self, beta: float, allow_light: bool) -> float:
         """Snap a velocity to the display's preferred values."""
@@ -927,10 +928,11 @@ class HighwayView(_View):
         badge_text = Qt.GlobalColor.black if synchronized else Qt.GlobalColor.white
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(badge_background)
+        badge_y = py - radius - text_height - 5.5
         painter.drawRoundedRect(
             QRectF(
                 px - text_width / 2.0 - 1.5,
-                py + radius + 1.5,
+                badge_y,
                 text_width + 3.0,
                 text_height + 3.0,
             ),
@@ -940,7 +942,7 @@ class HighwayView(_View):
         painter.setPen(QPen(badge_text, 1))
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawText(
-            QPointF(px - text_width / 2.0, py + radius + text_height),
+            QPointF(px - text_width / 2.0, py - radius - 5.5),
             reading_text,
         )
         painter.restore()
@@ -1054,7 +1056,7 @@ class HighwayView(_View):
         )
         painter.drawText(QPointF(gamma_label_x, self._beta_to_screen(1.0) + 4), "∞")
         painter.drawText(QPointF(gamma_label_x, self._beta_to_screen(-1.0) + 4), "∞")
-        axis_label_y = min(height - 4.0, self._beta_to_screen(-1.0) + 19.0)
+        axis_label_y = self._beta_to_screen(1.0) - 16.0
         painter.drawText(
             QRectF(beta_label_x - 8.0, axis_label_y - 8.0, 42.0, 16.0),
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
@@ -1127,4 +1129,8 @@ class HighwayView(_View):
                 color = QColor("#008000") if event.beta_change else QColor("#d32f2f")
                 painter.setPen(QPen(color, 1))
                 painter.drawLine(QPointF(px, self._beta_to_screen(-1)), QPointF(px, self._beta_to_screen(1)))
-                painter.drawText(QPointF(px + 4, self._beta_to_screen(-1) - 4), event.label)
+                label_width = painter.fontMetrics().horizontalAdvance(event.label)
+                painter.drawText(
+                    QPointF(px - label_width / 2, self._beta_to_screen(1.0) - 16),
+                    event.label,
+                )
