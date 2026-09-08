@@ -409,7 +409,7 @@ class _View(QWidget):
                     "Spacetime interval to . . .",
                     lambda: self._start_interval(self.hovered),
                 )
-                menu.addAction("Delete event", lambda: self._delete_event(self.hovered))
+                menu.addAction("Delete", lambda: self._delete_event(self.hovered))
             else: menu.addAction("Create event", lambda: self._create_event(point))
         menu.exec(self.mapToGlobal(point))
 
