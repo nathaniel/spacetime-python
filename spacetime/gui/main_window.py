@@ -58,6 +58,47 @@ class _TitledPanel(QFrame):
         super().resizeEvent(event)
         self._position_title()
 
+class _StatusPanel(QWidget):
+    """Java-style bottom status area with prioritized hover details."""
+
+    def __init__(self, parent=None):
+        """Create the time, detail, and keyboard-hint labels."""
+        super().__init__(parent)
+        self.time_label = QLabel(self)
+        self.detail_label = QLabel(self)
+        self.controls_label = QLabel(self)
+        self.time_label.setFixedWidth(105)
+        self.controls_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        for label in (self.time_label, self.detail_label):
+            font = label.font()
+            font.setBold(True)
+            label.setFont(font)
+        self.detail_label.setStyleSheet("QLabel { background: palette(window); }")
+        self.detail_label.hide()
+
+    def set_time(self, text: str) -> None:
+        """Set the fixed-width time display."""
+        self.time_label.setText(text)
+
+    def set_detail(self, text: str) -> None:
+        """Set or clear the prioritized hover detail."""
+        self.detail_label.setText(text)
+        self.detail_label.setVisible(bool(text))
+        if text:
+            self.detail_label.raise_()
+
+    def set_controls(self, text: str) -> None:
+        """Set the right-aligned keyboard hints."""
+        self.controls_label.setText(text)
+
+    def resizeEvent(self, event):
+        """Keep labels positioned so details cover hints when necessary."""
+        super().resizeEvent(event)
+        height = self.height()
+        self.time_label.setGeometry(0, 0, 105, height)
+        self.controls_label.setGeometry(max(105, self.width() - 600), 0, 600, height)
+        self.detail_label.setGeometry(105, 0, max(0, self.width() - 105), height)
+
 class MainWindow(QMainWindow):
     """Coordinate the editor views, controls, and scenario persistence."""
 
@@ -90,17 +131,12 @@ class MainWindow(QMainWindow):
         split.addWidget(diagram_panel)
         layout.addWidget(split)
         self.setCentralWidget(root)
-        self.time_status = QLabel()
-        self.controls_status = QLabel(
+        self.status_panel = _StatusPanel()
+        self.status_panel.set_controls(
             "Change time: ↑, ↓    Move screen: ←, →    "
             "Transform up/down: Shift-↑, Shift-↓"
         )
-        self.detail_status = QLabel()
-        self.time_status.setFixedWidth(105)
-        self.controls_status.setFixedWidth(600)
-        self.statusBar().addWidget(self.time_status)
-        self.statusBar().addWidget(self.controls_status)
-        self.statusBar().addWidget(self.detail_status, 1)
+        self.statusBar().addWidget(self.status_panel, 1)
         self._update_status()
         self.object_table = ObjectTable(scenario)
         self.event_table = EventTable(scenario)
@@ -273,14 +309,14 @@ class MainWindow(QMainWindow):
         """Store an interaction instruction for the bottom status area."""
         self._instruction = text
         if self._hovered_item is None:
-            self.detail_status.clear()
+            self.status_panel.set_detail("")
         self._update_status()
 
     def _show_hover_detail(self, item) -> None:
         """Display Java-style information for the item under the pointer."""
         self._hovered_item = item
         if item is None:
-            self.detail_status.clear()
+            self.status_panel.set_detail("")
             self._update_status()
             return
         if item in self.scenario.events:
@@ -298,13 +334,13 @@ class MainWindow(QMainWindow):
             detail = ""
         if item.note:
             detail += f" . . . {item.note}"
-        self.detail_status.setText(detail)
+        self.status_panel.set_detail(detail)
 
     def _update_status(self) -> None:
         """Refresh the bottom time and interaction details."""
-        self.time_status.setText(f"Time t = {self.scenario.time:.3f}")
-        if not self.detail_status.text():
-            self.detail_status.setText(self._instruction)
+        self.status_panel.set_time(f"Time t = {self.scenario.time:.3f}")
+        if self._hovered_item is None:
+            self.status_panel.set_detail(self._instruction)
     def mark_dirty(self):
         """Mark the scenario modified and refresh dependent widgets."""
         self.scenario.comments=self.comments.toPlainText()
