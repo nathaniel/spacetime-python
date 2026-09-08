@@ -92,6 +92,10 @@ compatibility research.
 - The current time is centered vertically in the spacetime diagram.
 - Interval decorations display `S`, `T`, or `L`, the interval value, `Δx`, and
   `Δt`, using Java-style pink decoration coloring.
+- Spacetime-diagram context actions construct light cones and invariant
+  hyperbolas immediately. `Spacetime interval to . . .` enters a two-event
+  selection mode; clicking a different event completes it, while clicking
+  empty space or pressing Esc cancels it.
 - Event and object labels use the compact beta/gamma axis font size to reduce
   overlap.
 - The bottom status bar shows time and live hover details only. Hover details
