@@ -46,8 +46,14 @@ class ObjectTable(QTableWidget):
             return
         obj = self.scenario.objects[item.row()]
         menu = QMenu(self)
-        menu.addAction("Set birth here && now", lambda: self._set_birth(obj))
-        menu.addAction("Set termination here && now", lambda: self._set_termination(obj))
+        if obj.worldline.has_birth:
+            menu.addAction("Cancel birth", lambda: self._cancel_birth(obj))
+        else:
+            menu.addAction("Set birth here && now", lambda: self._set_birth(obj))
+        if obj.worldline.has_termination:
+            menu.addAction("Cancel termination", lambda: self._cancel_termination(obj))
+        else:
+            menu.addAction("Set termination here && now", lambda: self._set_termination(obj))
         menu.addAction("Program", lambda: self._program(obj))
         menu.exec(self.viewport().mapToGlobal(position))
 
@@ -63,6 +69,24 @@ class ObjectTable(QTableWidget):
     def _set_termination(self, obj) -> None:
         """Set an object's termination point at the current time."""
         mutation = lambda: self.scenario.set_termination_here_now(obj)
+        if self.history is None:
+            mutation()
+        else:
+            self.history.do(Snapshot(self.scenario, mutation))
+        self.changed.emit()
+
+    def _cancel_birth(self, obj) -> None:
+        """Cancel an object's existing birth constraint."""
+        mutation = lambda: self.scenario.cancel_birth(obj)
+        if self.history is None:
+            mutation()
+        else:
+            self.history.do(Snapshot(self.scenario, mutation))
+        self.changed.emit()
+
+    def _cancel_termination(self, obj) -> None:
+        """Cancel an object's existing termination constraint."""
+        mutation = lambda: self.scenario.cancel_termination(obj)
         if self.history is None:
             mutation()
         else:

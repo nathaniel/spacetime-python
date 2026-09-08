@@ -366,14 +366,23 @@ class _View(QWidget):
                 menu.addAction("Delete object", lambda: self._delete_object(self.hovered))
                 if self.hovered.kind == "clock":
                     menu.addAction("Jump to object", lambda: self._jump_to_object(self.hovered))
-                menu.addAction(
-                    "Set birth here && now",
-                    lambda: self._set_birth(self.hovered),
-                )
-                menu.addAction(
-                    "Set termination here && now",
-                    lambda: self._set_termination(self.hovered),
-                )
+                if self.hovered.worldline.has_birth:
+                    menu.addAction("Cancel birth", lambda: self._cancel_birth(self.hovered))
+                else:
+                    menu.addAction(
+                        "Set birth here && now",
+                        lambda: self._set_birth(self.hovered),
+                    )
+                if self.hovered.worldline.has_termination:
+                    menu.addAction(
+                        "Cancel termination",
+                        lambda: self._cancel_termination(self.hovered),
+                    )
+                else:
+                    menu.addAction(
+                        "Set termination here && now",
+                        lambda: self._set_termination(self.hovered),
+                    )
                 menu.addAction("Program", lambda: self._program(self.hovered))
             else:
                 x = (point.x()-self.origin.x())/self.scale
@@ -492,6 +501,26 @@ class _View(QWidget):
     def _set_termination(self, obj) -> None:
         """Set an object's termination point at the displayed state."""
         mutation = lambda: self.scenario.set_termination_here_now(obj)
+        if self.history is None:
+            mutation()
+        else:
+            self.history.do(Snapshot(self.scenario, mutation))
+        self.changed.emit()
+        self.update()
+
+    def _cancel_birth(self, obj) -> None:
+        """Cancel an object's existing birth constraint."""
+        mutation = lambda: self.scenario.cancel_birth(obj)
+        if self.history is None:
+            mutation()
+        else:
+            self.history.do(Snapshot(self.scenario, mutation))
+        self.changed.emit()
+        self.update()
+
+    def _cancel_termination(self, obj) -> None:
+        """Cancel an object's existing termination constraint."""
+        mutation = lambda: self.scenario.cancel_termination(obj)
         if self.history is None:
             mutation()
         else:
