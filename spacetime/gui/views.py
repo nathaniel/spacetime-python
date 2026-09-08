@@ -380,31 +380,32 @@ class _View(QWidget):
         menu=QMenu(self)
         if isinstance(self, HighwayView):
             if self.hovered:
-                object_type = "Clock" if self.hovered.kind == "clock" else "Light flash"
-                title = menu.addAction(f"{object_type} {self.hovered.label}")
+                obj = self.hovered
+                object_type = "Clock" if obj.kind == "clock" else "Light flash"
+                title = menu.addAction(f"{object_type} {obj.label}")
                 title.setEnabled(False)
                 menu.addSeparator()
-                menu.addAction("Delete", lambda: self._delete_object(self.hovered))
-                if self.hovered.kind == "clock":
-                    menu.addAction("Jump to object", lambda: self._jump_to_object(self.hovered))
-                if self.hovered.worldline.has_birth:
-                    menu.addAction("Cancel birth", lambda: self._cancel_birth(self.hovered))
+                menu.addAction("Delete", lambda: self._delete_object(obj))
+                if obj.kind == "clock":
+                    menu.addAction("Jump to object", lambda: self._jump_to_object(obj))
+                if obj.worldline.has_birth:
+                    menu.addAction("Cancel birth", lambda: self._cancel_birth(obj))
                 else:
                     menu.addAction(
                         "Set birth here && now",
-                        lambda: self._set_birth(self.hovered),
+                        lambda: self._set_birth(obj),
                     )
-                if self.hovered.worldline.has_termination:
+                if obj.worldline.has_termination:
                     menu.addAction(
                         "Cancel termination",
-                        lambda: self._cancel_termination(self.hovered),
+                        lambda: self._cancel_termination(obj),
                     )
                 else:
                     menu.addAction(
                         "Set termination here && now",
-                        lambda: self._set_termination(self.hovered),
+                        lambda: self._set_termination(obj),
                     )
-                menu.addAction("Program", lambda: self._program(self.hovered))
+                menu.addAction("Program", lambda: self._program(obj))
             else:
                 x = (point.x()-self.origin.x())/self.scale
                 beta = self._screen_to_beta(point.y())
