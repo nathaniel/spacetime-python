@@ -41,6 +41,8 @@ deliverables are pre-built applications for Windows and macOS.
 
 - Implemented loading and saving of Java-compatible `.sce` scenario files.
 - Added Java Properties parsing, including escaped Unicode labels.
+- Added Java-compatible escaping and unescaping for multiline comments,
+  backslashes, tabs, and other escaped characters.
 - Preserved scenario objects, events, decorations, comments, frame state, and
   current time.
 - Added persistence tests using bundled Java scenarios.
@@ -50,7 +52,8 @@ deliverables are pre-built applications for Windows and macOS.
 - Implemented the PySide6 application and main window.
 - Added synchronized Highway and spacetime diagram views.
 - Added object and event tables.
-- Added editable current-time control.
+- Added a bottom status area showing the current time and live hover details for
+  objects and events.
 - Added menus and actions for creating clocks, flashes, and events.
 - Added scenario creation, loading, saving, and replacement.
 - Added undo/redo infrastructure.
@@ -79,10 +82,25 @@ deliverables are pre-built applications for Windows and macOS.
 - Kept regular time steps at `0.1`.
 - Added `1.0` steps for Ctrl+Up/Ctrl+Down on Windows/Linux and
   Cmd+Up/Cmd+Down on macOS.
+- Added platform-aware `Ctrl/Cmd+0` time reset and `Shift+0` original-frame
+  shortcuts.
+- Added flat Edit, Coordinates, Reference frame, and View menus with
+  Java-compatible action organization.
+- Added Java-style keyboard-shortcut documentation to the Help tab.
 - Added keyboard, wheel, trackpad, zoom, and pan interactions.
+- Added 10x accelerated horizontal view movement with Ctrl/Cmd plus the arrow
+  keys.
 - Added off-screen Highway indicators for objects outside the active view.
 - Preserved Java-style generated names and event notes.
+- Added clock and light-flash context actions to the Object table, including
+  undoable deletion and clock frame jumping.
+- Changed generated Delta beta labels to the Greek, hyphenated form
+  `C1-Δβ1`.
+- Added Java-style interval labels with interval type, value, `Δx`, and `Δt`.
 - Disabled jumping to the rest frame of light flashes, matching Java behavior.
+- Matched event/object labels to the compact beta/gamma axis font size.
+- Made non-programmed Highway drags record a complete undo snapshot, including
+  related events and boundary state.
 
 ### 7. Validate the implementation
 
@@ -90,6 +108,7 @@ deliverables are pre-built applications for Windows and macOS.
 - Verified headless PySide6 operation.
 - Verified Java scenario Unicode labels such as `Shuttle-Δβ`.
 - Verified synchronized diagram navigation and current-time centering.
+- Verified 16 focused tests pass, including multiline comment round trips.
 - Kept the application dependent on system fonts rather than bundled fonts.
 
 ## Desired development process
@@ -187,16 +206,25 @@ The most behavior-sensitive code is currently concentrated in:
 
 ## Remaining delivery process
 
-1. Maintain regression coverage as additional Java-compatible behavior is
-   implemented.
-2. Validate representative scenarios after model, persistence, and GUI
-   changes.
+1. Continue compatibility review against Java, especially for less frequently
+   used context-menu, table, and decoration workflows.
+2. Validate representative bundled scenarios after each persistence or GUI
+   change.
 3. Run the application from source using the dedicated environment.
 4. Build a Windows application with PyInstaller on a native Windows runner.
 5. Build a macOS application bundle with PyInstaller on a native macOS runner.
-6. Include resources, example scenarios, help content, and application
+6. Include resources, example scenarios, Help content, and application
    metadata in each package.
-7. Run a smoke test against each packaged application.
+7. Run smoke tests against each packaged application.
 8. Add code signing and notarization for macOS distribution, and executable
    signing or an installer for Windows distribution when release distribution
    requires it.
+
+## Current status relative to the plan
+
+Phases 1 through 7 are substantially implemented for the core desktop beta:
+the model, Java-compatible persistence, synchronized GUI, editing workflows,
+undo/redo, menus, Help content, and focused regression coverage are in place.
+The remaining work is primarily release hardening: broader scenario golden
+checks, packaging on native Windows and macOS runners, bundled-application
+smoke tests, and optional signing/notarization.

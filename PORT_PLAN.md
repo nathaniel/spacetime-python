@@ -4,6 +4,18 @@
 
 Create a Python reimplementation of the Java **Spacetime** application that preserves its special-relativity functionality, supports existing `.sce` scenario files, and can be distributed as pre-built applications for Windows and macOS.
 
+## Current status
+
+The Python implementation has completed the core model, Java-compatible
+scenario persistence, synchronized PySide6 interface, object/event editing,
+decorations, programming, birth/termination behavior, undo/redo, menus, Help
+content, and focused regression tests. The project is currently at the
+feature-complete desktop-beta stage described in Phase 9.
+
+Remaining work is release-oriented: expand golden-scenario compatibility
+checks, build native Windows and macOS artifacts, bundle resources and example
+scenarios, run packaged smoke tests, and add signing/notarization as needed.
+
 ## Recommended technology
 
 - Python 3.12+
@@ -13,7 +25,7 @@ Create a Python reimplementation of the Java **Spacetime** application that pres
 - PyInstaller for self-contained application bundles
 - GitHub Actions for Windows and macOS release builds
 
-## Phase 1: Define existing behavior
+## Phase 1: Define existing behavior — substantially complete
 
 Create a functional specification from the Java source and HTML help files.
 
@@ -32,7 +44,7 @@ Document:
 
 Separate required compatibility from replaceable implementation details. Record known quirks so they can either be preserved deliberately or corrected explicitly.
 
-## Phase 2: Build the Python domain model
+## Phase 2: Build the Python domain model — complete for current feature set
 
 Keep the physics and scenario model independent of the GUI.
 
@@ -81,7 +93,7 @@ Suggested model mapping:
 | `STHyperbola` | Invariant-interval hyperbola |
 | `HistoryWriter` | Command-based undo/redo manager |
 
-## Phase 3: Implement and validate the physics
+## Phase 3: Implement and validate the physics — complete for current feature set
 
 Implement:
 
@@ -116,7 +128,7 @@ Add focused tests for:
 
 Load the existing `.sce` files and compare calculated positions, velocities, event coordinates, and clock readings with the Java application where practical.
 
-## Phase 4: Preserve scenario-file compatibility
+## Phase 4: Preserve scenario-file compatibility — substantially complete
 
 Implement a dedicated `.sce` reader and writer rather than coupling parsing to GUI classes.
 
@@ -138,7 +150,7 @@ Recommended strategy:
 4. Add round-trip tests for every bundled scenario.
 5. Optionally introduce a new versioned JSON format later while retaining `.sce` import/export.
 
-## Phase 5: Recreate the desktop interface
+## Phase 5: Recreate the desktop interface — substantially complete
 
 Use a `QMainWindow` with split or dockable panels:
 
@@ -158,7 +170,7 @@ Both views should observe the same scenario model so that dragging, editing, tim
 
 Use Qt signals and slots for model/view synchronization rather than having drawing widgets directly manipulate unrelated state.
 
-## Phase 6: Recreate interaction behavior
+## Phase 6: Recreate interaction behavior — substantially complete
 
 Implement the workflows in this order:
 
@@ -189,7 +201,7 @@ SetBirthCommand
 SetTerminationCommand
 ```
 
-## Phase 7: Improve compatibility and usability
+## Phase 7: Improve compatibility and usability — substantially complete
 
 After core behavior is correct:
 
@@ -204,7 +216,7 @@ After core behavior is correct:
 
 Avoid changing physics or interaction semantics during this phase unless the change is intentional and documented.
 
-## Phase 8: Package for Windows and macOS
+## Phase 8: Package for Windows and macOS — remaining
 
 Use a single source tree with platform-specific GitHub Actions jobs.
 
@@ -233,7 +245,7 @@ For macOS distribution outside a local machine, add Apple code signing and notar
 
 Briefcase is an alternative packaging approach if native application bundles and installers are preferred, but PyInstaller is the lower-risk initial choice for this application.
 
-## Phase 9: Regression and release strategy
+## Phase 9: Regression and release strategy — active
 
 Maintain golden scenarios based on the bundled `.sce` files:
 
