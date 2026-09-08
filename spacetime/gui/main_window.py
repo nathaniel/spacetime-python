@@ -307,10 +307,7 @@ class MainWindow(QMainWindow):
     def maybe_save(self, next_action: str = "quitting"):
         """Prompt to save dirty changes before the next application action."""
         if not self.dirty: return True
-        message = (
-            "Do you want to save the current scenario to a scenario file\n"
-            f"before {next_action}?"
-        )
+        message = f"Do you want to save the current scenario\nbefore {next_action}?"
         answer=QMessageBox.question(
             self,
             "Save current scenario?",
