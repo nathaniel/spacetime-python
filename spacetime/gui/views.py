@@ -665,7 +665,7 @@ class SpacetimeDiagramView(_View):
 
         minimum, maximum = self._visible_time_bounds(origin)
         for obj in self.scenario.objects:
-            color = QColor("#1769aa") if obj.kind == "clock" else QColor("#c62828")
+            color = QColor("#1769aa") if obj.kind == "clock" else QColor("#c76b00")
             x, beta = self._frame_state(obj, self.scenario.time)
             painter.setPen(QPen(color, 2, Qt.PenStyle.DashLine if obj.kind == "flash" else Qt.PenStyle.SolidLine))
             if obj.kind == "clock":
@@ -1071,7 +1071,7 @@ class HighwayView(_View):
             if not self._object_exists(obj, self.scenario.time, x):
                 continue
             px, py = origin.x() + x * self.scale, self._beta_to_screen(beta)
-            color = QColor("#1769aa") if obj.kind == "clock" else QColor("#c62828")
+            color = QColor("#1769aa") if obj.kind == "clock" else QColor("#c76b00")
             if px < axis_start:
                 self._draw_edge_indicator(painter, py, True, color)
                 continue
