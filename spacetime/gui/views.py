@@ -606,6 +606,9 @@ class SpacetimeDiagramView(_View):
         painter.fillRect(self.rect(), Qt.GlobalColor.white)
         origin = self.origin
         width, height = self.width(), self.height()
+        axis_font = painter.font()
+        axis_font.setPointSize(max(1, round(axis_font.pointSize() * 0.825)))
+        painter.setFont(axis_font)
 
         painter.setPen(QPen(QColor("#d0d0d0"), 1))
         painter.drawLine(QPointF(0, origin.y()), QPointF(width, origin.y()))
@@ -1019,6 +1022,7 @@ class HighwayView(_View):
         )
         painter.drawText(QPointF(gamma_label_x, axis_label_y), "γ")
         painter.restore()
+        painter.setFont(axis_font)
 
         for obj in self.scenario.objects:
             x, beta = self._frame_state(obj, self.scenario.time)
