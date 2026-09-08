@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QKeySequence
 from .tables import ObjectTable, EventTable
 from .help_view import HelpView
 
@@ -126,8 +126,8 @@ class MainWindow(QMainWindow):
         save=menu.addAction("&Save"); save.setShortcut("Ctrl+S"); save.triggered.connect(self.save)
         save_as=menu.addAction("Save &As…"); save_as.triggered.connect(self.save_as)
         menu.addSeparator()
-        undo=menu.addAction("&Undo"); undo.setShortcut("Ctrl+Z"); undo.triggered.connect(self.undo)
-        redo=menu.addAction("&Redo"); redo.setShortcut("Ctrl+Y"); redo.triggered.connect(self.redo)
+        undo=menu.addAction("&Undo"); undo.setShortcut(QKeySequence.StandardKey.Undo); undo.triggered.connect(self.undo)
+        redo=menu.addAction("&Redo"); redo.setShortcut(QKeySequence.StandardKey.Redo); redo.triggered.connect(self.redo)
         menu.addSeparator()
         quit_action=menu.addAction("&Quit"); quit_action.setShortcut("Ctrl+Q"); quit_action.triggered.connect(self.close)
         advance=menu.addAction("Advance time"); advance.triggered.connect(lambda: self.history.do(SetTime(self.scenario,self.scenario.stepped_time(1))) or self.refresh())
