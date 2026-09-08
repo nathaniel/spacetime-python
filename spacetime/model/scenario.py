@@ -92,6 +92,12 @@ class Scenario:
         _check_beta(beta, allow_light=obj.kind == "flash")
         self._remove_boundary_event(obj, "birth")
         self._remove_boundary_event(obj, "termination")
+        self.events = [
+            event
+            for event in self.events
+            if not (event.beta_change and event.object_name == obj.name)
+        ]
+        obj.programmed = False
         original_x, original_t = inverse_transform(x, time, self.beta_rel)
         original_beta = velocity_add(beta, self.beta_rel)
         if obj.kind == "flash":

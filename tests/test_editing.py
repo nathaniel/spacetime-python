@@ -87,3 +87,17 @@ def test_manual_object_state_change_removes_boundary_events():
     assert not [event for event in scenario.events if event.boundary]
     assert not clock.worldline.has_birth
     assert not clock.worldline.has_termination
+
+
+def test_manual_object_state_change_removes_delta_beta_events():
+    """Verify replacing a programmed worldline removes its change events."""
+    scenario = Scenario(time=2.0)
+    clock = scenario.add_clock()
+    scenario.program_object(clock)
+    scenario.add_programmed_change(clock, 2.0, 1.0, 0.25)
+    assert any(event.beta_change for event in scenario.events)
+
+    scenario.set_object_state(clock, scenario.time, 1.0, 0.5)
+
+    assert not [event for event in scenario.events if event.beta_change]
+    assert not clock.programmed
