@@ -22,3 +22,12 @@ def test_round_trip(tmp_path):
     assert loaded.beta_rel==.2 and loaded.time==3
     assert [o.name for o in loaded.objects]==["C1"]
     assert loaded.objects[0].position(2)==pytest.approx(sc.objects[0].position(2))
+
+def test_multiline_comments_round_trip(tmp_path):
+    """Verify comments preserve line breaks and literal backslash sequences."""
+    sc = Scenario()
+    sc.comments = "first line\nsecond line\\ntext"
+    out = tmp_path / "comments.sce"
+    save_scenario(sc, out)
+    loaded = load_scenario(out)
+    assert loaded.comments == sc.comments
