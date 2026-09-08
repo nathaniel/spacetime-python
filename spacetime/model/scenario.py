@@ -10,6 +10,8 @@ from .decorations import Decoration, Interval, LightCone, Hyperbola
 from .lorentz import _check_beta, inverse_transform, transform, velocity_add
 from .worldline import WorldlineRecord
 
+MAX_OBJECT_BETA = 0.9999
+
 @dataclass
 class Scenario:
     """Mutable collection of objects, events, and diagram decorations."""
@@ -84,11 +86,15 @@ class Scenario:
         return x + new * (time - t), new
     def set_object_state(self, obj: STObject, time: float, x: float, beta: float) -> None:
         """Replace an object's current worldline state using frame coordinates."""
+        if obj.kind != "flash":
+            beta = max(-MAX_OBJECT_BETA, min(MAX_OBJECT_BETA, beta))
         _check_beta(beta, allow_light=obj.kind == "flash")
         original_x, original_t = inverse_transform(x, time, self.beta_rel)
         original_beta = velocity_add(beta, self.beta_rel)
         if obj.kind == "flash":
             original_beta = 1.0 if original_beta >= 0 else -1.0
+        else:
+            original_beta = max(-MAX_OBJECT_BETA, min(MAX_OBJECT_BETA, original_beta))
         from .worldline import Worldline, WorldlineRecord
         obj.worldline = Worldline([WorldlineRecord(original_x, original_t, original_beta, original_beta)])
 
@@ -214,11 +220,15 @@ class Scenario:
 
     def add_programmed_change(self, obj: STObject, time: float, x: float, beta: float) -> None:
         """Add a velocity change while preserving the programmed worldline."""
+        if obj.kind != "flash":
+            beta = max(-MAX_OBJECT_BETA, min(MAX_OBJECT_BETA, beta))
         _check_beta(beta, allow_light=obj.kind == "flash")
         original_x, original_t = inverse_transform(x, time, self.beta_rel)
         original_beta = velocity_add(beta, self.beta_rel)
         if obj.kind == "flash":
             original_beta = 1.0 if original_beta >= 0 else -1.0
+        else:
+            original_beta = max(-MAX_OBJECT_BETA, min(MAX_OBJECT_BETA, original_beta))
         records = [record for record in obj.worldline.records if record.t < original_t - 1e-6]
         old_beta = obj.worldline.velocity(original_t)
         records.append(WorldlineRecord(original_x, original_t, old_beta, original_beta))
@@ -264,7 +274,7 @@ class Scenario:
     def add_clock_in_frame(self, x: float, time: float, beta: float, name: str | None = None) -> Clock:
         """Add a clock using coordinates and velocity in the current frame."""
         original_x, original_t = inverse_transform(x, time, self.beta_rel)
-        beta = max(-1.0 + 1e-6, min(1.0 - 1e-6, beta))
+        beta = max(-MAX_OBJECT_BETA, min(MAX_OBJECT_BETA, beta))
         return self.add_clock(original_x, original_t, velocity_add(beta, self.beta_rel), name)
     def add_flash_in_frame(self, x: float, time: float, direction: int = 1, name: str | None = None) -> Flash:
         """Add a light flash using coordinates in the current frame."""
@@ -272,6 +282,7 @@ class Scenario:
         return self.add_flash(original_x, original_t, direction, name)
     def add_clock(self, x: float = 0, t: float = 0, beta: float = 0, name: str | None = None) -> Clock:
         """Add and return a clock in the original frame."""
+        beta = max(-MAX_OBJECT_BETA, min(MAX_OBJECT_BETA, beta))
         number = sum(isinstance(o, Clock) for o in self.objects) + 1
         n = name or f"C{number}"
         from .worldline import Worldline, WorldlineRecord

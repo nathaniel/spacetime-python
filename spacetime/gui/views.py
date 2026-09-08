@@ -330,7 +330,7 @@ class _View(QWidget):
                 x = self._snap_tenth(x)
             beta = self._snap_beta(beta, allow_light=self.dragged.kind == "flash")
             if self.dragged.kind != "flash":
-                beta = max(-0.999999, min(0.999999, beta))
+                beta = max(-0.9999, min(0.9999, beta))
             if self.dragged.programmed and not modifiers & (
                 Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier
             ):
