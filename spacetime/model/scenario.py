@@ -171,7 +171,7 @@ class Scenario:
             if not (event.boundary == boundary and event.object_name == obj.name)
         ]
 
-    def _set_boundary_event(self, obj: STObject, boundary: str) -> None:
+    def _set_boundary_event(self, obj: STObject, boundary: str, add_note: bool = True) -> None:
         """Create or update the event representing an existence boundary."""
         record = obj.worldline.records[0 if boundary == "birth" else -1]
         verb = "born" if boundary == "birth" else "terminated"
@@ -203,7 +203,8 @@ class Scenario:
             event.label = self._next_event_label()
         event.x = record.x
         event.t = record.t
-        event.note = f"{obj.label} {verb}"
+        if add_note:
+            event.note = f"{obj.label} {verb}"
         event.object_name = obj.name
         event.intersection_names = (obj.name, obj.name)
         event.fixed_at_intersection = True
@@ -213,11 +214,11 @@ class Scenario:
         """Create missing boundary events for objects loaded with boundary flags."""
         for obj in self.objects:
             if obj.worldline.has_birth:
-                self._set_boundary_event(obj, "birth")
+                self._set_boundary_event(obj, "birth", add_note=False)
             else:
                 self._remove_boundary_event(obj, "birth")
             if obj.worldline.has_termination:
-                self._set_boundary_event(obj, "termination")
+                self._set_boundary_event(obj, "termination", add_note=False)
             else:
                 self._remove_boundary_event(obj, "termination")
 
@@ -276,10 +277,6 @@ class Scenario:
         for index, event in enumerate(changes, start=1):
             event.label = f"{obj.label}-Δβ{index}"
             event.name = f"eDBeta{obj.name}{index}"
-        for boundary in ("birth", "termination"):
-            event = self._boundary_event(obj, boundary)
-            if event is not None:
-                event.note = f"{obj.label} {'born' if boundary == 'birth' else 'terminated'}"
     def add_clock_in_frame(self, x: float, time: float, beta: float, name: str | None = None) -> Clock:
         """Add a clock using coordinates and velocity in the current frame."""
         original_x, original_t = inverse_transform(x, time, self.beta_rel)
