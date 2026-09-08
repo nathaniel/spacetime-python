@@ -1,6 +1,7 @@
 """Main Qt window for the Spacetime scenario editor."""
 
 from __future__ import annotations
+from copy import deepcopy
 from ..commands.undo_redo import AddEvent, AddObject, DeleteEvent, DeleteObject, History, SetFrame, SetTime, Snapshot
 from ..persistence.scenario_file import load_scenario, save_scenario
 from pathlib import Path
@@ -95,6 +96,7 @@ class MainWindow(QMainWindow):
         """Build the window around a scenario."""
         super().__init__(parent); self.scenario=scenario; self.history=History()
         self.path=Path(path) if path else None; self.dirty=False
+        self._saved_scenario = deepcopy(scenario)
         self.setWindowTitle("Spacetime"); self.resize(1100,700)
         self._instruction = ""
         self._hovered_item = None
@@ -340,6 +342,7 @@ class MainWindow(QMainWindow):
 
     def refresh(self):
         """Refresh all controls and views from the scenario."""
+        self.dirty = self.scenario != self._saved_scenario
         self._update_status()
         if self._hovered_item is not None:
             self._show_hover_detail(self._hovered_item)
@@ -401,25 +404,25 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(("* " if self.dirty else "") + (self.path.name if self.path else "Spacetime"))
     def undo(self):
         """Undo the latest edit and refresh the window."""
-        self.history.undo(); self.dirty=True; self.refresh()
+        self.history.undo(); self.refresh()
     def redo(self):
         """Redo the latest undone edit and refresh the window."""
-        self.history.redo(); self.dirty=True; self.refresh()
+        self.history.redo(); self.refresh()
     def new_scenario(self):
         """Create a new empty scenario after handling unsaved changes."""
         if not self.maybe_save("creating a new one"): return
-        self._set_scenario(Scenario()); self.path=None; self.dirty=False; self.refresh()
+        self._set_scenario(Scenario()); self._saved_scenario=deepcopy(self.scenario); self.path=None; self.dirty=False; self.refresh()
     def open_scenario(self):
         """Open a scenario selected through the file dialog."""
         if not self.maybe_save("reading a new one"): return
         path,_=QFileDialog.getOpenFileName(self,"Open scenario","","Scenario files (*.sce);;All files (*)")
         if path:
-            try: self._set_scenario(load_scenario(path)); self.path=Path(path); self.history=History(); self.dirty=False; self.refresh()
+            try: self._set_scenario(load_scenario(path)); self.path=Path(path); self.history=History(); self._saved_scenario=deepcopy(self.scenario); self.dirty=False; self.refresh()
             except Exception as exc: QMessageBox.critical(self,"Open failed",str(exc))
     def save(self):
         """Save the current scenario to its associated path."""
         if not self.path: return self.save_as()
-        self.scenario.comments=self.comments.toPlainText(); save_scenario(self.scenario,self.path); self.dirty=False; self._update_title()
+        self.scenario.comments=self.comments.toPlainText(); save_scenario(self.scenario,self.path); self._saved_scenario=deepcopy(self.scenario); self.dirty=False; self._update_title()
     def save_as(self):
         """Choose a path and save the current scenario."""
         path,_=QFileDialog.getSaveFileName(self,"Save scenario","","Scenario files (*.sce)")
