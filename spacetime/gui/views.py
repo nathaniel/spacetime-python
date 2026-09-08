@@ -268,6 +268,9 @@ class _View(QWidget):
             if candidate in self.scenario.events and candidate is not self._interval_first_event:
                 self._add_interval(self._interval_first_event, candidate)
                 self._interval_first_event = None
+            elif candidate is None:
+                self._interval_first_event = None
+                self.instruction_changed.emit("")
             return
         self.dragged = candidate
         if (
@@ -471,7 +474,7 @@ class _View(QWidget):
         self.setFocus()
         self._interval_first_event = event
         self.instruction_changed.emit(
-            "Create invariant interval: select or click on another event. Press Esc to cancel."
+            "Create invariant interval: select or click on another event."
         )
 
     def _add_interval(self, first, second) -> None:
