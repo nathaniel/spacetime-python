@@ -232,7 +232,7 @@ class MainWindow(QMainWindow):
         self.object_table.changed.connect(self.mark_dirty)
         self.event_table.changed.connect(self.mark_dirty)
         tabs=QTabWidget(); tabs.addTab(self.object_table, "Objects"); tabs.addTab(self.event_table, "Events");         self.comments=QTextEdit(); self.comments.setPlainText(scenario.comments); self.comments.textChanged.connect(self.mark_dirty)
-        tabs.addTab(self.comments, "Comments")
+        tabs.addTab(self.comments, "Scenario")
         self.help_view = HelpView()
         self.shortcuts_view = ShortcutsView()
         tabs.addTab(self.shortcuts_view, "Shortcuts")

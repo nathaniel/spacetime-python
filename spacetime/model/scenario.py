@@ -22,7 +22,10 @@ class Scenario:
     objects: list[STObject] = field(default_factory=list)
     events: list[Event] = field(default_factory=list)
     decorations: list[Decoration] = field(default_factory=list)
-    comments: str = "You can type your comments for the current scenario here . . ."
+    comments: str = (
+        "Add notes about the situation explored in this scenario. "
+        "What are its important details?"
+    )
     view_xmin: float = -5.0
     view_xmax: float = 5.0
     unknown_properties: dict[str, str] = field(default_factory=dict)
