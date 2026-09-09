@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QApplication
 from spacetime.gui.views import SpacetimeDiagramView
 from spacetime.gui.views import HighwayView
 from spacetime.model.scenario import Scenario
+from spacetime.persistence.scenario_file import load_scenario
 
 
 @pytest.fixture(scope="module")
@@ -91,3 +92,17 @@ def test_all_intersections_selection_uses_partner_worldline(qt_app):
     assert view._intersection_first_object is None
     assert len(scenario.events) == 1
     assert scenario.events[0].intersection_names == (first.name, second.name)
+
+
+def test_loaded_crossing_lines_fixture_hits_c2_after_initial_change(qt_app):
+    """Detect C2's post-change horizontal worldline from the scenario fixture."""
+    scenario = load_scenario("spacetime/model/crossing-lines.sce")
+    view = SpacetimeDiagramView(scenario)
+    view.resize(800, 400)
+    clock = scenario.object("C2")
+    point = QPoint(
+        round(view.origin.x() + 0.5 * view.scale),
+        round(view.origin.y() - 1.0 * view.scale),
+    )
+
+    assert view._hit(point) is clock

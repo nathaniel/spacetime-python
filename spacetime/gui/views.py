@@ -427,16 +427,29 @@ class _View(QWidget):
                 maximum_segment = records[-1][1]
             else:
                 maximum_segment = maximum
+            segments = []
+            first_x, first_time, first_old_beta, _ = records[0]
+            if not obj.worldline.has_birth:
+                segments.append(
+                    (
+                        minimum_segment,
+                        min(maximum_segment, first_time),
+                        first_x,
+                        first_time,
+                        first_old_beta,
+                    )
+                )
             for index, (_, record_time, old_beta, new_beta) in enumerate(records):
-                start = record_time if index or obj.worldline.has_birth else minimum_segment
+                start = max(minimum_segment, record_time)
                 end = records[index + 1][1] if index + 1 < len(records) else maximum_segment
-                start = max(start, minimum_segment)
                 end = min(end, maximum_segment)
                 if end <= start:
                     continue
-                beta = new_beta if index or obj.worldline.has_birth else old_beta
-                x_start = records[index][0] + beta * (start - record_time)
-                x_end = records[index][0] + beta * (end - record_time)
+                segments.append((start, end, records[index][0], record_time, new_beta))
+
+            for start, end, record_x, record_time, beta in segments:
+                x_start = record_x + beta * (start - record_time)
+                x_end = record_x + beta * (end - record_time)
                 dx, dt = x_end - x_start, end - start
                 length_squared = dx * dx + dt * dt
                 if length_squared:
