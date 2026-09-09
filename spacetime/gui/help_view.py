@@ -24,7 +24,9 @@ def installed_ui_font() -> QFont:
         ),
         next(iter(families), ""),
     )
-    return QFont(family)
+    font = QFont(family)
+    font.setPointSize(font.pointSize() + 1)
+    return font
 
 class HelpView(QTextBrowser):
     """Display the bundled HTML help page."""
