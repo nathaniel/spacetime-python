@@ -101,7 +101,9 @@ class _PreferencesDialog(QDialog):
     def __init__(self, parent, font_size: int, trackpad: float, wheel: float):
         """Build the preferences form with the current values."""
         super().__init__(parent)
-        self.setWindowTitle("Preferences" if sys.platform == "darwin" else "Settings")
+        self.setWindowTitle(
+            "Spacetime Preferences" if sys.platform == "darwin" else "Settings"
+        )
         # Keep the form geometry stable while the application font is previewed.
         self.setFont(QApplication.instance().font())
         layout = QFormLayout(self)
@@ -297,7 +299,10 @@ class MainWindow(QMainWindow):
         add_clock.triggered.connect(self.create_clock)
         add_flash = edit_menu.addAction("Create Light Flash")
         add_flash.triggered.connect(self.create_flash)
-        preferences = QAction("Preferences..." if sys.platform == "darwin" else "Settings...", self)
+        preferences = QAction(
+            "Preferences..." if sys.platform == "darwin" else "Settings...",
+            self,
+        )
         preferences.setMenuRole(QAction.MenuRole.PreferencesRole)
         preferences.triggered.connect(self.show_preferences)
         if sys.platform == "darwin":
