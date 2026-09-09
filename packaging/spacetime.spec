@@ -2,7 +2,7 @@
 #   pyinstaller python/packaging/spacetime.spec
 from pathlib import Path
 
-root = Path(SPECPATH).parent.parent
+root = Path(SPECPATH).parent
 a = Analysis(
     [str(root / "main.py")],
     pathex=[str(root)],
@@ -18,4 +18,9 @@ exe = EXE(
     pyz, a.scripts, a.binaries, a.datas, [],
     name="Spacetime", debug=False, strip=False, upx=True,
     console=False,
+)
+app = BUNDLE(
+    exe,
+    name="Spacetime.app",
+    bundle_identifier="org.spacetime.simulator",
 )
