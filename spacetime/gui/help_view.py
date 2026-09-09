@@ -87,6 +87,12 @@ class ShortcutsView(QWidget):
         table = QTableWidget(self)
         self.table = table
         layout.addWidget(table)
+        note = QLabel(
+            "Mouse-wheel and trackpad sensitivity can be adjusted in Preferences.",
+            self,
+        )
+        note.setWordWrap(True)
+        layout.addWidget(note)
         modifier = "Cmd" if sys.platform == "darwin" else "Ctrl"
         rows = [
             ("↑ / ↓", "Advance / rewind time by 0.1"),
