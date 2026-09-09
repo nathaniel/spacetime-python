@@ -103,6 +103,8 @@ class _PreferencesDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Preferences" if sys.platform == "darwin" else "Settings")
         layout = QFormLayout(self)
+        layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.FieldsStayAtSizeHint)
         self.font_size = QSpinBox()
         self.font_size.setRange(6, 32)
         self.font_size.setValue(font_size)
@@ -119,6 +121,8 @@ class _PreferencesDialog(QDialog):
         layout.addRow("Application font size:", self.font_size)
         layout.addRow("Trackpad / pixel-scroll sensitivity (10–500%):", self.trackpad)
         layout.addRow("Mouse-wheel sensitivity (10–500%):", self.wheel)
+        for field in (self.font_size, self.trackpad, self.wheel):
+            layout.setAlignment(field, Qt.AlignmentFlag.AlignRight)
         note = QLabel(
             "Note: Some devices may combine or interpret trackpad and mouse-wheel input differently."
         )
