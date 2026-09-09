@@ -235,7 +235,7 @@ class MainWindow(QMainWindow):
         tabs.addTab(self.comments, "Comments")
         self.help_view = HelpView()
         self.shortcuts_view = ShortcutsView()
-        tabs.addTab(self.shortcuts_view, "Shortcuts & Gestures")
+        tabs.addTab(self.shortcuts_view, "Shortcuts")
         self.tabs = tabs
         self.table_dock=QDockWidget("Tables", self); self.table_dock.setWidget(tabs); self.addDockWidget(Qt.RightDockWidgetArea, self.table_dock)
         self.help_dock = QDockWidget("Help", self)
