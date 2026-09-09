@@ -189,13 +189,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
         self.status_panel = _StatusPanel()
         self.statusBar().addWidget(self.status_panel, 1)
-        self.shortcut_hint = QLabel(
-            "See Shortcuts for keyboard/mouse/trackpad shortcuts", self
-        )
-        hint_font = self.shortcut_hint.font()
-        hint_font.setItalic(True)
-        self.shortcut_hint.setFont(hint_font)
-        self.statusBar().addPermanentWidget(self.shortcut_hint)
         self._update_status()
         self.object_table = ObjectTable(scenario)
         self.event_table = EventTable(scenario)
