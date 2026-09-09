@@ -6,7 +6,7 @@ import math
 from copy import deepcopy
 
 from PySide6.QtCore import QEvent, QPointF, QRectF, Qt, Signal
-from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
+from PySide6.QtGui import QColor, QFont, QInputDevice, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import QWidget, QMenu
 
 from ..commands.undo_redo import AddEvent, AddObject, DeleteEvent, DeleteObject, ProgramObject, Snapshot
@@ -125,6 +125,7 @@ class _View(QWidget):
         """Handle scrolling for panning, zooming, and stepping."""
         angle_delta = event.angleDelta()
         pixel_delta = event.pixelDelta()
+        trackpad = event.device().type() == QInputDevice.DeviceType.TouchPad
         horizontal = angle_delta.x() or pixel_delta.x()
         vertical = angle_delta.y() or pixel_delta.y()
         if horizontal and vertical:
@@ -135,7 +136,7 @@ class _View(QWidget):
             if vertical_size < horizontal_size * 1.5:
                 vertical = 0
         if horizontal:
-            if pixel_delta.x():
+            if trackpad and pixel_delta.x():
                 self.pan_horizontal(-pixel_delta.x() * 0.18 * self.trackpad_sensitivity)
             else:
                 self.pan_horizontal(
@@ -146,12 +147,12 @@ class _View(QWidget):
             if isinstance(self, HighwayView):
                 step = (
                     0.0025 * abs(pixel_delta.y()) * self.trackpad_sensitivity
-                    if pixel_delta.y()
+                    if trackpad and pixel_delta.y()
                     else 0.025 * self.mouse_wheel_sensitivity
                 )
                 self._transform_by(step if vertical > 0 else -step)
             else:
-                if pixel_delta.y():
+                if trackpad and pixel_delta.y():
                     step = 0.005 * abs(pixel_delta.y()) * self.trackpad_sensitivity
                     self.scenario.time += step if vertical > 0 else -step
                 else:

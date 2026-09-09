@@ -2,7 +2,7 @@
 
 import pytest
 from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
-from PySide6.QtGui import QMouseEvent, QWheelEvent
+from PySide6.QtGui import QInputDevice, QMouseEvent, QPointingDevice, QWheelEvent
 from PySide6.QtWidgets import QApplication
 
 from spacetime.gui.views import SpacetimeDiagramView
@@ -108,8 +108,8 @@ def test_loaded_crossing_lines_fixture_hits_c2_after_initial_change(qt_app):
     assert view._hit(point) is clock
 
 
-def test_pixel_scroll_sensitivity_wins_when_qt_also_reports_angle_delta(qt_app):
-    """Treat mixed pixel and angle wheel data as trackpad input."""
+def test_mouse_scroll_uses_mouse_sensitivity_when_pixel_delta_is_present(qt_app):
+    """Use mouse sensitivity for mouse events even when pixel data is present."""
     scenario = Scenario()
     view = SpacetimeDiagramView(scenario)
     view.trackpad_sensitivity = 2.0
@@ -123,6 +123,39 @@ def test_pixel_scroll_sensitivity_wins_when_qt_also_reports_angle_delta(qt_app):
         Qt.KeyboardModifier.NoModifier,
         Qt.ScrollPhase.ScrollUpdate,
         False,
+    )
+
+    view.wheelEvent(wheel)
+
+    assert scenario.time == pytest.approx(0.025)
+
+
+def test_trackpad_scroll_uses_trackpad_sensitivity_with_mixed_deltas(qt_app):
+    """Use trackpad sensitivity when Qt reports both pixel and angle data."""
+    scenario = Scenario()
+    view = SpacetimeDiagramView(scenario)
+    view.trackpad_sensitivity = 2.0
+    view.mouse_wheel_sensitivity = 0.5
+    device = QPointingDevice(
+        "trackpad",
+        1,
+        QInputDevice.DeviceType.TouchPad,
+        QPointingDevice.PointerType.Finger,
+        QInputDevice.Capability.Position,
+        1,
+        0,
+    )
+    wheel = QWheelEvent(
+        QPointF(10, 10),
+        QPointF(10, 10),
+        QPoint(0, 20),
+        QPoint(0, 120),
+        Qt.MouseButton.NoButton,
+        Qt.KeyboardModifier.NoModifier,
+        Qt.ScrollPhase.ScrollUpdate,
+        False,
+        Qt.MouseEventSource.MouseEventNotSynthesized,
+        device,
     )
 
     view.wheelEvent(wheel)
