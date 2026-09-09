@@ -361,7 +361,7 @@ class MainWindow(QMainWindow):
         create_menu.addAction("Event").triggered.connect(self.create_event)
 
         frames = self.menuBar().addMenu("&Reference frame")
-        set_frame = frames.addAction("Set beta...")
+        set_frame = frames.addAction("Transform to beta...")
         set_frame.triggered.connect(self.set_frame)
         frame_up = frames.addAction("Transform up")
         frame_up.setShortcut("Shift+Up")
@@ -616,12 +616,21 @@ class MainWindow(QMainWindow):
         self._announce(f"Created {event.label}.")
 
     def set_frame(self) -> None:
-        """Prompt for and set the reference frame."""
-        beta = self._number("Reference frame", "Frame velocity beta (-1 < beta < 1):", self.scenario.beta_rel)
+        """Prompt for a relative velocity and transform the reference frame."""
+        beta = self._number(
+            "Transform reference frame",
+            "Relative frame velocity beta (-1 < beta < 1):",
+            0.0,
+        )
         if beta is None:
             return
         try:
-            self.history.do(SetFrame(self.scenario, beta))
+            self.history.do(
+                SetFrame(
+                    self.scenario,
+                    velocity_add(self.scenario.beta_rel, beta),
+                )
+            )
         except ValueError as exc:
             QMessageBox.warning(self, "Cannot change reference frame", str(exc))
             return

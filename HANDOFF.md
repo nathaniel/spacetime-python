@@ -139,7 +139,8 @@ The current top-level menus are:
 - **Scenario** — New, Open, Save, Save As, Quit.
 - **Edit** — Undo, Redo.
 - **Create** — Clock, Light Flash, Event.
-- **Reference frame** — Set beta, Transform up/down, Return to original frame.
+- **Reference frame** — Transform to beta relative to the current frame,
+  Transform up/down, Return to original frame.
 - **Coordinates** — Advance time, Rewind time, Set time, Set time to zero,
   Center on x.
 - **View** — Zoom in/out, Move left/right.
