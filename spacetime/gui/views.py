@@ -938,18 +938,18 @@ class SpacetimeDiagramView(_View):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.fillRect(self.rect(), Qt.GlobalColor.white)
         origin = self.origin
-        width, height = self.width(), self.height()
+        viewport_width, height = self.width(), self.height()
         axis_font = painter.font()
         axis_font.setPointSize(max(1, round(axis_font.pointSize() * 0.825)))
         painter.setFont(axis_font)
 
         painter.setPen(QPen(QColor("#d0d0d0"), 1))
-        painter.drawLine(QPointF(0, origin.y()), QPointF(width, origin.y()))
+        painter.drawLine(QPointF(0, origin.y()), QPointF(viewport_width, origin.y()))
         painter.drawLine(QPointF(origin.x(), 0), QPointF(origin.x(), height))
         painter.setPen(QPen(QColor("#777777"), 1))
         unit = self._nice_tick_unit()
         first_tick = math.floor((-origin.x()) / (self.scale * unit))
-        last_tick = math.ceil((width - origin.x()) / (self.scale * unit))
+        last_tick = math.ceil((viewport_width - origin.x()) / (self.scale * unit))
         for tick in range(first_tick, last_tick + 1):
             value = tick * unit
             px = origin.x() + value * self.scale
@@ -964,16 +964,16 @@ class SpacetimeDiagramView(_View):
             painter.drawLine(QPointF(origin.x() - 4, py), QPointF(origin.x() + 4, py))
             self._draw_tick_label(painter, f"{value:g}", origin.x() - 24, py + 4)
         painter.setPen(QPen(Qt.GlobalColor.black, 1))
-        painter.drawText(QPointF(width - 20, origin.y() - 8), "x")
+        painter.drawText(QPointF(viewport_width - 20, origin.y() - 8), "x")
         painter.drawText(QPointF(origin.x() + 8, 14), "t")
 
         current_y = origin.y() - self.scenario.time * self.scale
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QColor(30, 90, 220, 45))
-        painter.drawRect(QRectF(0, current_y - 6, width, 12))
+        painter.drawRect(QRectF(0, current_y - 6, viewport_width, 12))
         painter.setPen(QPen(QColor(30, 90, 220, 170), 1))
         painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawLine(QPointF(0, current_y), QPointF(width, current_y))
+        painter.drawLine(QPointF(0, current_y), QPointF(viewport_width, current_y))
 
         minimum, maximum = self._visible_time_bounds(origin)
         highlighted = (
@@ -995,11 +995,11 @@ class SpacetimeDiagramView(_View):
                 or obj is self.hovered
                 or obj is self._intersection_first_object
             )
-            width = 3.5 if is_highlighted else 2
+            line_width = 3.5 if is_highlighted else 2
             painter.setPen(
                 QPen(
                     color,
-                    width,
+                    line_width,
                     Qt.PenStyle.DashLine
                     if obj.kind == "flash"
                     else Qt.PenStyle.SolidLine,
@@ -1055,7 +1055,7 @@ class SpacetimeDiagramView(_View):
                 painter.drawEllipse(point, 4, 4)
             painter.drawText(QPointF(origin.x() + x * self.scale + 7, origin.y() - t * self.scale + 4), event.label)
         x_min = -origin.x() / self.scale
-        x_max = (width - origin.x()) / self.scale
+        x_max = (viewport_width - origin.x()) / self.scale
         for d in self.scenario.decorations:
             if getattr(d, "first", None) and getattr(d, "second", None):
                 a,b=d.first,d.second

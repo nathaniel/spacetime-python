@@ -2,7 +2,7 @@
 
 import pytest
 from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
-from PySide6.QtGui import QMouseEvent, QWheelEvent
+from PySide6.QtGui import QImage, QMouseEvent, QWheelEvent
 from PySide6.QtWidgets import QApplication
 
 from spacetime.commands.undo_redo import History
@@ -359,3 +359,24 @@ def test_spacetime_constructions_are_undoable(qt_app):
     for expected_count in (1, 2, 3):
         assert view.history.redo()
         assert len(scenario.decorations) == expected_count
+
+
+def test_light_cone_is_painted(qt_app):
+    """Render a light cone across the diagram viewport."""
+    scenario = Scenario()
+    event = scenario.add_event(0.0, 0.0)
+    view = SpacetimeDiagramView(scenario)
+    view.resize(800, 400)
+    view._add_decoration("lightcone", event)
+    image = QImage(800, 400, QImage.Format.Format_ARGB32)
+    image.fill(0xFFFFFFFF)
+
+    view.render(image)
+
+    red_pixels = 0
+    for y in range(image.height()):
+        for x in range(image.width()):
+            color = image.pixelColor(x, y)
+            if color.red() > 200 and 80 < color.green() < 220 and 80 < color.blue() < 220:
+                red_pixels += 1
+    assert red_pixels > 100
