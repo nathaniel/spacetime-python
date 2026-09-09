@@ -46,6 +46,37 @@ def test_intersection_event_can_target_a_later_crossing():
     assert event.t == pytest.approx(6)
 
 
+def test_worldline_event_snaps_to_current_simultaneity_line():
+    """Create a worldline event at the exact current-frame time."""
+    scenario = Scenario(beta_rel=0.6, time=2.0)
+    clock = scenario.add_clock(1.0, 0.0, 0.25)
+
+    event = scenario.worldline_event(clock, scenario.time)
+    frame_x, frame_t = scenario.coordinates(event.x, event.t)
+    object_x, _ = scenario.object_state(clock, scenario.time)
+
+    assert event.placed_at_worldline
+    assert event.object_name == clock.name
+    assert frame_x == pytest.approx(object_x)
+    assert frame_t == pytest.approx(scenario.time)
+
+
+def test_worldline_event_follows_object_worldline():
+    """Keep a constrained event on its worldline when the object changes."""
+    scenario = Scenario(time=2.0)
+    clock = scenario.add_clock(0.0, 0.0, 0.5)
+    event = scenario.worldline_event(clock, scenario.time)
+    old_x, old_t = event.x, event.t
+
+    scenario.set_object_state(clock, scenario.time, 0.5, 0.25)
+
+    assert (event.x, event.t) != pytest.approx((old_x, old_t))
+    frame_x, frame_t = scenario.coordinates(event.x, event.t)
+    object_x, _ = scenario.object_state(clock, scenario.time)
+    assert frame_x == pytest.approx(object_x)
+    assert frame_t == pytest.approx(scenario.time)
+
+
 def test_intersections_include_times_before_initial_records():
     """Find a crossing on the semi-infinite segment before t=0."""
     scenario = Scenario()

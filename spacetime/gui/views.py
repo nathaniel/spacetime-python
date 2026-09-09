@@ -29,6 +29,7 @@ class _View(QWidget):
         self.offset = (0.0, 0.0)
         self.hovered = None
         self.hovered_intersection = None
+        self.hovered_simultaneity = None
         self.dragged = None
         self._drag_start = None
         self._drag_before = None
@@ -148,6 +149,7 @@ class _View(QWidget):
                     )
                 self.changed.emit()
                 self.update()
+
         event.accept()
 
     def event(self, event):
@@ -340,6 +342,7 @@ class _View(QWidget):
         """Clear hover information when the pointer leaves the view."""
         self.hovered = None
         self.hovered_intersection = None
+        self.hovered_simultaneity = None
         self.hover_changed.emit(None)
         super().leaveEvent(event)
 
@@ -348,6 +351,11 @@ class _View(QWidget):
         self.hovered = self._hit(point)
         self.hovered_intersection = (
             self._intersection_at(point)
+            if isinstance(self, SpacetimeDiagramView)
+            else None
+        )
+        self.hovered_simultaneity = (
+            self._simultaneity_intersection_at(point)
             if isinstance(self, SpacetimeDiagramView)
             else None
         )
@@ -366,6 +374,28 @@ class _View(QWidget):
             for obj in self.scenario.objects:
                 x,_=self._frame_state(obj,self.scenario.time)
                 if abs(point.x()-(origin.x()+x*self.scale))<10 and abs(point.y()-(origin.y()-self.scenario.time*self.scale))<10:return obj
+        return None
+
+    def _simultaneity_intersection_at(self, point):
+        """Return an object crossing the current simultaneity line under point."""
+        if not isinstance(self, SpacetimeDiagramView):
+            return None
+        origin = self.origin
+        current_y = origin.y() - self.scenario.time * self.scale
+        if abs(point.y() - current_y) > 14:
+            return None
+        for obj in self.scenario.objects:
+            frame_x, _ = self._frame_state(obj, self.scenario.time)
+            if not self._object_exists(obj, self.scenario.time, frame_x):
+                continue
+            screen_x = origin.x() + frame_x * self.scale
+            if abs(point.x() - screen_x) <= 14:
+                original_x, original_t = inverse_transform(
+                    frame_x,
+                    self.scenario.time,
+                    self.scenario.beta_rel,
+                )
+                return obj, original_t, original_x
         return None
 
     def _intersection_at(self, point):
@@ -474,6 +504,7 @@ class _View(QWidget):
                 transform_menu.addAction("Original frame", self._original_frame)
         else:
             intersection = self._intersection_at(point)
+            simultaneity = self._simultaneity_intersection_at(point)
             if self.hovered in self.scenario.events:
                 selected_event = self.hovered
                 title = menu.addAction(f"Event {selected_event.label}")
@@ -509,6 +540,20 @@ class _View(QWidget):
                         original_x,
                     ),
                 )
+            elif simultaneity is not None:
+                obj, original_t, original_x = simultaneity
+                title = menu.addAction(
+                    f"{obj.label} at simultaneity line"
+                )
+                title.setEnabled(False)
+                menu.addSeparator()
+                menu.addAction(
+                    "Create event",
+                    lambda: self._create_worldline_event(
+                        obj,
+                        self.scenario.time,
+                    ),
+                )
             else: menu.addAction("Create event", lambda: self._create_event(point))
         menu.exec(self.mapToGlobal(point))
 
@@ -525,6 +570,15 @@ class _View(QWidget):
             second,
             hit=(original_t, original_x),
         )
+        if self.history is not None:
+            self.scenario.events.remove(event)
+            self.history.do(AddEvent(self.scenario, event))
+        self.changed.emit()
+        self.update()
+
+    def _create_worldline_event(self, obj, frame_time: float) -> None:
+        """Create an event constrained to an object's current-frame position."""
+        event = self.scenario.worldline_event(obj, frame_time)
         if self.history is not None:
             self.scenario.events.remove(event)
             self.history.do(AddEvent(self.scenario, event))
@@ -744,10 +798,18 @@ class SpacetimeDiagramView(_View):
             if self.hovered_intersection is not None
             else ()
         )
+        highlighted_simultaneity = (
+            self.hovered_simultaneity[0]
+            if self.hovered_simultaneity is not None
+            else None
+        )
         for obj in self.scenario.objects:
             color = QColor("#1769aa") if obj.kind == "clock" else QColor("#c76b00")
             x, beta = self._frame_state(obj, self.scenario.time)
-            is_highlighted = any(obj is candidate for candidate in highlighted)
+            is_highlighted = (
+                any(obj is candidate for candidate in highlighted)
+                or obj is highlighted_simultaneity
+            )
             width = 3.5 if is_highlighted else 2
             painter.setPen(
                 QPen(

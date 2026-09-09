@@ -281,8 +281,17 @@ class Scenario:
             event.name = f"eDBeta{obj.name}{index}"
 
     def synchronize_intersection_events(self) -> None:
-        """Move constrained events to their current matching intersections."""
+        """Move constrained events to their current matching worldlines."""
         for event in self.events:
+            if event.placed_at_worldline and event.object_name and not event.boundary:
+                try:
+                    obj = self.object(event.object_name)
+                except KeyError:
+                    continue
+                frame_t = transform(event.x, event.t, self.beta_rel)[1]
+                frame_x, _ = self.object_state(obj, frame_t)
+                event.x, event.t = inverse_transform(frame_x, frame_t, self.beta_rel)
+                continue
             if (
                 not event.fixed_at_intersection
                 or event.boundary
@@ -396,6 +405,19 @@ class Scenario:
         event = self.add_event(x, t, name)
         event.fixed_at_intersection = True
         event.intersection_names = (first.name, second.name)
+        return event
+    def worldline_event(
+        self,
+        obj: STObject,
+        frame_time: float,
+        name: str | None = None,
+    ) -> Event:
+        """Create an event on an object's worldline at a current-frame time."""
+        frame_x, _ = self.object_state(obj, frame_time)
+        x, t = inverse_transform(frame_x, frame_time, self.beta_rel)
+        event = self.add_event(x, t, name)
+        event.object_name = obj.name
+        event.placed_at_worldline = True
         return event
     def clone(self) -> "Scenario":
         """Return an independent deep copy of the scenario."""
