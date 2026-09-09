@@ -765,8 +765,10 @@ class MainWindow(QMainWindow):
         self.scenario.comments=self.comments.toPlainText()
         self.dirty=True; self.refresh()
     def _update_title(self):
-        """Update the window title with the current path and dirty state."""
-        self.setWindowTitle(("* " if self.dirty else "") + (self.path.name if self.path else "Spacetime"))
+        """Update the document-first window title and dirty state."""
+        document_name = self.path.name if self.path else "Untitled"
+        marker = "* " if self.dirty else ""
+        self.setWindowTitle(f"{marker}{document_name} — Spacetime")
     def undo(self):
         """Undo the latest edit and refresh the window."""
         self.history.undo(); self.refresh()
