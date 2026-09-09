@@ -87,7 +87,7 @@ class _StatusPanel(QWidget):
         self.detail_label.setText(text)
         self.detail_label.setVisible(bool(text))
         self.detail_label.setStyleSheet(
-            "QLabel { border-left: 1px solid #b0b0b0; padding-left: 8px; }"
+            "QLabel { border-left: 1px solid #707070; padding-left: 8px; }"
             if text
             else ""
         )
