@@ -5,6 +5,8 @@ from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
 from PySide6.QtGui import QMouseEvent, QWheelEvent
 from PySide6.QtWidgets import QApplication
 
+from spacetime.commands.undo_redo import History
+from spacetime.gui.tables import EventTable, ObjectTable
 from spacetime.gui.views import SpacetimeDiagramView
 from spacetime.gui.views import HighwayView
 from spacetime.model.scenario import Scenario
@@ -171,3 +173,31 @@ def test_spacetime_vertical_scroll_scales_with_zoom(qt_app):
     view.wheelEvent(wheel)
 
     assert scenario.time == pytest.approx(0.2)
+
+
+def test_object_table_edit_is_undoable(qt_app):
+    """Undo a completed object-table edit as one logical change."""
+    scenario = Scenario()
+    scenario.add_clock()
+    table = ObjectTable(scenario)
+    table.history = History()
+
+    table.item(0, 5).setText("A new note")
+
+    assert scenario.objects[0].note == "A new note"
+    assert table.history.undo()
+    assert scenario.objects[0].note == "Clock 1"
+
+
+def test_event_table_edit_is_undoable(qt_app):
+    """Undo a completed event-table edit as one logical change."""
+    scenario = Scenario()
+    scenario.add_event(1.0, 2.0)
+    table = EventTable(scenario)
+    table.history = History()
+
+    table.item(0, 3).setText("A new note")
+
+    assert scenario.events[0].note == "A new note"
+    assert table.history.undo()
+    assert scenario.events[0].note == "Event 1"

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 import math
+from copy import deepcopy
 from PySide6.QtWidgets import QHeaderView, QMenu, QTableWidget, QTableWidgetItem, QMessageBox
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor
@@ -143,6 +144,7 @@ class ObjectTable(QTableWidget):
         """Apply an edited table cell to the model."""
         if self._updating or not 0 <= item.row() < len(self.scenario.objects): return
         obj=self.scenario.objects[item.row()]
+        before = deepcopy(self.scenario)
         try:
             if item.column()==0:
                 obj.label = item.text()
@@ -172,6 +174,15 @@ class ObjectTable(QTableWidget):
             self._updating=False
             QMessageBox.warning(self, "Invalid object value", str(exc))
             return
+        if self.history is not None and before != self.scenario:
+            self.history.do(
+                Snapshot(
+                    self.scenario,
+                    lambda: None,
+                    before=before,
+                    after=deepcopy(self.scenario),
+                )
+            )
         self.changed.emit()
 
 class EventTable(QTableWidget):
@@ -262,6 +273,7 @@ class EventTable(QTableWidget):
         """Apply an edited event cell to the model."""
         if self._updating or not 0 <= item.row() < len(self.scenario.events): return
         event=self.scenario.events[item.row()]
+        before = deepcopy(self.scenario)
         try:
             if item.column()==0: event.label=item.text()
             elif item.column()==1: event.x=float(item.text())
@@ -274,4 +286,13 @@ class EventTable(QTableWidget):
             self._updating=False
             QMessageBox.warning(self, "Invalid event value", str(exc))
             return
+        if self.history is not None and before != self.scenario:
+            self.history.do(
+                Snapshot(
+                    self.scenario,
+                    lambda: None,
+                    before=before,
+                    after=deepcopy(self.scenario),
+                )
+            )
         self.changed.emit()
