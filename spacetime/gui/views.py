@@ -231,6 +231,7 @@ class _View(QWidget):
             self.scenario.events.remove(event)
             self.history.do(AddEvent(self.scenario, event))
         self.changed.emit()
+        self.action_message.emit(f"Created {event.label}.")
         self.update()
 
     def keyPressEvent(self, event):
@@ -746,16 +747,21 @@ class _View(QWidget):
             self.scenario.events.remove(event)
             self.history.do(AddEvent(self.scenario, event))
         self.changed.emit()
+        self.action_message.emit(f"Created {event.label}.")
         self.update()
 
     def _add_all_intersections(self, first, second) -> None:
         """Create fixed events at every crossing of two worldlines."""
+        before = len(self.scenario.events)
         mutation = lambda: self.scenario.all_intersection_events(first, second)
         if self.history is None:
             mutation()
         else:
             self.history.do(Snapshot(self.scenario, mutation))
         self.changed.emit()
+        self.action_message.emit(
+            f"Created {len(self.scenario.events) - before} events."
+        )
         self.update()
 
     def _create_worldline_event(self, obj, frame_time: float) -> None:
@@ -765,6 +771,7 @@ class _View(QWidget):
             self.scenario.events.remove(event)
             self.history.do(AddEvent(self.scenario, event))
         self.changed.emit()
+        self.action_message.emit(f"Created {event.label}.")
         self.update()
 
     def _add_decoration(self, kind: str, event) -> None:
@@ -813,6 +820,7 @@ class _View(QWidget):
             self.scenario.objects.remove(obj)
             self.history.do(AddObject(self.scenario, obj))
         self.changed.emit()
+        self.action_message.emit(f"Created {obj.label}.")
 
     def _create_flash(self, x: float, beta: float) -> None:
         """Create a light flash from a highway position and velocity."""
@@ -826,6 +834,7 @@ class _View(QWidget):
             self.scenario.objects.remove(obj)
             self.history.do(AddObject(self.scenario, obj))
         self.changed.emit()
+        self.action_message.emit(f"Created {obj.label}.")
 
     def _delete_object(self, obj) -> None:
         """Delete an object, recording the command when possible."""

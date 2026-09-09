@@ -91,7 +91,7 @@ class _StatusPanel(QWidget):
         )
         self.separator.setFixedWidth(2)
         self.announcement_separator.setFixedWidth(2)
-        self.announcement_label.setFixedWidth(180)
+        self.announcement_label.setMinimumWidth(0)
         self.separator.hide()
         self.announcement_separator.hide()
         self.announcement_label.hide()
@@ -118,6 +118,13 @@ class _StatusPanel(QWidget):
     def set_announcement(self, text: str) -> None:
         """Set or clear a transient confirmation after the detail section."""
         self.announcement_label.setText(text)
+        if text:
+            self.announcement_label.adjustSize()
+            self.announcement_label.setMinimumWidth(
+                self.announcement_label.sizeHint().width() + 12
+            )
+        else:
+            self.announcement_label.setMinimumWidth(0)
         self.announcement_label.setVisible(bool(text))
         self.announcement_separator.setVisible(bool(text))
         self._update_separator_visibility()
