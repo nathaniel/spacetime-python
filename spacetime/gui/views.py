@@ -371,32 +371,78 @@ class _View(QWidget):
             for event in self.scenario.events:
                 x,t=transform(event.x,event.t,self.scenario.beta_rel)
                 if (point.x()-(origin.x()+x*self.scale))**2+(point.y()-(origin.y()-t*self.scale))**2<12**2:return event
-            for obj in self.scenario.objects:
-                x,_=self._frame_state(obj,self.scenario.time)
-                if abs(point.x()-(origin.x()+x*self.scale))<10 and abs(point.y()-(origin.y()-self.scenario.time*self.scale))<10:return obj
+            worldline = self._worldline_at(point)
+            if worldline is not None:
+                return worldline[0]
         return None
 
-    def _simultaneity_intersection_at(self, point):
-        """Return an object crossing the current simultaneity line under point."""
+    def _worldline_at(self, point):
+        """Return the nearest visible worldline and its nearest frame point."""
         if not isinstance(self, SpacetimeDiagramView):
             return None
         origin = self.origin
-        current_y = origin.y() - self.scenario.time * self.scale
-        if abs(point.y() - current_y) > 14:
-            return None
+        frame_x = (point.x() - origin.x()) / self.scale
+        frame_t = (origin.y() - point.y()) / self.scale
+        minimum, maximum = self._visible_time_bounds(origin)
+        nearest = None
         for obj in self.scenario.objects:
-            frame_x, _ = self._frame_state(obj, self.scenario.time)
-            if not self._object_exists(obj, self.scenario.time, frame_x):
+            records = [record.in_frame(self.scenario.beta_rel) for record in obj.worldline.records]
+            if not records:
                 continue
-            screen_x = origin.x() + frame_x * self.scale
-            if abs(point.x() - screen_x) <= 14:
-                original_x, original_t = inverse_transform(
-                    frame_x,
-                    self.scenario.time,
-                    self.scenario.beta_rel,
+            if obj.worldline.has_birth:
+                minimum_segment = records[0][1]
+            else:
+                minimum_segment = minimum
+            if obj.worldline.has_termination:
+                maximum_segment = records[-1][1]
+            else:
+                maximum_segment = maximum
+            for index, (_, record_time, old_beta, new_beta) in enumerate(records):
+                start = record_time if index or obj.worldline.has_birth else minimum_segment
+                end = records[index + 1][1] if index + 1 < len(records) else maximum_segment
+                start = max(start, minimum_segment)
+                end = min(end, maximum_segment)
+                if end <= start:
+                    continue
+                beta = new_beta if index or obj.worldline.has_birth else old_beta
+                x_start = records[index][0] + beta * (start - record_time)
+                x_end = records[index][0] + beta * (end - record_time)
+                dx, dt = x_end - x_start, end - start
+                length_squared = dx * dx + dt * dt
+                if length_squared:
+                    fraction = (
+                        (frame_x - x_start) * dx + (frame_t - start) * dt
+                    ) / length_squared
+                    fraction = max(0.0, min(1.0, fraction))
+                else:
+                    fraction = 0.0
+                candidate_x = x_start + fraction * dx
+                candidate_t = start + fraction * dt
+                distance_squared = (
+                    (frame_x - candidate_x) ** 2
+                    + (frame_t - candidate_t) ** 2
                 )
-                return obj, original_t, original_x
-        return None
+                if nearest is None or distance_squared < nearest[3]:
+                    nearest = (obj, candidate_t, candidate_x, distance_squared)
+        if nearest is None or nearest[3] * self.scale * self.scale > 12 ** 2:
+            return None
+        return nearest
+
+    def _simultaneity_intersection_at(self, point):
+        """Return an object crossing the current simultaneity line under point."""
+        worldline = self._worldline_at(point)
+        if worldline is None:
+            return None
+        obj, _, _, _ = worldline
+        if abs(worldline[1] - self.scenario.time) > 14 / self.scale:
+            return None
+        frame_x, _ = self._frame_state(obj, self.scenario.time)
+        original_x, original_t = inverse_transform(
+            frame_x,
+            self.scenario.time,
+            self.scenario.beta_rel,
+        )
+        return obj, original_t, original_x
 
     def _intersection_at(self, point):
         """Return two objects whose first intersection is under ``point``."""
@@ -505,6 +551,7 @@ class _View(QWidget):
         else:
             intersection = self._intersection_at(point)
             simultaneity = self._simultaneity_intersection_at(point)
+            worldline = self._worldline_at(point)
             if self.hovered in self.scenario.events:
                 selected_event = self.hovered
                 title = menu.addAction(f"Event {selected_event.label}")
@@ -541,7 +588,7 @@ class _View(QWidget):
                     ),
                 )
             elif simultaneity is not None:
-                obj, original_t, original_x = simultaneity
+                obj = simultaneity[0]
                 title = menu.addAction(
                     f"{obj.label} at simultaneity line"
                 )
@@ -552,6 +599,18 @@ class _View(QWidget):
                     lambda: self._create_worldline_event(
                         obj,
                         self.scenario.time,
+                    ),
+                )
+            elif worldline is not None:
+                obj, frame_time, _, _ = worldline
+                title = menu.addAction(f"Worldline of {obj.label}")
+                title.setEnabled(False)
+                menu.addSeparator()
+                menu.addAction(
+                    "Create event",
+                    lambda: self._create_worldline_event(
+                        obj,
+                        self._snap_tenth(frame_time),
                     ),
                 )
             else: menu.addAction("Create event", lambda: self._create_event(point))
@@ -809,6 +868,7 @@ class SpacetimeDiagramView(_View):
             is_highlighted = (
                 any(obj is candidate for candidate in highlighted)
                 or obj is highlighted_simultaneity
+                or obj is self.hovered
             )
             width = 3.5 if is_highlighted else 2
             painter.setPen(

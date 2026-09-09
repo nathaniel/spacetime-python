@@ -1,6 +1,7 @@
 """Tests for light flashes and Qt views."""
 
 import pytest
+from PySide6.QtCore import QPoint
 from PySide6.QtWidgets import QApplication
 
 from spacetime.gui.views import SpacetimeDiagramView
@@ -42,3 +43,23 @@ def test_jump_to_clock_selects_comoving_frame(qt_app):
     assert scenario.object_state(clock, scenario.time)[1] == pytest.approx(0.0)
     x, _ = view._frame_state(clock, scenario.time)
     assert view.origin.x() + x * view.scale == pytest.approx(view.width() / 2)
+
+
+def test_diagram_hover_finds_worldline_and_event_stays_aligned(qt_app):
+    """Use the nearest worldline for hover and constrain created events to it."""
+    scenario = Scenario()
+    clock = scenario.add_clock(0.0, 0.0, 0.5)
+    view = SpacetimeDiagramView(scenario)
+    view.resize(800, 400)
+
+    point = QPoint(
+        round(view.origin.x() + 0.5 * view.scale),
+        round(view.origin.y() - 1.0 * view.scale),
+    )
+    assert view._hit(point) is clock
+
+    view._create_worldline_event(clock, 1.0)
+    event = scenario.events[-1]
+    frame_x, frame_t = scenario.coordinates(event.x, event.t)
+    assert frame_x == pytest.approx(0.5)
+    assert frame_t == pytest.approx(1.0)
