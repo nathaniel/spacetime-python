@@ -25,7 +25,7 @@ currently includes:
   decorations, zooming, panning, time navigation, and frame changes.
 - Platform-aware menus, persistent preferences, first-launch Getting Started,
   shortcuts and gestures, and Help content.
-- Focused regression tests; the current suite has 30 passing tests.
+- Focused regression tests; the current suite has 33 passing tests.
 
 The major remaining delivery work is native packaging and release hardening:
 Windows and macOS builds, packaged smoke tests, resource bundling, and
@@ -122,10 +122,11 @@ compatibility research.
   in undo/redo history.
 - Help opens in a dockable panel with direct Getting Started, Tutorial, and
   Shortcuts & Gestures entries. A first-launch Getting Started dialog can be
-  disabled and reopened from Help.
+  disabled and re-enabled in Preferences.
 - Preferences/Settings persist application font size and mouse-wheel and
-  trackpad sensitivity. Changes preview immediately; Apply commits them and
-  Cancel restores the previous values.
+  trackpad sensitivity, plus whether Getting Started appears at launch.
+  Changes preview immediately; Apply commits them and Cancel restores the
+  previous values.
 
 ## Menus and shortcuts
 
@@ -193,7 +194,7 @@ Use the existing Mamba environment:
 mamba run -n spacetime-py env QT_QPA_PLATFORM=offscreen python -m pytest -q
 ```
 
-The expected current result is 30 passing tests. For GUI smoke checks, use
+The expected current result is 33 passing tests. For GUI smoke checks, use
 `QT_QPA_PLATFORM=offscreen` and instantiate `MainWindow` with a `Scenario`.
 Do not add new testing tools; use the existing pytest and Qt setup.
 

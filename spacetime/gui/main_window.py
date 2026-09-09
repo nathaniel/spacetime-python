@@ -104,7 +104,10 @@ class _StatusPanel(QWidget):
 class _PreferencesDialog(QDialog):
     """Edit persistent application preferences."""
 
-    def __init__(self, parent, font_size: int, trackpad: float, wheel: float):
+    def __init__(
+        self, parent, font_size: int, trackpad: float, wheel: float,
+        show_getting_started: bool,
+    ):
         """Build the preferences form with the current values."""
         super().__init__(parent)
         self.setWindowTitle(
@@ -128,9 +131,12 @@ class _PreferencesDialog(QDialog):
         self.wheel.setSingleStep(10)
         self.wheel.setSuffix("%")
         self.wheel.setValue(round(wheel * 100))
+        self.show_getting_started = QCheckBox("Show Getting Started at launch")
+        self.show_getting_started.setChecked(show_getting_started)
         layout.addRow("Application font size:", self.font_size)
         layout.addRow("Trackpad / pixel-scroll sensitivity (10–500%):", self.trackpad)
         layout.addRow("Mouse-wheel sensitivity (10–500%):", self.wheel)
+        layout.addRow("", self.show_getting_started)
         for field in (self.font_size, self.trackpad, self.wheel):
             layout.setAlignment(field, Qt.AlignmentFlag.AlignRight)
         note = QLabel(
@@ -154,6 +160,7 @@ class _PreferencesDialog(QDialog):
         self.font_size.setValue(12)
         self.trackpad.setValue(100)
         self.wheel.setValue(100)
+        self.show_getting_started.setChecked(True)
 
 class _GettingStartedDialog(QDialog):
     """Give first-time users a brief overview of the main controls."""
@@ -201,6 +208,9 @@ class MainWindow(QMainWindow):
         self.settings = QSettings("Spacetime", "Spacetime")
         self._trackpad_sensitivity = self._read_setting("trackpadSensitivity", 1.0)
         self._mouse_wheel_sensitivity = self._read_setting("mouseWheelSensitivity", 1.0)
+        self._show_getting_started = self.settings.value(
+            "showGettingStarted", True, type=bool
+        )
         self._saved_scenario = deepcopy(scenario)
         self.setWindowTitle("Spacetime"); self.resize(1100,700)
         self._instruction = ""
@@ -424,6 +434,7 @@ class MainWindow(QMainWindow):
             QApplication.instance().font().pointSize(),
             self._trackpad_sensitivity,
             self._mouse_wheel_sensitivity,
+            self._show_getting_started,
         )
         committed = (
             QApplication.instance().font().pointSize(),
@@ -436,10 +447,11 @@ class MainWindow(QMainWindow):
                 dialog.font_size.value(),
                 dialog.trackpad.value() / 100,
                 dialog.wheel.value() / 100,
+                dialog.show_getting_started.isChecked(),
             )
 
         def preview():
-            font_size, trackpad, wheel = values()
+            font_size, trackpad, wheel, _ = values()
             self._trackpad_sensitivity = trackpad
             self._mouse_wheel_sensitivity = wheel
             self._apply_scroll_preferences()
@@ -449,16 +461,19 @@ class MainWindow(QMainWindow):
             nonlocal committed
             preview()
             committed = values()
-            font_size, trackpad, wheel = committed
+            font_size, trackpad, wheel, show_getting_started = committed
             self.settings.setValue("fontSize", font_size)
             self.settings.setValue("trackpadSensitivity", trackpad)
             self.settings.setValue("mouseWheelSensitivity", wheel)
+            self.settings.setValue("showGettingStarted", show_getting_started)
+            self._show_getting_started = show_getting_started
             dialog.accept()
 
         def cancel():
-            font_size, trackpad, wheel = committed
+            font_size, trackpad, wheel, show_getting_started = committed
             self._trackpad_sensitivity = trackpad
             self._mouse_wheel_sensitivity = wheel
+            self._show_getting_started = show_getting_started
             self._apply_scroll_preferences()
             self._apply_font_size(font_size, persist=False)
 
