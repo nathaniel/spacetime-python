@@ -19,6 +19,8 @@ currently includes:
 - Synchronized Highway and spacetime diagrams.
 - Object and Event tables with editing, read-only cells, context menus, and
   Java-style formatting.
+- Object and Event tables use the same application font size, including after
+  dynamic font-size changes.
 - Undo/redo, scenario save/load, object programming, lifetime constraints,
   decorations, zooming, panning, time navigation, and frame changes.
 - Platform-aware menus, shortcuts, and Help content.
