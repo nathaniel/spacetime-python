@@ -27,8 +27,12 @@ relativistic motion independently.</p>
 <p>The application has two synchronized displays: the <a href="#highway">Highway</a>
 shows a snapshot of objects moving at different velocities, while the
 <a href="#spacetime_diagram">Spacetime diagram</a> plots their positions and
-worldlines over time. Tables and comments are available in the dockable Tables
-panel; this Help page is available in the dockable Help panel.</p>
+worldlines over time. The displays share the scenario, horizontal scale, and
+horizontal pan, so an object or event can be investigated in whichever view is
+most convenient. Objects, events, and scenario comments are edited in the
+dockable Tables panel; this Help page is available in the dockable Help panel.
+The application is designed to be usable after a few minutes of practice, with
+this page available for less familiar operations.</p>
 
 <nav>
   <strong>Help contents</strong>
@@ -55,6 +59,7 @@ panel; this Help page is available in the dockable Help panel.</p>
         <li><a href="#zooming">Zooming</a></li>
         <li><a href="#using_tables">Using the tables</a></li>
         <li><a href="#using_comments">Using comments</a></li>
+        <li><a href="#menus_and_files">Menus, files, and undo</a></li>
       </ul>
     </li>
     <li><a href="#history">A little bit of history</a></li>
@@ -63,8 +68,14 @@ panel; this Help page is available in the dockable Help panel.</p>
 
 <h2 id="preface">Preface</h2>
 <p>Coordinates use units where the speed of light is 1. Position is horizontal
-and time increases upward. Clocks accumulate proper time along their
-piecewise-constant-velocity worldlines; flashes travel at the speed of light.</p>
+and time increases upward. The original/master frame is the frame in which
+scenario coordinates are stored. Changing the reference frame changes the
+displayed coordinates without rewriting the underlying scenario.</p>
+<p>Clocks accumulate proper time along their piecewise-constant-velocity
+worldlines. A light flash always travels at the speed of light, with beta
+exactly -1 or +1; programming a flash changes its direction rather than its
+speed. Events mark occurrences in spacetime, and decorations such as intervals,
+light cones, and invariant hyperbolas help compare events geometrically.</p>
 
 <h2 id="highway">The Highway display</h2>
 <p>The Highway represents a snapshot of a movie of the objects. Changing the
@@ -79,8 +90,15 @@ to -1 at the bottom and is intentionally nonlinear, allowing more useful
 velocities near the speed of light to fit on screen. The adjacent
 <strong>&gamma;</strong> scale shows the time-stretch factor:</p>
 <p class="formula">&gamma; = 1 / &radic;(1 - &beta;<sup>2</sup>)</p>
+<p>Objects above the center move right, and objects below the center move left.
+The center lane has beta 0. The top and bottom lanes are the light-speed lanes
+and are reserved for light flashes. The Highway convention is like a modified
+British motorway: slow lanes are near the center strip and faster lanes are
+near the edges.</p>
 <p>Moving clocks run slow by the factor &gamma;, and moving rods are contracted
-by the same factor along their direction of motion.</p>
+by the factor &gamma; along their direction of motion. Gamma is always positive,
+is 1 at beta 0, and grows without bound as beta approaches either light-speed
+lane.</p>
 
 <h2 id="spacetime_diagram">The Spacetime diagram display</h2>
 <p>The horizontal axis represents position and the vertical axis represents
@@ -90,7 +108,13 @@ spacetime. Objects shown on the Highway appear as worldlines here.</p>
 <p>The thick blue line is the line of simultaneity for the current time in the
 current reference frame. Events simultaneous at that time lie on this line.
 The current time is shown in the status bar. The Highway and diagram share
-their horizontal scale and pan position.</p>
+their horizontal scale and pan position. A vertical red or green marker in the
+Highway can indicate a boundary or programmed velocity-change event at the
+current time.</p>
+<p>Worldlines may be straight or piecewise straight. A kink represents a
+programmed change in beta. Boundary events limit the portion of a worldline
+that is displayed; they can be labeled and annotated in the Event table but
+their coordinates are controlled by the object.</p>
 
 <h2 id="tutorial">Quick tutorial: a trip to Alpha Centauri</h2>
 <p>This tutorial creates a trip from Earth to Alpha Centauri and back. The
@@ -155,7 +179,16 @@ The underlying scenario remains in the original frame while displayed
 coordinates change.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python13.png" alt="Python Spacetime transformed reference frame"></td></tr><tr><td align="center" class="caption">The same scenario in a different reference frame.</td></tr></table>
 
-<h3>9. Comment and save</h3>
+<h3>9. Compare simultaneity in the outbound and inbound frames</h3>
+<p>To reproduce the classic twin-paradox comparison, set the time near the
+turnaround, use <strong>Jump to object</strong> on the rocket, and locate the
+intersection of the Earth's worldline with the blue simultaneity line. Use
+<strong>Create event</strong> there and label the event <code>S1</code>. Return
+to the original frame, jump to the rocket again after the turnaround, and
+repeat the operation to create <code>S2</code>. The two events are different
+because simultaneity depends on the reference frame.</p>
+
+<h3>10. Comment and save</h3>
 <p>Use the Comments tab in the Tables panel to add scenario notes. Choose
 <strong>Scenario &rarr; Save</strong> or <strong>Save As</strong> to write a Java-compatible
 <code>.sce</code> file.</p>
@@ -169,26 +202,30 @@ scenario.</p>
 <h3 id="animation">Animation and time</h3>
 <p>Use Up and Down to advance or rewind time by 0.1. Use the platform modifier
 with Up or Down for steps of 1.0. The spacetime diagram also responds to
-vertical wheel or two-finger scrolling. Time advances to the next event when
-one lies between regular time steps.</p>
+vertical wheel or two-finger scrolling; the Highway responds to vertical
+scrolling by transforming the reference frame. Time advances to the next event
+when one lies between regular time steps. Click a view before using keyboard
+navigation so it has focus.</p>
 
 <h3 id="creating_objects">Creating objects</h3>
 <p>Right-click an empty area of the Highway and choose <strong>Create clock</strong>
 or <strong>Create light flash</strong>. Drag the new object or edit its position
 and beta in the Objects table. A manual position or beta change clears that
-object's programmed worldline and boundary events.</p>
+object's programmed worldline and boundary events. The Edit menu also provides
+dialogs for creating a clock or light flash at explicit coordinates.</p>
 
 <h3 id="deleting_objects">Deleting objects</h3>
 <p>Right-click an object in either diagram or its row in the Objects table and
 choose <strong>Delete</strong>.</p>
 
 <h3 id="creating_events">Creating events</h3>
-<p>Events may be fixed at a worldline intersection, attached to one worldline,
-or free. Right-click an intersection and choose <strong>Create event</strong>
-to create a fixed event. Right-click a worldline to create an attached event.
-Right-click empty space to create a free event. Free events can be dragged and
-edited in the Events table; fixed and worldline-attached coordinates are
-read-only.</p>
+<p>The Python editor creates free events from an empty area of the spacetime
+diagram or through the Edit menu's <strong>Create Event</strong> action. A
+diagram click creates the event at the snapped displayed coordinates and the
+menu action creates it at the entered position and current time. Free events
+can be dragged and edited in the Events table. Java-compatible scenarios may
+also contain events fixed at an intersection or attached to a worldline; those
+events remain constrained and their coordinates are read-only in the table.</p>
 
 <h3 id="deleting_events">Deleting events</h3>
 <p>Right-click an event in the spacetime diagram or its row in the Events table
@@ -199,8 +236,9 @@ events are managed by their object actions.</p>
 <p>Right-click an event and choose <strong>Construct &rarr; Spacetime interval
 to . . .</strong>, then click a second event. The decoration shows whether the
 interval is spacelike (S), timelike (T), or lightlike (L), its invariant value,
-and &Delta;x and &Delta;t. Delete it from its context menu. Press Esc or click
-empty space to cancel an unfinished selection.</p>
+and &Delta;x and &Delta;t. The interval updates when either defining free event
+moves. Delete it from its context menu. Press Esc or click empty space to
+cancel an unfinished selection.</p>
 
 <h3 id="creating_hyperbolas">Creating invariant hyperbolas</h3>
 <p>Right-click an event and choose <strong>Construct &rarr; Invariant
@@ -234,16 +272,22 @@ new lane or edit its beta. The object is green while it is being programmed.
 For flashes, programming changes the direction between beta -1 and +1.</p>
 
 <p>Entering a new programmed beta removes a termination after that point and
-continues the programmed worldline. Changing an object manually outside
-Program mode removes its programmed changes.</p>
+continues the programmed worldline. If a new programmed change is entered
+before later programmed changes, those later changes are discarded. Changing
+an object manually outside Program mode removes its programmed changes,
+boundary events, and returns its worldline to the newly edited state. Click
+elsewhere in the Highway to finish programming and return the object to its
+normal color.</p>
 
 <h3 id="setting_birth_and_termination">Setting birth and termination</h3>
 <p>Right-click an object in the Highway and choose
 <strong>Set birth here and now</strong> or
 <strong>Set termination here and now</strong>. Once set, the corresponding
 action becomes <strong>Cancel birth</strong> or
-<strong>Cancel termination</strong>. Generated boundary events cannot be
-dragged or edited.</p>
+<strong>Cancel termination</strong>. The generated boundary events appear in
+the Event table and can be relabeled or given notes, but their coordinates
+cannot be dragged or edited. Birth and termination are also available from the
+Objects table context menu.</p>
 
 <h3 id="zooming">Zooming in and out</h3>
 <p>Choose <strong>View &rarr; Zoom in</strong> or <strong>Zoom out</strong>, use
@@ -252,20 +296,51 @@ scale.</p>
 
 <h3 id="using_tables">Using the Object and Event tables</h3>
 <p>The tables list all objects and events. White cells are editable; gray cells
-are read-only. Right-click a row for its context menu. The Event table supports
-horizontal scrolling, and its Note column resizes to fit its content.</p>
+are read-only. Double-click or select a white cell and type to edit it. Object
+tables show label, position, beta, gamma, clock reading, and notes. Gamma is
+formatted from beta; a clock's reading is calculated and read-only. Right-click
+a row for its context menu. The Event table supports horizontal scrolling, and
+its Note column resizes to fit its content. Coordinates for fixed and
+worldline-attached events are gray and read-only.</p>
 
 <h3 id="using_comments">Using comments</h3>
 <p>Choose the Comments tab in the Tables panel to write scenario comments.
-Comments are saved with the scenario and preserve multiline text.</p>
+Comments are saved with the scenario and preserve multiline text. Use comments
+for assumptions, units, frame choices, or a description of the experiment so
+that a saved scenario remains understandable when reopened.</p>
+
+<h3 id="menus_and_files">Menus, files, and undo</h3>
+<p>The <strong>Scenario</strong> menu creates a new scenario, opens an existing
+Java-compatible <code>.sce</code> file, saves the current scenario, saves under
+a new name, and quits. Scenario files preserve object and event data,
+programmed worldlines, decorations, comments, and the synchronized horizontal
+view range. Unknown compatible properties are retained where possible.</p>
+<p>The <strong>Edit</strong> menu provides Undo and Redo, Create Event, Create
+Clock, and Create Light Flash. Object drags, boundary changes, programming,
+event creation and deletion, and decorations are recorded so Undo reverses a
+complete logical change rather than leaving related events behind. Table-cell
+edits apply directly to the scenario; use the saved snapshot or edit the cell
+again if one of those changes needs to be corrected. If a mistake is made,
+use Undo where available instead of manually rebuilding the scenario.</p>
+<p>The <strong>Reference frame</strong> menu sets a beta, transforms up or down,
+or returns to the original frame. The <strong>Coordinates</strong> menu sets or
+steps time, sets time to zero, and centers the view on an x coordinate. The
+<strong>View</strong> menu zooms, pans, and changes the application font size.
+<strong>Help</strong> opens this dockable page with F1 and provides About.</p>
+<p>Keyboard navigation uses Up and Down for time, Left and Right for horizontal
+movement, Shift+Up and Shift+Down for frame changes, Shift+0 for the original
+frame, the platform modifier with 0 to set time to zero, and Plus or Minus for
+zoom. On macOS the modifier is Cmd; on Windows and Linux it is Ctrl.</p>
 
 <h2 id="history">A little bit of history</h2>
-<p>The original Spacetime program was developed at MIT and funded through
-Project Athena in the late 1980s. MIT undergraduates developed the original
-program under the supervision of Edwin F. Taylor for use in a special
-relativity course. This Python version reimplements the essential behavior
-with a contemporary Qt interface while retaining Java-compatible scenario
-files.</p>
+<p>The original Spacetime program was developed at the Massachusetts Institute
+of Technology and funded through MIT Project Athena in the late 1980s. MIT
+undergraduates worked on the original program under the supervision of Edwin
+F. Taylor for use in a special-relativity course. The program was first
+developed for IBM PC computers, and Apple Computer provided support for a
+Macintosh version. The Java version is a later reworking of those essential
+ideas; this Python version continues the reimplementation with a contemporary
+Qt interface while retaining Java-compatible scenario files.</p>
 
 <p class="top"><a href="#top">Back to top</a></p>
 </body>
