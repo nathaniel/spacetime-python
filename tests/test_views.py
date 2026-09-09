@@ -201,3 +201,28 @@ def test_event_table_edit_is_undoable(qt_app):
     assert scenario.events[0].note == "A new note"
     assert table.history.undo()
     assert scenario.events[0].note == "Event 1"
+
+
+def test_hover_cursor_shows_drag_and_worldline_affordances(qt_app):
+    """Use distinct cursors for draggable events and worldline interactions."""
+    scenario = Scenario()
+    scenario.add_event(0.0, 0.0)
+    view = SpacetimeDiagramView(scenario)
+    view.resize(800, 400)
+    event_point = QPoint(
+        round(view.origin.x()),
+        round(view.origin.y()),
+    )
+
+    view._update_hover(event_point)
+
+    assert view.cursor().shape() == Qt.CursorShape.OpenHandCursor
+
+    scenario.add_clock(1.0, 0.0, 0.0)
+    worldline_point = QPoint(
+        round(view.origin.x() + view.scale),
+        round(view.origin.y()),
+    )
+    view._update_hover(worldline_point)
+
+    assert view.cursor().shape() == Qt.CursorShape.PointingHandCursor

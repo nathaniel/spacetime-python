@@ -35,6 +35,7 @@ class _View(QWidget):
         self._drag_before = None
         self._drag_before_scenario = False
         self._drag_moved = False
+        self._update_cursor()
         self._interval_first_event = None
         self._intersection_first_object = None
         self.trackpad_sensitivity = 1.0
@@ -343,6 +344,7 @@ class _View(QWidget):
         )
         self._drag_start = event.position()
         self._drag_moved = False
+        self._update_cursor()
 
     def mouseMoveEvent(self, event):
         """Update hover state and any active drag."""
@@ -387,6 +389,7 @@ class _View(QWidget):
         self.hovered_intersection = None
         self.hovered_simultaneity = None
         self.hover_changed.emit(None)
+        self.unsetCursor()
         super().leaveEvent(event)
 
     def _update_hover(self, point) -> None:
@@ -402,6 +405,30 @@ class _View(QWidget):
             if isinstance(self, SpacetimeDiagramView)
             else None
         )
+        self._update_cursor()
+
+    def _update_cursor(self) -> None:
+        """Show whether the current item can be dragged or selected."""
+        if self.dragged is not None:
+            cursor = Qt.CursorShape.ClosedHandCursor
+        elif isinstance(self, HighwayView) and self.hovered is not None:
+            cursor = Qt.CursorShape.OpenHandCursor
+        elif isinstance(self, SpacetimeDiagramView):
+            if (
+                self.hovered in self.scenario.events
+                and not (
+                    self.hovered.fixed_at_intersection
+                    or self.hovered.placed_at_worldline
+                )
+            ):
+                cursor = Qt.CursorShape.OpenHandCursor
+            elif self.hovered is not None:
+                cursor = Qt.CursorShape.PointingHandCursor
+            else:
+                cursor = Qt.CursorShape.ArrowCursor
+        else:
+            cursor = Qt.CursorShape.ArrowCursor
+        self.setCursor(cursor)
 
     def _hit(self, point):
         """Return the model item nearest a screen point."""
