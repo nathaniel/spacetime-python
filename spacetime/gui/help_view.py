@@ -100,12 +100,12 @@ class ShortcutsView(QWidget):
         modifier = "Cmd" if sys.platform == "darwin" else "Ctrl"
         rows = [
             ("↑ / ↓", "Advance / rewind time by 0.1"),
-            (f"{modifier}+↑ / ↓", "Advance / rewind time by 1.0 (10× normal)"),
-            (f"{modifier}+0", "Set time to zero"),
+            (f"{modifier} + ↑ / ↓", "Advance / rewind time by 1.0 (10× normal)"),
+            (f"{modifier} + 0", "Set time to zero"),
             ("← / →", "Move the view"),
-            (f"{modifier}+← / →", "Move the view by 10× normal distance"),
-            ("Shift+↑ / ↓", "Transform frame by relative beta ±0.1"),
-            ("Shift+0", "Return to the original reference frame"),
+            (f"{modifier} + ← / →", "Move the view by 10× normal distance"),
+            ("Shift + ↑ / ↓", "Transform frame by relative beta ±0.1"),
+            ("Shift + 0", "Return to the original reference frame"),
             ("+ / -", "Zoom in / out"),
             ("Left-drag", "Move Highway objects or free spacetime events"),
             ("Right-click", "Open the context menu"),
