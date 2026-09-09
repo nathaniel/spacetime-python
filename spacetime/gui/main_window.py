@@ -730,7 +730,10 @@ class MainWindow(QMainWindow):
         if not self.maybe_save("reading a new one"): return
         path,_=QFileDialog.getOpenFileName(self,"Open scenario","","Scenario files (*.sce);;All files (*)")
         if path:
-            try: self._set_scenario(load_scenario(path)); self.path=Path(path); self.history=History(); self._saved_scenario=deepcopy(self.scenario); self.dirty=False; self._apply_scenario_horizontal_view(); self.refresh()
+            try:
+                self.history = History()
+                self._set_scenario(load_scenario(path))
+                self.path=Path(path); self._saved_scenario=deepcopy(self.scenario); self.dirty=False; self._apply_scenario_horizontal_view(); self.refresh()
             except Exception as exc: QMessageBox.critical(self,"Open failed",str(exc))
     def save(self):
         """Save the current scenario to its associated path."""
