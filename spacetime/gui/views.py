@@ -1472,6 +1472,8 @@ class HighwayView(_View):
             x, t = transform(event.x, event.t, self.scenario.beta_rel)
             if abs(t - self.scenario.time) < 0.01:
                 px = origin.x() + x * self.scale
+                if px < axis_start or px > width:
+                    continue
                 color = QColor("#008000") if event.beta_change else QColor("#d32f2f")
                 painter.setPen(QPen(color, 1))
                 painter.drawLine(QPointF(px, self._beta_to_screen(-1)), QPointF(px, self._beta_to_screen(1)))
