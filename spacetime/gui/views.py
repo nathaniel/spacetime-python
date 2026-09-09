@@ -406,27 +406,31 @@ class _View(QWidget):
         """Show the affordance supported by the item under the pointer."""
         if self.dragged is not None:
             cursor = Qt.CursorShape.ClosedHandCursor
+        elif self._is_selection_target(self.hovered):
+            cursor = Qt.CursorShape.PointingHandCursor
         elif self._can_drag(self.hovered):
             cursor = Qt.CursorShape.OpenHandCursor
-        elif (
+        else:
+            cursor = Qt.CursorShape.ArrowCursor
+        self.setCursor(cursor)
+
+    def _is_selection_target(self, item) -> bool:
+        """Return whether the current selection mode accepts this item."""
+        return (
             isinstance(self, SpacetimeDiagramView)
             and (
                 (
                     self._interval_first_event is not None
-                    and self.hovered in self.scenario.events
-                    and self.hovered is not self._interval_first_event
+                    and item in self.scenario.events
+                    and item is not self._interval_first_event
                 )
                 or (
                     self._intersection_first_object is not None
-                    and self.hovered in self.scenario.objects
-                    and self.hovered is not self._intersection_first_object
+                    and item in self.scenario.objects
+                    and item is not self._intersection_first_object
                 )
             )
-        ):
-            cursor = Qt.CursorShape.PointingHandCursor
-        else:
-            cursor = Qt.CursorShape.ArrowCursor
-        self.setCursor(cursor)
+        )
 
     def _can_drag(self, item) -> bool:
         """Return whether a left drag can usefully move the item."""

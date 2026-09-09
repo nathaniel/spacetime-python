@@ -289,6 +289,16 @@ def test_hover_cursor_only_marks_draggable_events(qt_app):
 
     assert view.cursor().shape() == Qt.CursorShape.ArrowCursor
 
+    second_event = scenario.add_event(3.0, 0.0)
+    view._interval_first_event = scenario.events[0]
+    second_event_point = QPoint(
+        round(view.origin.x() + 3 * view.scale),
+        round(view.origin.y()),
+    )
+    view._update_hover(second_event_point)
+
+    assert view.cursor().shape() == Qt.CursorShape.PointingHandCursor
+
 
 def test_diagram_worldline_click_does_not_enter_drag_state(qt_app):
     """Clicking a diagram worldline must not imply that it can be dragged."""
