@@ -157,6 +157,20 @@ def test_programmed_change_creates_and_replaces_delta_beta_event():
     assert current[0].label == "C1-Δβ1"
 
 
+def test_programming_immediately_after_creation_updates_worldline():
+    """Apply a programmed velocity change at a newly created clock's time."""
+    scenario = Scenario()
+    clock = scenario.add_clock()
+    scenario.program_object(clock)
+
+    scenario.add_programmed_change(clock, 0.0, 0.0, 0.5)
+
+    assert len(clock.worldline.records) == 1
+    assert clock.worldline.records[0].beta_old == pytest.approx(0.0)
+    assert clock.worldline.records[0].beta_new == pytest.approx(0.5)
+    assert clock.position(2.0) == pytest.approx(1.0)
+
+
 def test_birth_and_termination_create_boundary_events():
     scenario = Scenario(time=2.0)
     clock = scenario.add_clock()

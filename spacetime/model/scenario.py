@@ -240,8 +240,22 @@ class Scenario:
             original_beta = 1.0 if original_beta >= 0 else -1.0
         else:
             original_beta = max(-MAX_OBJECT_BETA, min(MAX_OBJECT_BETA, original_beta))
-        records = [record for record in obj.worldline.records if record.t < original_t - 1e-6]
-        old_beta = obj.worldline.velocity(original_t)
+        matching_record = next(
+            (
+                record
+                for record in obj.worldline.records
+                if abs(record.t - original_t) <= 1e-6
+            ),
+            None,
+        )
+        records = [
+            record for record in obj.worldline.records if record.t < original_t - 1e-6
+        ]
+        old_beta = (
+            matching_record.beta_old
+            if matching_record is not None
+            else obj.worldline.velocity(original_t)
+        )
         records.append(WorldlineRecord(original_x, original_t, old_beta, original_beta))
         obj.worldline.records = sorted(records, key=lambda record: record.t)
         self.events = [

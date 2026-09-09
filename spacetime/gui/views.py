@@ -95,18 +95,24 @@ class _View(QWidget):
     def _draw_clock_trace(self, painter, obj, minimum: float, maximum: float, origin) -> None:
         """Draw piecewise clock worldline segments."""
         records = [record.in_frame(self.scenario.beta_rel) for record in obj.worldline.records]
-        for index, (_, record_time, old_beta, new_beta) in enumerate(records):
-            start = record_time if index or obj.worldline.has_birth else minimum
+        if not records:
+            return
+
+        segments = []
+        first_x, first_time, first_old_beta, _ = records[0]
+        if not obj.worldline.has_birth:
+            segments.append((minimum, min(maximum, first_time), first_x, first_time, first_old_beta))
+        for index, (x, record_time, _, new_beta) in enumerate(records):
             end = records[index + 1][1] if index + 1 < len(records) else maximum
             if index == len(records) - 1 and obj.worldline.has_termination:
                 end = min(end, record_time)
-            start = max(start, minimum)
-            end = min(end, maximum)
+            segments.append((max(minimum, record_time), min(maximum, end), x, record_time, new_beta))
+
+        for start, end, record_x, record_time, beta in segments:
             if end <= start:
                 continue
-            beta = new_beta if index or obj.worldline.has_birth else old_beta
-            x_start = records[index][0] + beta * (start - record_time)
-            x_end = records[index][0] + beta * (end - record_time)
+            x_start = record_x + beta * (start - record_time)
+            x_end = record_x + beta * (end - record_time)
             painter.drawLine(
                 QPointF(origin.x() + x_start * self.scale, origin.y() - start * self.scale),
                 QPointF(origin.x() + x_end * self.scale, origin.y() - end * self.scale),
