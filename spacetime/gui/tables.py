@@ -34,7 +34,7 @@ class ObjectTable(QTableWidget):
             "Current velocity as a fraction of the speed of light",
             "Lorentz factor for the current velocity",
             "Clock reading at the current time",
-            "Notes about this object",
+            "Brief description of this object",
         )
         for column, tooltip in enumerate(tooltips):
             self.horizontalHeaderItem(column).setToolTip(tooltip)
@@ -208,12 +208,12 @@ class EventTable(QTableWidget):
         super().__init__(0, 4, parent); self.scenario=scenario
         self.history = None
         self._updating = False
-        self.setHorizontalHeaderLabels(["Event", "x", "t", "Note"]); self.itemChanged.connect(self._edited)
+        self.setHorizontalHeaderLabels(["Event", "x", "t", "notes"]); self.itemChanged.connect(self._edited)
         tooltips = (
             "Event label",
             "Position x in the original reference frame",
             "Time t in the original reference frame",
-            "Notes about this event",
+            "Brief description of this event",
         )
         for column, tooltip in enumerate(tooltips):
             self.horizontalHeaderItem(column).setToolTip(tooltip)
