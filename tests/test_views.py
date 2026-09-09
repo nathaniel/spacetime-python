@@ -226,3 +226,13 @@ def test_hover_cursor_shows_drag_and_worldline_affordances(qt_app):
     view._update_hover(worldline_point)
 
     assert view.cursor().shape() == Qt.CursorShape.PointingHandCursor
+
+    constrained = scenario.add_event(2.0, 0.0)
+    constrained.placed_at_worldline = True
+    constrained_point = QPoint(
+        round(view.origin.x() + 2 * view.scale),
+        round(view.origin.y()),
+    )
+    view._update_hover(constrained_point)
+
+    assert view.cursor().shape() == Qt.CursorShape.ArrowCursor

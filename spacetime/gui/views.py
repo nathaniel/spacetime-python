@@ -409,27 +409,30 @@ class _View(QWidget):
         self._update_cursor()
 
     def _update_cursor(self) -> None:
-        """Show whether the current item can be dragged or selected."""
+        """Show the affordance supported by the item under the pointer."""
         if self.dragged is not None:
             cursor = Qt.CursorShape.ClosedHandCursor
-        elif isinstance(self, HighwayView) and self.hovered is not None:
+        elif self._can_drag(self.hovered):
             cursor = Qt.CursorShape.OpenHandCursor
-        elif isinstance(self, SpacetimeDiagramView):
-            if (
-                self.hovered in self.scenario.events
-                and not (
-                    self.hovered.fixed_at_intersection
-                    or self.hovered.placed_at_worldline
-                )
-            ):
-                cursor = Qt.CursorShape.OpenHandCursor
-            elif self.hovered is not None:
-                cursor = Qt.CursorShape.PointingHandCursor
-            else:
-                cursor = Qt.CursorShape.ArrowCursor
+        elif (
+            isinstance(self, SpacetimeDiagramView)
+            and self.hovered in self.scenario.objects
+        ):
+            cursor = Qt.CursorShape.PointingHandCursor
         else:
             cursor = Qt.CursorShape.ArrowCursor
         self.setCursor(cursor)
+
+    def _can_drag(self, item) -> bool:
+        """Return whether a left drag can usefully move the item."""
+        if isinstance(self, HighwayView):
+            return item in self.scenario.objects
+        return (
+            isinstance(self, SpacetimeDiagramView)
+            and item in self.scenario.events
+            and not item.fixed_at_intersection
+            and not item.placed_at_worldline
+        )
 
     def _hit(self, point):
         """Return the model item nearest a screen point."""
