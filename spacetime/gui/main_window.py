@@ -167,7 +167,8 @@ class _GettingStartedDialog(QDialog):
             "<b>+ / -</b>: zoom<br>"
             "<b>Right-click</b>: create objects, events, and decorations</p>"
             "<p>Objects and events can also be edited in the Tables panel. "
-            "Use Help for the detailed Tutorial and complete shortcuts and gestures reference.</p>"
+            "Use Help for the detailed Tutorial and complete <b>Shortcuts &amp; Gestures</b> "
+            "reference.</p>"
         )
         message.setWordWrap(True)
         layout.addWidget(message)
@@ -389,7 +390,7 @@ class MainWindow(QMainWindow):
         getting_started.triggered.connect(lambda: self.show_help("getting_started"))
         tutorial = help_menu.addAction("Tutorial")
         tutorial.triggered.connect(lambda: self.show_help("tutorial"))
-        shortcuts = help_menu.addAction("Shortcuts & Gestures")
+        shortcuts = help_menu.addAction("Shortcuts && Gestures")
         shortcuts.triggered.connect(self.show_shortcuts)
         about=help_menu.addAction("&About"); about.triggered.connect(lambda: QMessageBox.about(self,"About Spacetime","Spacetime — special relativity scenario editor"))
 
