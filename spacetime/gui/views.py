@@ -28,6 +28,7 @@ class _View(QWidget):
         self.scale = 60.0
         self.offset = (0.0, 0.0)
         self.hovered = None
+        self.hovered_intersection = None
         self.dragged = None
         self._drag_start = None
         self._drag_before = None
@@ -251,7 +252,7 @@ class _View(QWidget):
         """Begin hit testing and dragging for a mouse press."""
         self.setFocus()
         point = event.position().toPoint()
-        self.hovered = self._hit(point)
+        self._update_hover(point)
         if event.button() == Qt.MouseButton.RightButton:
             self._context_menu(point); return
         if event.button() != Qt.MouseButton.LeftButton: return
@@ -300,7 +301,7 @@ class _View(QWidget):
 
     def mouseMoveEvent(self, event):
         """Update hover state and any active drag."""
-        self.hovered = self._hit(event.position().toPoint())
+        self._update_hover(event.position().toPoint())
         self.hover_changed.emit(self.hovered)
         if self.dragged is not None and self._drag_start is not None:
             self._drag_moved |= event.position() != self._drag_start
@@ -338,8 +339,18 @@ class _View(QWidget):
     def leaveEvent(self, event):
         """Clear hover information when the pointer leaves the view."""
         self.hovered = None
+        self.hovered_intersection = None
         self.hover_changed.emit(None)
         super().leaveEvent(event)
+
+    def _update_hover(self, point) -> None:
+        """Update the item and worldline intersection under the pointer."""
+        self.hovered = self._hit(point)
+        self.hovered_intersection = (
+            self._intersection_at(point)
+            if isinstance(self, SpacetimeDiagramView)
+            else None
+        )
 
     def _hit(self, point):
         """Return the model item nearest a screen point."""
@@ -728,10 +739,25 @@ class SpacetimeDiagramView(_View):
         painter.drawLine(QPointF(0, current_y), QPointF(width, current_y))
 
         minimum, maximum = self._visible_time_bounds(origin)
+        highlighted = (
+            self.hovered_intersection[:2]
+            if self.hovered_intersection is not None
+            else ()
+        )
         for obj in self.scenario.objects:
             color = QColor("#1769aa") if obj.kind == "clock" else QColor("#c76b00")
             x, beta = self._frame_state(obj, self.scenario.time)
-            painter.setPen(QPen(color, 2, Qt.PenStyle.DashLine if obj.kind == "flash" else Qt.PenStyle.SolidLine))
+            is_highlighted = any(obj is candidate for candidate in highlighted)
+            width = 3.5 if is_highlighted else 2
+            painter.setPen(
+                QPen(
+                    color,
+                    width,
+                    Qt.PenStyle.DashLine
+                    if obj.kind == "flash"
+                    else Qt.PenStyle.SolidLine,
+                )
+            )
             if obj.kind == "clock":
                 self._draw_clock_trace(painter, obj, minimum, maximum, origin)
             else:
@@ -754,7 +780,7 @@ class SpacetimeDiagramView(_View):
                     painter.drawPath(path)
             painter.setPen(QPen(color, 1.0))
             if self._object_exists(obj, self.scenario.time, x):
-                painter.setPen(QPen(color, 1.5))
+                painter.setPen(QPen(color, 2.0 if is_highlighted else 1.5))
                 painter.setBrush(Qt.GlobalColor.white)
                 painter.drawEllipse(QPointF(origin.x() + x * self.scale, current_y), 5, 5)
                 painter.drawText(QPointF(origin.x() + x * self.scale + 7, current_y - 5), obj.label)
