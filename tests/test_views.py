@@ -334,3 +334,28 @@ def test_replacing_scenario_rebinds_view_history(qt_app):
     assert window.object_table.history is history
     assert window.event_table.history is history
     window.close()
+
+
+def test_spacetime_constructions_are_undoable(qt_app):
+    """Create, undo, and redo each type of spacetime decoration."""
+    scenario = Scenario()
+    first = scenario.add_event(0.0, 0.0)
+    second = scenario.add_event(1.0, 1.0)
+    view = SpacetimeDiagramView(scenario)
+    view.history = History()
+
+    view._add_decoration("lightcone", first)
+    view._add_decoration("hyperbola", first)
+    view._add_interval(first, second)
+
+    assert [decoration.kind for decoration in scenario.decorations] == [
+        "lightcone",
+        "hyperbola",
+        "interval",
+    ]
+    for expected_count in (2, 1, 0):
+        assert view.history.undo()
+        assert len(scenario.decorations) == expected_count
+    for expected_count in (1, 2, 3):
+        assert view.history.redo()
+        assert len(scenario.decorations) == expected_count
