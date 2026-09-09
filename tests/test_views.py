@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QApplication
 
 from spacetime.commands.undo_redo import History
 from spacetime.gui.tables import EventTable, ObjectTable
+from spacetime.gui.main_window import MainWindow
 from spacetime.gui.views import SpacetimeDiagramView
 from spacetime.gui.views import HighwayView
 from spacetime.model.lorentz import velocity_add
@@ -268,6 +269,26 @@ def test_hover_cursor_only_marks_draggable_events(qt_app):
 
     assert view.cursor().shape() == Qt.CursorShape.ArrowCursor
 
+    scenario.add_clock(2.0, 0.0, 0.0)
+    view._intersection_first_object = scenario.objects[0]
+    second_worldline_point = QPoint(
+        round(view.origin.x() + 2 * view.scale),
+        round(view.origin.y()),
+    )
+    view._update_hover(second_worldline_point)
+
+    assert view.cursor().shape() == Qt.CursorShape.PointingHandCursor
+
+    constrained = scenario.add_event(2.0, 0.0)
+    constrained.placed_at_worldline = True
+    constrained_point = QPoint(
+        round(view.origin.x() + 2 * view.scale),
+        round(view.origin.y()),
+    )
+    view._update_hover(constrained_point)
+
+    assert view.cursor().shape() == Qt.CursorShape.ArrowCursor
+
 
 def test_diagram_worldline_click_does_not_enter_drag_state(qt_app):
     """Clicking a diagram worldline must not imply that it can be dragged."""
@@ -289,22 +310,17 @@ def test_diagram_worldline_click_does_not_enter_drag_state(qt_app):
     assert view.dragged is None
     assert view.cursor().shape() == Qt.CursorShape.ArrowCursor
 
-    scenario.add_clock(2.0, 0.0, 0.0)
-    view._intersection_first_object = scenario.objects[0]
-    second_worldline_point = QPoint(
-        round(view.origin.x() + 2 * view.scale),
-        round(view.origin.y()),
-    )
-    view._update_hover(second_worldline_point)
 
-    assert view.cursor().shape() == Qt.CursorShape.PointingHandCursor
+def test_replacing_scenario_rebinds_view_history(qt_app):
+    """Keep all views on the main window's history after loading a scenario."""
+    window = MainWindow(Scenario())
+    history = History()
+    window.history = history
 
-    constrained = scenario.add_event(2.0, 0.0)
-    constrained.placed_at_worldline = True
-    constrained_point = QPoint(
-        round(view.origin.x() + 2 * view.scale),
-        round(view.origin.y()),
-    )
-    view._update_hover(constrained_point)
+    window._set_scenario(Scenario())
 
-    assert view.cursor().shape() == Qt.CursorShape.ArrowCursor
+    assert window.highway.history is history
+    assert window.diagram.history is history
+    assert window.object_table.history is history
+    assert window.event_table.history is history
+    window.close()

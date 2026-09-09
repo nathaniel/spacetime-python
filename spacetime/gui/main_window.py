@@ -764,7 +764,9 @@ class MainWindow(QMainWindow):
     def _set_scenario(self, scenario):
         """Bind all editor widgets to a replacement scenario."""
         self.scenario=scenario
-        for view in (self.highway, self.diagram): view.scenario=scenario
+        for view in (self.highway, self.diagram):
+            view.scenario=scenario
+            view.history=self.history
         self.object_table.scenario=scenario; self.object_table.history=self.history
         self.event_table.scenario=scenario; self.event_table.history=self.history
         self.comments.blockSignals(True); self.comments.setPlainText(scenario.comments); self.comments.blockSignals(False)
