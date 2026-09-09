@@ -28,6 +28,18 @@ class ObjectTable(QTableWidget):
         self._updating = False
         headers = ["Object", "x", "β", "γ", "reading", "notes"]
         self.setHorizontalHeaderLabels(headers)
+        tooltips = (
+            "Object label",
+            "Current position x in the current reference frame",
+            "Current velocity as a fraction of the speed of light",
+            "Lorentz factor for the current velocity",
+            "Clock reading at the current time",
+            "Notes about this object",
+        )
+        for column, tooltip in enumerate(tooltips):
+            self.horizontalHeaderItem(column).setToolTip(tooltip)
+        self.setAccessibleName("Objects table")
+        self.setToolTip("Values are shown at the current time and in the current reference frame.")
         header = self.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
         for column, width in enumerate((100, 50, 65, 65, 100, 250)):
@@ -197,6 +209,16 @@ class EventTable(QTableWidget):
         self.history = None
         self._updating = False
         self.setHorizontalHeaderLabels(["Event", "x", "t", "Note"]); self.itemChanged.connect(self._edited)
+        tooltips = (
+            "Event label",
+            "Position x in the original reference frame",
+            "Time t in the original reference frame",
+            "Notes about this event",
+        )
+        for column, tooltip in enumerate(tooltips):
+            self.horizontalHeaderItem(column).setToolTip(tooltip)
+        self.setAccessibleName("Events table")
+        self.setToolTip("Event coordinates are shown in the original reference frame.")
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self._context_menu)
