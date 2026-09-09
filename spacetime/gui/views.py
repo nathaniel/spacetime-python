@@ -36,6 +36,7 @@ class _View(QWidget):
         self._drag_before_scenario = False
         self._drag_moved = False
         self._interval_first_event = None
+        self._intersection_first_object = None
         self.history = None
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -225,6 +226,16 @@ class _View(QWidget):
             self.update()
             event.accept()
             return
+        if (
+            event.key() == Qt.Key.Key_Escape
+            and isinstance(self, SpacetimeDiagramView)
+            and self._intersection_first_object is not None
+        ):
+            self._intersection_first_object = None
+            self.instruction_changed.emit("")
+            self.update()
+            event.accept()
+            return
         step = 0.1
         if event.key() == Qt.Key.Key_Up and event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
             self.scenario.set_frame((self.scenario.beta_rel + step) / (1 + self.scenario.beta_rel * step))
@@ -280,6 +291,19 @@ class _View(QWidget):
             elif candidate is None:
                 self._interval_first_event = None
                 self.instruction_changed.emit("")
+            return
+        if (
+            isinstance(self, SpacetimeDiagramView)
+            and self._intersection_first_object is not None
+        ):
+            partner = self._worldline_at(point)
+            if partner is not None and partner[0] is not self._intersection_first_object:
+                self._add_all_intersections(
+                    self._intersection_first_object,
+                    partner[0],
+                )
+            self._intersection_first_object = None
+            self.instruction_changed.emit("")
             return
         self.dragged = candidate
         if (
@@ -600,7 +624,10 @@ class _View(QWidget):
                 )
                 title.setEnabled(False)
                 menu.addSeparator()
-                self._add_all_intersections_menu(menu, obj)
+                menu.addAction(
+                    "Construct all intersections with...",
+                    lambda: self._start_all_intersections(obj),
+                )
                 menu.addAction(
                     "Create event",
                     lambda: self._create_worldline_event(
@@ -613,7 +640,10 @@ class _View(QWidget):
                 title = menu.addAction(f"Worldline of {obj.label}")
                 title.setEnabled(False)
                 menu.addSeparator()
-                self._add_all_intersections_menu(menu, obj)
+                menu.addAction(
+                    "Construct all intersections with...",
+                    lambda: self._start_all_intersections(obj),
+                )
                 menu.addAction(
                     "Create event",
                     lambda: self._create_worldline_event(
@@ -624,15 +654,14 @@ class _View(QWidget):
             else: menu.addAction("Create event", lambda: self._create_event(point))
         menu.exec(self.mapToGlobal(point))
 
-    def _add_all_intersections_menu(self, menu, obj) -> None:
-        """Add actions for constructing all intersections with other objects."""
-        construct_menu = menu.addMenu("all intersections with . . .")
-        for other in self.scenario.objects:
-            if other is not obj:
-                construct_menu.addAction(
-                    other.label,
-                    lambda other=other: self._add_all_intersections(obj, other),
-                )
+    def _start_all_intersections(self, obj) -> None:
+        """Begin selecting the partner worldline for all intersections."""
+        self.setFocus()
+        self._intersection_first_object = obj
+        self.instruction_changed.emit(
+            "Construct all intersections: click another worldline."
+        )
+        self.update()
 
     def _create_intersection_event(
         self,
@@ -897,6 +926,7 @@ class SpacetimeDiagramView(_View):
                 any(obj is candidate for candidate in highlighted)
                 or obj is highlighted_simultaneity
                 or obj is self.hovered
+                or obj is self._intersection_first_object
             )
             width = 3.5 if is_highlighted else 2
             painter.setPen(

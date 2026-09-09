@@ -1,7 +1,8 @@
 """Tests for light flashes and Qt views."""
 
 import pytest
-from PySide6.QtCore import QPoint
+from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
+from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QApplication
 
 from spacetime.gui.views import SpacetimeDiagramView
@@ -63,3 +64,30 @@ def test_diagram_hover_finds_worldline_and_event_stays_aligned(qt_app):
     frame_x, frame_t = scenario.coordinates(event.x, event.t)
     assert frame_x == pytest.approx(0.5)
     assert frame_t == pytest.approx(1.0)
+
+
+def test_all_intersections_selection_uses_partner_worldline(qt_app):
+    """Construct all crossings after selecting a second worldline."""
+    scenario = Scenario()
+    first = scenario.add_clock(0.0, 0.0, 0.5)
+    second = scenario.add_clock(2.0, 0.0, -0.5)
+    view = SpacetimeDiagramView(scenario)
+    view.resize(800, 400)
+    view._start_all_intersections(first)
+
+    point = QPointF(
+        view.origin.x() + 1.5 * view.scale,
+        view.origin.y() - 1.0 * view.scale,
+    )
+    event = QMouseEvent(
+        QEvent.Type.MouseButtonPress,
+        point,
+        Qt.MouseButton.LeftButton,
+        Qt.MouseButton.LeftButton,
+        Qt.KeyboardModifier.NoModifier,
+    )
+    view.mousePressEvent(event)
+
+    assert view._intersection_first_object is None
+    assert len(scenario.events) == 1
+    assert scenario.events[0].intersection_names == (first.name, second.name)
