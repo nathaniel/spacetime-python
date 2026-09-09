@@ -46,6 +46,17 @@ def test_intersection_event_can_target_a_later_crossing():
     assert event.t == pytest.approx(6)
 
 
+def test_intersections_include_times_before_initial_records():
+    """Find a crossing on the semi-infinite segment before t=0."""
+    scenario = Scenario()
+    first = scenario.add_clock(1, 0, 0.5)
+    second = scenario.add_clock(-1, 0, -0.5)
+
+    intersections = first.worldline.intersections(second.worldline)
+
+    assert intersections == pytest.approx([(-2, 0)])
+
+
 def test_snapshot_history_supports_redo():
     """Verify snapshot undo and redo behavior."""
     scenario = Scenario()

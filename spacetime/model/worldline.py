@@ -95,17 +95,26 @@ class Worldline:
         boundaries = sorted({start, end, *[r.t for r in self.records], *[r.t for r in other.records]})
         intersections = []
         for a, b in zip(boundaries, boundaries[1:]):
-            if not (math.isfinite(a) and (b > a)): continue
-            ta = max(a, start); tb = min(b, end)
-            if tb <= ta: continue
-            va, vb = self.velocity((ta+tb)/2), other.velocity((ta+tb)/2)
-            xa, xb = self.position(ta), other.position(ta)
+            if not b > a: continue
+            left = max(a, start)
+            right = min(b, end)
+            if right <= left: continue
+            if math.isfinite(left) and math.isfinite(right):
+                sample = (left + right) / 2
+            elif math.isfinite(right):
+                sample = right - 1
+            elif math.isfinite(left):
+                sample = left + 1
+            else:
+                continue
+            va, vb = self.velocity(sample), other.velocity(sample)
+            xa, xb = self.position(sample), other.position(sample)
             if abs(va-vb) < 1e-12:
                 if abs(xa-xb) < 1e-9:
-                    intersections.append((ta, xa))
+                    intersections.append((sample, xa))
                 continue
-            t = ta + (xb-xa)/(va-vb)
-            if ta-1e-9 <= t <= tb+1e-9:
+            t = sample + (xb-xa)/(va-vb)
+            if left-1e-9 <= t <= right+1e-9:
                 hit = (t, self.position(t))
                 if not intersections or abs(intersections[-1][0] - hit[0]) > 1e-9:
                     intersections.append(hit)
