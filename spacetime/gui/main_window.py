@@ -99,8 +99,8 @@ class _StatusPanel(QWidget):
         super().resizeEvent(event)
         height = self.height()
         self.time_label.setGeometry(0, 0, 105, height)
-        self.separator.setGeometry(105, 0, 2, height)
-        self.detail_label.setGeometry(107, 0, max(0, self.width() - 107), height)
+        self.separator.setGeometry(108, 0, 2, height)
+        self.detail_label.setGeometry(112, 0, max(0, self.width() - 112), height)
 
 class _PreferencesDialog(QDialog):
     """Edit persistent application preferences."""
