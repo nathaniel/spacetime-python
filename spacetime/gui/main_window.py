@@ -118,6 +118,11 @@ class _PreferencesDialog(QDialog):
         layout.addRow("Application font size:", self.font_size)
         layout.addRow("Trackpad / pixel-scroll sensitivity (10–500%):", self.trackpad)
         layout.addRow("Mouse-wheel sensitivity (10–500%):", self.wheel)
+        note = QLabel(
+            "Note: Some devices may combine or interpret trackpad and mouse-wheel input differently."
+        )
+        note.setWordWrap(True)
+        layout.addRow(note)
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok
             | QDialogButtonBox.StandardButton.Cancel
