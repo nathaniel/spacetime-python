@@ -36,12 +36,12 @@ class _View(QWidget):
         self._drag_before = None
         self._drag_before_scenario = False
         self._drag_moved = False
-        self._update_cursor()
         self._interval_first_event = None
         self._intersection_first_object = None
         self.trackpad_sensitivity = 1.0
         self.mouse_wheel_sensitivity = 1.0
         self.history = None
+        self._update_cursor()
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setMinimumSize(300, 180)
@@ -420,7 +420,18 @@ class _View(QWidget):
             cursor = Qt.CursorShape.OpenHandCursor
         elif (
             isinstance(self, SpacetimeDiagramView)
-            and self.hovered in self.scenario.objects
+            and (
+                (
+                    self._interval_first_event is not None
+                    and self.hovered in self.scenario.events
+                    and self.hovered is not self._interval_first_event
+                )
+                or (
+                    self._intersection_first_object is not None
+                    and self.hovered in self.scenario.objects
+                    and self.hovered is not self._intersection_first_object
+                )
+            )
         ):
             cursor = Qt.CursorShape.PointingHandCursor
         else:

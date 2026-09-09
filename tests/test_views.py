@@ -239,8 +239,8 @@ def test_event_table_edit_is_undoable(qt_app):
     assert scenario.events[0].note == "Event 1"
 
 
-def test_hover_cursor_shows_drag_and_worldline_affordances(qt_app):
-    """Use distinct cursors for draggable events and worldline interactions."""
+def test_hover_cursor_only_marks_draggable_events(qt_app):
+    """Use a draggable cursor only where a diagram item can be moved."""
     scenario = Scenario()
     scenario.add_event(0.0, 0.0)
     view = SpacetimeDiagramView(scenario)
@@ -260,6 +260,16 @@ def test_hover_cursor_shows_drag_and_worldline_affordances(qt_app):
         round(view.origin.y()),
     )
     view._update_hover(worldline_point)
+
+    assert view.cursor().shape() == Qt.CursorShape.ArrowCursor
+
+    scenario.add_clock(2.0, 0.0, 0.0)
+    view._intersection_first_object = scenario.objects[0]
+    second_worldline_point = QPoint(
+        round(view.origin.x() + 2 * view.scale),
+        round(view.origin.y()),
+    )
+    view._update_hover(second_worldline_point)
 
     assert view.cursor().shape() == Qt.CursorShape.PointingHandCursor
 
