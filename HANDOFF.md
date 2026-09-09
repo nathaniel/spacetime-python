@@ -106,10 +106,11 @@ compatibility research.
   empty space. While selection is active, its instruction takes priority over
   hover details.
 - Right-clicking a worldline intersection in the spacetime diagram offers
-  `Create event here`; the event is fixed to the exact intersection and is
-  synchronized if the intersecting worldlines change. All crossings are
-  considered, including crossings on semi-infinite segments before the first
-  recorded worldline point.
+  `Create event`; the two intersecting worldlines become visibly thicker on
+  hover, and the event is fixed to the exact intersection. It is synchronized
+  if the intersecting worldlines change. All crossings are considered,
+  including crossings on semi-infinite segments before the first recorded
+  worldline point.
 - The Event table provides context actions equivalent to the spacetime
   diagram: construct a light cone, construct an invariant hyperbola, start
   spacetime-interval selection, or delete the event. These actions participate
