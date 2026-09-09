@@ -169,7 +169,7 @@ class _GettingStartedDialog(QDialog):
             "together. The <b>Highway</b> shows where it is now; the "
             "<b>Spacetime Diagram</b> shows its path through time.</p>"
             "<p><b>Up / Down</b>: advance or rewind time<br>"
-            "<b>Shift + Up / Down</b>: change the reference frame<br>"
+            "<b>Shift + Up / Down</b>: change the reference-frame velocity<br>"
             "<b>Left / Right</b>: move the view<br>"
             "<b>+ / -</b>: zoom<br>"
             "<b>Right-click</b>: create objects, events, and decorations</p>"
