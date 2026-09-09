@@ -328,13 +328,6 @@ class MainWindow(QMainWindow):
         edit_menu = self.menuBar().addMenu("&Edit")
         edit_menu.addAction("&Undo", self.undo).setShortcut(QKeySequence.StandardKey.Undo)
         edit_menu.addAction("&Redo", self.redo).setShortcut(QKeySequence.StandardKey.Redo)
-        edit_menu.addSeparator()
-        add_event = edit_menu.addAction("Create Event")
-        add_event.triggered.connect(self.create_event)
-        add_clock = edit_menu.addAction("Create Clock")
-        add_clock.triggered.connect(self.create_clock)
-        add_flash = edit_menu.addAction("Create Light Flash")
-        add_flash.triggered.connect(self.create_flash)
         preferences = QAction(
             "Preferences..." if sys.platform == "darwin" else "Settings...",
             self,
@@ -346,6 +339,11 @@ class MainWindow(QMainWindow):
         else:
             edit_menu.addSeparator()
             edit_menu.addAction(preferences)
+
+        create_menu = self.menuBar().addMenu("&Create")
+        create_menu.addAction("Clock").triggered.connect(self.create_clock)
+        create_menu.addAction("Light Flash").triggered.connect(self.create_flash)
+        create_menu.addAction("Event").triggered.connect(self.create_event)
 
         frames = self.menuBar().addMenu("&Reference frame")
         set_frame = frames.addAction("Set beta...")
