@@ -347,8 +347,10 @@ class Scenario:
         self.objects.append(obj); return obj
     def add_event(self, x: float, t: float, name: str | None = None) -> Event:
         """Add and return an event at the given coordinates."""
+        automatic_name = name is None
         n = name or self._next_event_label()
-        event = Event(n, x, t, n, f"Event {len(self.events)+1}")
+        note = f"Event {n[1:]}" if automatic_name and n.startswith("E") else f"Event {len(self.events)+1}"
+        event = Event(n, x, t, n, note)
         self.events.append(event)
         return event
 

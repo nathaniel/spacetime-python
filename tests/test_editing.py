@@ -20,6 +20,24 @@ def test_intersection_and_decorations_are_model_only():
     assert scenario.add_hyperbola(event).point(0) == pytest.approx((0, 3))
 
 
+def test_automatic_event_notes_match_automatic_event_numbers():
+    """Number automatic event notes from their E labels, not event count."""
+    scenario = Scenario()
+    first = scenario.add_event(0.0, 0.0)
+    scenario.add_clock()
+    second = scenario.add_event(1.0, 1.0)
+    named = scenario.add_event(2.0, 2.0, name="custom")
+    third = scenario.add_event(3.0, 3.0)
+
+    assert first.name == "E1"
+    assert first.note == "Event 1"
+    assert second.name == "E2"
+    assert second.note == "Event 2"
+    assert named.note == "Event 3"
+    assert third.name == "E3"
+    assert third.note == "Event 3"
+
+
 def test_intersection_event_can_target_a_later_crossing():
     """Keep a constrained event at the selected crossing of two worldlines."""
     scenario = Scenario()
