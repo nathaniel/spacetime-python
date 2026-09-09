@@ -102,6 +102,8 @@ class _PreferencesDialog(QDialog):
         """Build the preferences form with the current values."""
         super().__init__(parent)
         self.setWindowTitle("Preferences" if sys.platform == "darwin" else "Settings")
+        # Keep the form geometry stable while the application font is previewed.
+        self.setFont(QApplication.instance().font())
         layout = QFormLayout(self)
         layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.FieldsStayAtSizeHint)
