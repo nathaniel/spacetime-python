@@ -92,7 +92,6 @@ class _StatusPanel(QWidget):
         self.separator.setFixedWidth(2)
         self.announcement_separator.setFixedWidth(2)
         self.announcement_label.setFixedWidth(180)
-        self.detail_label.hide()
         self.separator.hide()
         self.announcement_separator.hide()
         self.announcement_label.hide()
@@ -114,8 +113,6 @@ class _StatusPanel(QWidget):
     def set_detail(self, text: str) -> None:
         """Set or clear the prioritized hover detail."""
         self.detail_label.setText(text)
-        self.detail_label.setVisible(bool(text))
-        self.separator.setVisible(bool(text))
         self._update_separator_visibility()
 
     def set_announcement(self, text: str) -> None:
@@ -128,7 +125,7 @@ class _StatusPanel(QWidget):
     def _update_separator_visibility(self) -> None:
         """Show the time divider whenever either right-hand section is used."""
         self.separator.setVisible(
-            self.detail_label.isVisible() or self.announcement_label.isVisible()
+            bool(self.detail_label.text()) or bool(self.announcement_label.text())
         )
 
 class _PreferencesDialog(QDialog):
