@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QFormLayout,
     QApplication,
+    QCheckBox,
     QInputDialog,
     QLabel,
     QMainWindow,
@@ -149,6 +150,36 @@ class _PreferencesDialog(QDialog):
         self.trackpad.setValue(100)
         self.wheel.setValue(100)
 
+class _GettingStartedDialog(QDialog):
+    """Give first-time users a brief overview of the main controls."""
+
+    def __init__(self, parent=None):
+        """Build the first-launch introduction."""
+        super().__init__(parent)
+        self.setWindowTitle("Getting Started with Spacetime")
+        layout = QVBoxLayout(self)
+        message = QLabel(
+            "<p><b>Explore the default clock</b> in the Highway and Spacetime "
+            "diagram.</p>"
+            "<p><b>Up / Down</b>: advance or rewind time<br>"
+            "<b>Shift + Up / Down</b>: change the reference frame<br>"
+            "<b>Left / Right</b>: move the view<br>"
+            "<b>+ / -</b>: zoom<br>"
+            "<b>Right-click</b>: create objects, events, and decorations</p>"
+            "<p>Objects and events can also be edited in the Tables panel. "
+            "Use Help for the detailed Tutorial and complete shortcut reference.</p>"
+        )
+        message.setWordWrap(True)
+        layout.addWidget(message)
+        self.dont_show_again = QCheckBox("Don't show this again")
+        layout.addWidget(self.dont_show_again)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        self.open_help = QPushButton("Open Getting Started")
+        buttons.addButton(self.open_help, QDialogButtonBox.ButtonRole.AcceptRole)
+        buttons.rejected.connect(self.reject)
+        self.open_help.clicked.connect(self.accept)
+        layout.addWidget(buttons)
+
 class MainWindow(QMainWindow):
     """Coordinate the editor views, controls, and scenario persistence."""
 
@@ -214,6 +245,7 @@ class MainWindow(QMainWindow):
         self._apply_font_size(self._read_font_size())
         self._update_title()
         QTimer.singleShot(0, self._apply_scenario_horizontal_view)
+        QTimer.singleShot(0, self._show_getting_started_if_needed)
 
     def _read_setting(self, key: str, default: float) -> float:
         """Read a bounded positive numeric preference."""
@@ -451,6 +483,17 @@ class MainWindow(QMainWindow):
         self.table_dock.show()
         self.table_dock.raise_()
         self.tabs.setCurrentWidget(self.shortcuts_view)
+
+    def _show_getting_started_if_needed(self) -> None:
+        """Show the first-launch introduction unless the user disabled it."""
+        if not self.settings.value("showGettingStarted", True, type=bool):
+            return
+        dialog = _GettingStartedDialog(self)
+        opened_help = dialog.exec() == QDialog.DialogCode.Accepted
+        if dialog.dont_show_again.isChecked():
+            self.settings.setValue("showGettingStarted", False)
+        if opened_help:
+            self.show_help("getting_started")
 
     def _step_time(self, direction: int, step: float) -> None:
         """Advance or rewind time using the requested step size."""
