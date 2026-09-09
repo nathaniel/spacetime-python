@@ -9,7 +9,7 @@ are intentionally omitted.
 
 Reimplement the Java desktop application in Python while preserving its
 physics, scenario-file compatibility, major interaction behavior, and visual
-relationship between the Highway and spacetime diagrams. The eventual
+relationship between the Highway and Spacetime Diagrams. The eventual
 deliverables are pre-built applications for Windows and macOS.
 
 ## Steps completed so far
@@ -50,7 +50,7 @@ deliverables are pre-built applications for Windows and macOS.
 ### 4. Create the desktop interface
 
 - Implemented the PySide6 application and main window.
-- Added synchronized Highway and spacetime diagram views.
+- Added synchronized Highway and Spacetime Diagram views.
 - Added object and event tables.
 - Added a bottom status area showing the current time and live hover details for
   objects and events.
@@ -67,7 +67,7 @@ deliverables are pre-built applications for Windows and macOS.
 - Applied Lorentz length contraction to clock glyphs.
 - Rendered bounded worldline segments and rays for object lifetimes.
 - Added a distinctive current-time band, centerline, and current-position dots.
-- Kept the current time vertically centered in the spacetime diagram.
+- Kept the current time vertically centered in the Spacetime Diagram.
 - Synchronized horizontal scale and panning between both diagrams.
 
 ### 6. Match Java interaction behavior

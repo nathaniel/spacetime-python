@@ -20,7 +20,7 @@ scenarios, run packaged smoke tests, and add signing/notarization as needed.
 
 - Python 3.12+
 - PySide6 / Qt for the desktop interface
-- Custom Qt painting or PyQtGraph for the Highway and spacetime diagram
+- Custom Qt painting or PyQtGraph for the Highway and Spacetime Diagram
 - `pytest` for physics, persistence, and integration tests
 - PyInstaller for self-contained application bundles
 - GitHub Actions for Windows and macOS release builds
@@ -155,7 +155,7 @@ Recommended strategy:
 Use a `QMainWindow` with split or dockable panels:
 
 - Highway view
-- Spacetime diagram view
+- Spacetime Diagram view
 - Object table
 - Event table
 - Comments pane

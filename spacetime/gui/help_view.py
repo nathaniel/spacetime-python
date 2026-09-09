@@ -89,7 +89,7 @@ class ShortcutsView(QTableWidget):
             ("Right-click", "Open the context menu"),
             (
                 "Wheel / two-finger scroll",
-                "Pan horizontally; advance time in the spacetime diagram or change frame on the Highway",
+                "Pan horizontally; advance time in the Spacetime Diagram or change frame on the Highway",
             ),
             ("Pinch", "Zoom both views"),
         ]

@@ -26,7 +26,7 @@ relativistic motion independently.</p>
 
 <p>The application has two synchronized displays: the <a href="#highway">Highway</a>
 shows a snapshot of objects moving at different velocities, while the
-<a href="#spacetime_diagram">Spacetime diagram</a> plots their positions and
+<a href="#spacetime_diagram">Spacetime Diagram</a> plots their positions and
 worldlines over time. The displays share the scenario, horizontal scale, and
 horizontal pan, so an object or event can be investigated in whichever view is
 most convenient. Objects, events, and scenario comments are edited in the
@@ -40,7 +40,7 @@ this page available for less familiar operations.</p>
     <li><a href="#preface">Preface</a></li>
     <li><a href="#getting_started">Getting Started</a></li>
     <li><a href="#highway">Highway display</a></li>
-    <li><a href="#spacetime_diagram">Spacetime diagram display</a></li>
+    <li><a href="#spacetime_diagram">Spacetime Diagram display</a></li>
     <li><a href="#tutorial">Quick tutorial</a></li>
     <li><a href="#how_to">Instructions</a>
       <ul>
@@ -69,7 +69,7 @@ this page available for less familiar operations.</p>
 
 <h2 id="getting_started">Getting Started</h2>
 <p>For a quick first exploration, use the default clock in the Highway and
-Spacetime diagram. Press the <strong>Up</strong> and <strong>Down</strong>
+Spacetime Diagram. Press the <strong>Up</strong> and <strong>Down</strong>
 arrow keys to advance or rewind time, and use <strong>Shift+Up</strong> and
 <strong>Shift+Down</strong> to change the reference frame. Use
 <strong>Left</strong> and <strong>Right</strong> to move the view, and
@@ -114,7 +114,7 @@ by the factor &gamma; along their direction of motion. Gamma is always positive,
 is 1 at beta 0, and grows without bound as beta approaches either light-speed
 lane.</p>
 
-<h2 id="spacetime_diagram">The Spacetime diagram display</h2>
+<h2 id="spacetime_diagram">The Spacetime Diagram display</h2>
 <p>The horizontal axis represents position and the vertical axis represents
 time. A <strong>worldline</strong> traces the trajectory of an object through
 spacetime. Objects shown on the Highway appear as worldlines here.</p>
@@ -147,7 +147,7 @@ changes in both diagrams. To add a note, edit the Notes cell in the same row;
 if the Notes column is not visible, use the table's horizontal scrollbar.
 For this tutorial, enter <code>This is the Earth.</code> as the note.
 Move the pointer over the clock in the Highway or over its worldline in the
-spacetime diagram to see the label, current coordinates, beta, gamma, and note
+Spacetime Diagram to see the label, current coordinates, beta, gamma, and note
 in the status bar.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python01.png" alt="Python Spacetime window with the default clock"></td></tr><tr><td align="center" class="caption">Python Spacetime default scenario.</td></tr></table>
 
@@ -186,7 +186,7 @@ by the rocket and cannot be dragged or edited in the table.</p>
 
 <h3>5. Create the turning event</h3>
 <p>Advance time with the Up key, the platform modifier plus Up for a larger
-step, or the spacetime diagram's vertical wheel or two-finger scroll gesture.
+step, or the Spacetime Diagram's vertical wheel or two-finger scroll gesture.
 Continue until the rocket and Alpha worldlines cross. Put the pointer directly
 on the crossing. Both worldlines become visibly thicker when the crossing is
 recognized, and the status bar identifies the nearest object.</p>
@@ -224,7 +224,7 @@ In the Events table, rename it <code>Arrival</code> and add a note such as
 has a matching default note, for example <code>E3</code> has
 <code>Event 3</code>.</p>
 <p>Advance time to the arrival event. The blue simultaneity strip in the
-spacetime diagram and the current time in the status bar help identify the
+Spacetime Diagram and the current time in the status bar help identify the
 time. Right-click the rocket in the Highway and choose
 <strong>Set termination here and now</strong>. Its worldline now ends at the
 arrival event, and the action changes to <strong>Cancel termination</strong>.</p>
@@ -235,7 +235,7 @@ arrival event, and the action changes to <strong>Cancel termination</strong>.</p
 <strong>Return to original frame</strong> restores the original coordinates.
 The underlying scenario remains in the original frame while displayed
 coordinates change. The horizontal scale and pan remain synchronized between
-the Highway and spacetime diagram. The same physical event therefore moves to
+the Highway and Spacetime Diagram. The same physical event therefore moves to
 different displayed x and t coordinates when the reference frame changes.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python13.png" alt="Python Spacetime transformed reference frame"></td></tr><tr><td align="center" class="caption">The same scenario in a different reference frame.</td></tr></table>
 
@@ -243,7 +243,7 @@ different displayed x and t coordinates when the reference frame changes.</p>
 <p>To reproduce the classic twin-paradox comparison, first set the time near
 the turnaround. Right-click the rocket in the Highway and choose
 <strong>Jump to object</strong>. The reference frame changes to the rocket's
-instantaneous rest frame. In the spacetime diagram, find the Earth's
+instantaneous rest frame. In the Spacetime Diagram, find the Earth's
 worldline and the thick blue line of simultaneity. Hover near their crossing;
 the Earth worldline is highlighted and the status bar shows its current
 coordinates. Right-click at that crossing and choose
@@ -280,7 +280,7 @@ scenario.</p>
 
 <h3 id="animation">Animation and time</h3>
 <p>Use Up and Down to advance or rewind time by 0.1. Use the platform modifier
-with Up or Down for steps of 1.0. The spacetime diagram also responds to
+with Up or Down for steps of 1.0. The Spacetime Diagram also responds to
 vertical wheel or two-finger scrolling; the Highway responds to vertical
 scrolling by transforming the reference frame. Time advances to the next event
 when one lies between regular time steps. Click a view before using keyboard
@@ -309,7 +309,7 @@ attached to a single worldline; those events remain constrained and their
 coordinates are read-only in the table.</p>
 
 <h3 id="deleting_events">Deleting events</h3>
-<p>Right-click an event in the spacetime diagram or its row in the Events table
+<p>Right-click an event in the Spacetime Diagram or its row in the Events table
 and choose <strong>Delete</strong>. Generated boundary and velocity-change
 events are managed by their object actions.</p>
 
@@ -334,7 +334,7 @@ The light cone follows the event and can be deleted from its own context menu.</
 <p>Right-click an object in the Highway or its row in the Objects table and
 choose <strong>Jump to this object</strong>. The display changes to that
 object's rest frame and centers the object's current x coordinate in both the
-Highway and spacetime diagrams.</p>
+Highway and Spacetime Diagrams.</p>
 
 <h3 id="transforming_up_and_down">Transforming the reference frame</h3>
 <p><strong>Transform up</strong> and <strong>Transform down</strong> apply a
@@ -346,7 +346,7 @@ menu or Shift+Up and Shift+Down. Shift+0 returns to the original frame.</p>
 or a horizontal mouse-wheel scroll, to pan the view. You can also use Left and
 Right, or the platform modifier with Left and Right for a larger movement.
 Click-and-drag is reserved for moving Highway objects and free spacetime
-events; it does not pan an empty area. The Highway and spacetime diagram
+events; it does not pan an empty area. The Highway and Spacetime Diagram
 remain synchronized, and the horizontal view range is saved in the scenario.</p>
 
 <h3 id="programming_objects">Programming objects</h3>

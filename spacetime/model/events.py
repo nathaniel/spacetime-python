@@ -1,4 +1,4 @@
-"""Events associated with objects and spacetime diagrams."""
+"""Events associated with objects and Spacetime Diagrams."""
 
 from __future__ import annotations
 from dataclasses import dataclass

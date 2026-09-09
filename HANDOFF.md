@@ -16,7 +16,7 @@ currently includes:
   programmed Delta beta events, and diagram decorations.
 - Spacetime scenario `.sce` loading and saving, including escaped Unicode and
   multiline comments.
-- Synchronized Highway and spacetime diagrams.
+- Synchronized Highway and Spacetime Diagrams.
 - Object and Event tables with editing, read-only cells, context menus, and
   Java-style formatting.
 - Object and Event tables use the same application font size, including after
@@ -91,7 +91,7 @@ compatibility research.
 ### Rendering and labels
 
 - Highway and spacetime views are synchronized for horizontal scale and pan.
-- The current time is centered vertically in the spacetime diagram.
+- The current time is centered vertically in the Spacetime Diagram.
 - Interval decorations display `S`, `T`, or `L`, the interval value, `Δx`, and
   `Δt`, using Java-style pink decoration coloring.
 - Spacetime-diagram context actions construct light cones and invariant
@@ -107,7 +107,7 @@ compatibility research.
 - Spacetime interval selection can be cancelled by pressing Esc or clicking
   empty space. While selection is active, its instruction takes priority over
   hover details.
-- Right-clicking a worldline intersection in the spacetime diagram offers
+- Right-clicking a worldline intersection in the Spacetime Diagram offers
   `Create event`; the two intersecting worldlines become visibly thicker on
   hover, and the event is fixed to the exact intersection. It is synchronized
   if the intersecting worldlines change. All crossings are considered,
