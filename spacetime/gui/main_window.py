@@ -159,16 +159,17 @@ class _GettingStartedDialog(QDialog):
         self.setWindowTitle("Getting Started with Spacetime")
         layout = QVBoxLayout(self)
         message = QLabel(
-            "<p><b>Explore the default clock</b> in the Highway and Spacetime "
-            "diagram.</p>"
+            "<p>Welcome to the Spacetime special-relativity simulator!</p>"
+            "<p>Explore the default clock in the <b>Highway</b> and "
+            "<b>Spacetime Diagram</b>.</p>"
             "<p><b>Up / Down</b>: advance or rewind time<br>"
             "<b>Shift + Up / Down</b>: change the reference frame<br>"
             "<b>Left / Right</b>: move the view<br>"
             "<b>+ / -</b>: zoom<br>"
             "<b>Right-click</b>: create objects, events, and decorations</p>"
-            "<p>Objects and events can also be edited in the Tables panel. "
-            "Use Help for the detailed Tutorial and complete <b>Shortcuts &amp; Gestures</b> "
-            "reference.</p>"
+            "<p>Objects and events can also be edited in the <b>Tables</b> panel. "
+            "Use <b>Help</b> for the detailed <b>Tutorial</b> and complete "
+            "<b>Shortcuts &amp; Gestures</b> reference.</p>"
         )
         message.setWordWrap(True)
         layout.addWidget(message)
@@ -214,7 +215,7 @@ class MainWindow(QMainWindow):
         self.diagram.hover_changed.connect(lambda item: self._show_hover_detail(item))
         self.diagram.instruction_changed.connect(self._set_instruction)
         self.highway_panel = _TitledPanel("Highway", self.highway, "top-right")
-        self.diagram_panel = _TitledPanel("Spacetime diagram", self.diagram, "top-left")
+        self.diagram_panel = _TitledPanel("Spacetime Diagram", self.diagram, "top-left")
         split.addWidget(self.highway_panel)
         split.addWidget(self.diagram_panel)
         layout.addWidget(split)
