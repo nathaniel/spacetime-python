@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
+    QSizePolicy,
     QSplitter,
     QSpinBox,
     QTabWidget,
@@ -84,9 +85,13 @@ class _StatusPanel(QWidget):
         self.announcement_separator.setFrameShape(QFrame.Shape.VLine)
         self.announcement_separator.setFrameShadow(QFrame.Shadow.Sunken)
         self.time_label.setFixedWidth(105)
+        self.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Preferred,
+        )
         self.separator.setFixedWidth(2)
         self.announcement_separator.setFixedWidth(2)
-        self.announcement_label.setMinimumWidth(180)
+        self.announcement_label.setFixedWidth(180)
         self.detail_label.hide()
         self.separator.hide()
         self.announcement_separator.hide()
