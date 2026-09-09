@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMainWindow,
     QMessageBox,
+    QPushButton,
     QSplitter,
     QSpinBox,
     QTabWidget,
@@ -123,13 +124,22 @@ class _PreferencesDialog(QDialog):
         )
         note.setWordWrap(True)
         layout.addRow(note)
+        self.reset_defaults = QPushButton("Reset to Defaults")
+        self.reset_defaults.clicked.connect(self._reset_defaults)
+        layout.addRow(self.reset_defaults)
         buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok
+            QDialogButtonBox.StandardButton.Apply
             | QDialogButtonBox.StandardButton.Cancel
         )
-        buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
+        self.apply_button = buttons.button(QDialogButtonBox.StandardButton.Apply)
         layout.addRow(buttons)
+
+    def _reset_defaults(self) -> None:
+        """Restore the built-in preference defaults in the form."""
+        self.font_size.setValue(12)
+        self.trackpad.setValue(100)
+        self.wheel.setValue(100)
 
 class MainWindow(QMainWindow):
     """Coordinate the editor views, controls, and scenario persistence."""
@@ -226,8 +236,8 @@ class MainWindow(QMainWindow):
             view.trackpad_sensitivity = self._trackpad_sensitivity
             view.mouse_wheel_sensitivity = self._mouse_wheel_sensitivity
 
-    def _apply_font_size(self, point_size: int) -> None:
-        """Apply and persist an application-wide font size."""
+    def _apply_font_size(self, point_size: int, persist: bool = True) -> None:
+        """Apply an application-wide font size, optionally persisting it."""
         app = QApplication.instance()
         if app is None:
             return
@@ -249,7 +259,8 @@ class MainWindow(QMainWindow):
             panel._position_title()
         self.object_table.resizeRowsToContents()
         self.event_table.resizeRowsToContents()
-        self.settings.setValue("fontSize", point_size)
+        if persist:
+            self.settings.setValue("fontSize", point_size)
         self.highway.update()
         self.diagram.update()
     def _add_actions(self):
@@ -359,21 +370,56 @@ class MainWindow(QMainWindow):
         self._apply_font_size(max(6, min(32, app.font().pointSize() + delta)))
 
     def show_preferences(self) -> None:
-        """Show and apply persistent application preferences."""
+        """Preview, commit, or cancel persistent application preferences."""
         dialog = _PreferencesDialog(
             self,
             QApplication.instance().font().pointSize(),
             self._trackpad_sensitivity,
             self._mouse_wheel_sensitivity,
         )
-        if dialog.exec() != QDialog.DialogCode.Accepted:
-            return
-        self._trackpad_sensitivity = dialog.trackpad.value() / 100
-        self._mouse_wheel_sensitivity = dialog.wheel.value() / 100
-        self.settings.setValue("trackpadSensitivity", self._trackpad_sensitivity)
-        self.settings.setValue("mouseWheelSensitivity", self._mouse_wheel_sensitivity)
-        self._apply_scroll_preferences()
-        self._apply_font_size(dialog.font_size.value())
+        committed = (
+            QApplication.instance().font().pointSize(),
+            self._trackpad_sensitivity,
+            self._mouse_wheel_sensitivity,
+        )
+
+        def values():
+            return (
+                dialog.font_size.value(),
+                dialog.trackpad.value() / 100,
+                dialog.wheel.value() / 100,
+            )
+
+        def preview():
+            font_size, trackpad, wheel = values()
+            self._trackpad_sensitivity = trackpad
+            self._mouse_wheel_sensitivity = wheel
+            self._apply_scroll_preferences()
+            self._apply_font_size(font_size, persist=False)
+
+        def apply():
+            nonlocal committed
+            preview()
+            committed = values()
+            font_size, trackpad, wheel = committed
+            self.settings.setValue("fontSize", font_size)
+            self.settings.setValue("trackpadSensitivity", trackpad)
+            self.settings.setValue("mouseWheelSensitivity", wheel)
+
+        def cancel():
+            font_size, trackpad, wheel = committed
+            self._trackpad_sensitivity = trackpad
+            self._mouse_wheel_sensitivity = wheel
+            self._apply_scroll_preferences()
+            self._apply_font_size(font_size, persist=False)
+
+        dialog.font_size.valueChanged.connect(preview)
+        dialog.trackpad.valueChanged.connect(preview)
+        dialog.wheel.valueChanged.connect(preview)
+        dialog.apply_button.clicked.connect(apply)
+        dialog.reset_defaults.clicked.connect(preview)
+        dialog.rejected.connect(cancel)
+        dialog.exec()
 
     def show_help(self) -> None:
         """Reveal Help at half the height of the right dock area."""
