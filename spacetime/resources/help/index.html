@@ -126,38 +126,60 @@ Undo shortcut. Undo restores the related object and event changes together.</p>
 
 <h3>1. Create the Earth clock</h3>
 <p>Start with the default clock, or choose <strong>Edit &rarr; Create Clock</strong>.
-Use the Objects table to change its label to <code>Earth</code> and enter a
-note. Notes appear in hover details in the status bar.</p>
+The default scenario contains one clock, usually named <code>C1</code>. The
+Objects table is in the Tables panel on the right. Double-click the Object
+cell in the first row, type <code>Earth</code>, and press Enter. The label
+changes in both diagrams. To add a note, edit the Notes cell in the same row;
+if the Notes column is not visible, use the table's horizontal scrollbar.
+Move the pointer over the clock in the Highway or over its worldline in the
+spacetime diagram to see the label, current coordinates, beta, gamma, and note
+in the status bar.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python01.png" alt="Python Spacetime window with the default clock"></td></tr><tr><td align="center" class="caption">Python Spacetime default scenario.</td></tr></table>
 
 <h3>2. Create the Alpha Centauri clock</h3>
 <p>Right-click an empty Highway position and choose <strong>Create clock</strong>.
-Place it four light years from Earth, then adjust its position or beta in the
-Objects table if needed. In the Objects table, rename the new clock to
-<code>Alpha</code> and add a note such as <code>This is the star that the
-astronaut travels to.</code></p>
+The Highway position under the pointer becomes the new clock's current
+position; its vertical position determines beta. Do not right-click on an
+existing object. Place the new clock about four light years from Earth. If the
+placement is not exact, edit the x or beta cell in the Objects table. Rename
+the new clock to <code>Alpha</code> and add a note such as <code>This is the
+star that the astronaut travels to.</code> Press Enter after each table edit.
+The x and beta values are displayed in the current reference frame.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python02.png" alt="Python Spacetime Objects table"></td></tr><tr><td align="center" class="caption">The Objects table edits labels, position, beta, gamma, readings, and notes.</td></tr></table>
 
 <h3>3. Create the rocket</h3>
 <p>Create another clock at position 0. Set its gamma factor to 2, then label it
 <code>Rocket</code> and add a note. The table accepts beta and formats the
-corresponding gamma value.</p>
+corresponding gamma value. You can create the clock approximately on the
+center lane, then edit its x and beta in the Objects table. To set gamma
+directly, edit the gamma cell and press Enter; the corresponding beta is
+calculated, including its sign from the current beta. A gamma of 2 gives a
+speed less than light in either direction.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python03.png" alt="Python Spacetime object note editing"></td></tr><tr><td align="center" class="caption">Object notes are visible in the table and hover details.</td></tr></table>
 
 <h3>4. Create the departure event</h3>
 <p>At the current time, right-click the rocket and choose
 <strong>Set birth here and now</strong>. This creates a generated boundary
-event. Select the Events tab to edit its label and note.</p>
+event and limits the displayed rocket worldline to begin at that time. The
+action changes to <strong>Cancel birth</strong> after it is set. Select the
+Events tab in the Tables panel to find the generated event. You may change its
+label and note, but its coordinates are controlled by the rocket and cannot be
+dragged or edited in the table.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python08.png" alt="Python Spacetime Events table at departure"></td></tr><tr><td align="center" class="caption">The Events table displays the departure event.</td></tr></table>
 
 <h3>5. Create the turning event</h3>
-<p>Advance time with the Up key or the spacetime diagram scroll gesture until
-the rocket and Alpha worldlines cross. In the spacetime diagram, place the
-pointer directly on the crossing until both worldlines are highlighted.
-Both worldlines become visibly thicker when the crossing is recognized.
-Right-click there and choose <strong>Create event</strong>. The event is fixed
-to the exact intersection. In the Events table, add a note such as
-<code>Turning at Alpha</code>; the generated velocity-change label, such as
+<p>Advance time with the Up key, the platform modifier plus Up for a larger
+step, or the spacetime diagram's vertical wheel or two-finger scroll gesture.
+Continue until the rocket and Alpha worldlines cross. Put the pointer directly
+on the crossing. Both worldlines become visibly thicker when the crossing is
+recognized, and the status bar identifies the nearest object.</p>
+<p>Right-click the crossing and choose <strong>Create event</strong>. The event
+is fixed to the exact intersection, not to the nearest tenth-grid point. If
+two worldlines cross more than once, right-click either worldline away from a
+crossing, choose <strong>all intersections with . . .</strong>, and then click
+the other worldline. Every existing crossing of the pair is added as a fixed
+event. In the Events table, add a note such as <code>Turning at Alpha</code>;
+the generated velocity-change label, such as
 <code>Rocket-&Delta;&beta;1</code>, should not be renamed.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python09.png" alt="Python Spacetime turning event"></td></tr><tr><td align="center" class="caption">The turning event is visible in the Events table.</td></tr></table>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python10.png" alt="Python Spacetime Highway at the turning event"></td></tr><tr><td align="center" class="caption">The Highway view at the turning time.</td></tr></table>
@@ -166,44 +188,66 @@ to the exact intersection. In the Events table, add a note such as
 <p>At the turning time, right-click the rocket and choose
 <strong>Program</strong>. Drag it to a lane with gamma 2 in the opposite
 direction, or enter the new beta in the Objects table. A programmed object is
-shown in green until the edit is completed.</p>
+shown in green while it is being edited. When dragging on the Highway, the
+rocket's current position stays fixed while the new beta is selected. A
+programmed change creates a Delta-beta event and adds a kink to the rocket's
+worldline. Click elsewhere in the Highway when finished; this ends the
+programming interaction and returns the object to its normal color.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python11.png" alt="Python Spacetime programmed rocket"></td></tr><tr><td align="center" class="caption">The programmed rocket is highlighted in green.</td></tr></table>
 
 <p>Dragging or editing an object outside Program mode redefines its worldline
 and removes its birth, termination, and programmed velocity-change events.</p>
 
 <h3>7. Create the arrival event</h3>
-<p>Advance time until the rocket and Earth worldlines cross. In the spacetime
-diagram, place the pointer directly on the crossing until both worldlines are
-highlighted. Both worldlines become visibly thicker when the crossing is
-recognized. Right-click there and choose <strong>Create event</strong>. The
-event is fixed to the exact intersection. In the Events table, rename it
-<code>Arrival</code> and add a note such as
-<code>The rocket arrives back at Earth.</code> Advance time to the arrival
-event, then right-click the rocket in the Highway and choose
-<strong>Set termination here and now</strong>.</p>
+<p>Advance time until the rocket and Earth worldlines cross. Hover directly on
+the crossing until both worldlines are highlighted, then right-click and choose
+<strong>Create event</strong>. The event is fixed to the exact intersection.
+In the Events table, rename it <code>Arrival</code> and add a note such as
+<code>The rocket arrives back at Earth.</code> An automatically named event
+has a matching default note, for example <code>E3</code> has
+<code>Event 3</code>.</p>
+<p>Advance time to the arrival event. The blue simultaneity strip in the
+spacetime diagram and the current time in the status bar help identify the
+time. Right-click the rocket in the Highway and choose
+<strong>Set termination here and now</strong>. Its worldline now ends at the
+arrival event, and the action changes to <strong>Cancel termination</strong>.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python12.png" alt="Python Spacetime completed trip"></td></tr><tr><td align="center" class="caption">The completed trip and its events.</td></tr></table>
 
 <h3>8. Compare reference frames</h3>
 <p>Use <strong>Reference frame</strong> to set beta or transform up and down.
 <strong>Return to original frame</strong> restores the original coordinates.
 The underlying scenario remains in the original frame while displayed
-coordinates change.</p>
+coordinates change. The horizontal scale and pan remain synchronized between
+the Highway and spacetime diagram. The same physical event therefore moves to
+different displayed x and t coordinates when the reference frame changes.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python13.png" alt="Python Spacetime transformed reference frame"></td></tr><tr><td align="center" class="caption">The same scenario in a different reference frame.</td></tr></table>
 
 <h3>9. Compare simultaneity in the outbound and inbound frames</h3>
-<p>To reproduce the classic twin-paradox comparison, set the time near the
-turnaround, use <strong>Jump to object</strong> on the rocket, and locate the
-intersection of the Earth's worldline with the blue simultaneity line. Use
-<strong>Create event</strong> there and label the event <code>S1</code>. Return
-to the original frame, jump to the rocket again after the turnaround, and
-repeat the operation to create <code>S2</code>. The two events are different
-because simultaneity depends on the reference frame.</p>
+<p>To reproduce the classic twin-paradox comparison, first set the time near
+the turnaround. Right-click the rocket in the Highway and choose
+<strong>Jump to object</strong>. The reference frame changes to the rocket's
+instantaneous rest frame. In the spacetime diagram, find the Earth's
+worldline and the thick blue line of simultaneity. Hover near their crossing;
+the Earth worldline is highlighted and the status bar shows its current
+coordinates. Right-click at that crossing and choose
+<strong>Create event</strong>. Because the pointer is on the simultaneity line,
+the new event is placed at exactly the current displayed time. Rename it
+<code>S1</code> and add a note describing the outbound frame.</p>
+<p>Return to the original frame with <strong>Reference frame &rarr; Return to
+original frame</strong>. Set the time near the post-turnaround leg, jump to the
+rocket again, and repeat the operation to create <code>S2</code>. The two
+events are different because simultaneity depends on the reference frame.
+Clicking near a worldline away from the blue line creates an event on that
+worldline at the selected time instead; clicking empty diagram space creates a
+free event.</p>
 
 <h3>10. Comment and save</h3>
 <p>Use the Comments tab in the Tables panel to add scenario notes. Choose
 <strong>Scenario &rarr; Save</strong> or <strong>Save As</strong> to write a Spacetime
-scenario <code>.sce</code> file.</p>
+scenario <code>.sce</code> file. Save after completing the tutorial so that the
+objects, events, programmed worldline, decorations, comments, and synchronized
+view position can be reopened later. If the window title begins with an
+asterisk, the scenario has unsaved changes.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python04.png" alt="Python Spacetime hover details"></td></tr><tr><td align="center" class="caption">Hover details include object notes in the status area.</td></tr></table>
 
 <p><strong>Congratulations.</strong> You have created a complete spacetime
