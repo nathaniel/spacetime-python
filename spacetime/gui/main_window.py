@@ -21,7 +21,6 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QSplitter,
-    QDoubleSpinBox,
     QSpinBox,
     QTabWidget,
     QVBoxLayout,
@@ -106,19 +105,19 @@ class _PreferencesDialog(QDialog):
         self.font_size = QSpinBox()
         self.font_size.setRange(6, 32)
         self.font_size.setValue(font_size)
-        self.trackpad = QDoubleSpinBox()
+        self.trackpad = QSpinBox()
         self.trackpad.setRange(10, 500)
         self.trackpad.setSingleStep(10)
         self.trackpad.setSuffix("%")
-        self.trackpad.setValue(trackpad * 100)
-        self.wheel = QDoubleSpinBox()
+        self.trackpad.setValue(round(trackpad * 100))
+        self.wheel = QSpinBox()
         self.wheel.setRange(10, 500)
         self.wheel.setSingleStep(10)
         self.wheel.setSuffix("%")
-        self.wheel.setValue(wheel * 100)
+        self.wheel.setValue(round(wheel * 100))
         layout.addRow("Application font size:", self.font_size)
-        layout.addRow("Trackpad / pixel-scroll sensitivity:", self.trackpad)
-        layout.addRow("Mouse-wheel sensitivity:", self.wheel)
+        layout.addRow("Trackpad / pixel-scroll sensitivity (10–500%):", self.trackpad)
+        layout.addRow("Mouse-wheel sensitivity (10–500%):", self.wheel)
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok
             | QDialogButtonBox.StandardButton.Cancel

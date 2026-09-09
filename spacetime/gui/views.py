@@ -6,7 +6,7 @@ import math
 from copy import deepcopy
 
 from PySide6.QtCore import QEvent, QPointF, QRectF, Qt, Signal
-from PySide6.QtGui import QColor, QFont, QInputDevice, QPainter, QPainterPath, QPen
+from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import QWidget, QMenu
 
 from ..commands.undo_redo import AddEvent, AddObject, DeleteEvent, DeleteObject, ProgramObject, Snapshot
@@ -125,7 +125,7 @@ class _View(QWidget):
         """Handle scrolling for panning, zooming, and stepping."""
         angle_delta = event.angleDelta()
         pixel_delta = event.pixelDelta()
-        trackpad = event.device().type() == QInputDevice.DeviceType.TouchPad
+        trackpad = bool(pixel_delta) and not bool(angle_delta)
         horizontal = angle_delta.x() or pixel_delta.x()
         vertical = angle_delta.y() or pixel_delta.y()
         if horizontal and vertical:
