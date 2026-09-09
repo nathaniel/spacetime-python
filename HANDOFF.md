@@ -23,8 +23,9 @@ currently includes:
   dynamic font-size changes.
 - Undo/redo, scenario save/load, object programming, lifetime constraints,
   decorations, zooming, panning, time navigation, and frame changes.
-- Platform-aware menus, shortcuts, and Help content.
-- Focused regression tests; the current suite has 19 passing tests.
+- Platform-aware menus, persistent preferences, first-launch Getting Started,
+  shortcuts and gestures, and Help content.
+- Focused regression tests; the current suite has 30 passing tests.
 
 The major remaining delivery work is native packaging and release hardening:
 Windows and macOS builds, packaged smoke tests, resource bundling, and
@@ -92,6 +93,8 @@ compatibility research.
 
 - Highway and spacetime views are synchronized for horizontal scale and pan.
 - The current time is centered vertically in the Spacetime Diagram.
+- The Scenario tab contains notes about the situation being explored; new
+  scenarios start with a human-readable prompt.
 - Interval decorations display `S`, `T`, or `L`, the interval value, `Δx`, and
   `Δt`, using Java-style pink decoration coloring.
 - Spacetime-diagram context actions construct light cones and invariant
@@ -102,8 +105,8 @@ compatibility research.
   overlap.
 - Flash worldlines use orange, and Highway object/event labels are positioned
   above the plotted worldline area to avoid overlap.
-- The bottom status bar shows the current time, live hover details, and a
-  persistent hint directing users to the keyboard shortcuts.
+- The bottom status bar shows the current time and live hover details; a
+  divider appears before details only while an object or event is hovered.
 - Spacetime interval selection can be cancelled by pressing Esc or clicking
   empty space. While selection is active, its instruction takes priority over
   hover details.
@@ -117,8 +120,12 @@ compatibility research.
   diagram: construct a light cone, construct an invariant hyperbola, start
   spacetime-interval selection, or delete the event. These actions participate
   in undo/redo history.
-- Help opens in a dockable panel with a dedicated shortcuts table. The Help
-  content also documents mouse and trackpad interactions.
+- Help opens in a dockable panel with direct Getting Started, Tutorial, and
+  Shortcuts & Gestures entries. A first-launch Getting Started dialog can be
+  disabled and reopened from Help.
+- Preferences/Settings persist application font size and mouse-wheel and
+  trackpad sensitivity. Changes preview immediately; Apply commits them and
+  Cancel restores the previous values.
 
 ## Menus and shortcuts
 
@@ -130,7 +137,8 @@ The current top-level menus are:
 - **Coordinates** — Advance time, Rewind time, Set time, Set time to zero,
   Center on x.
 - **View** — Zoom in/out, Move left/right.
-- **Help** — Help and About.
+- **Help** — Help Contents, Getting Started, Tutorial, Shortcuts & Gestures,
+  and About.
 
 Displayed modifier names are platform-aware:
 
@@ -184,7 +192,7 @@ Use the existing Mamba environment:
 mamba run -n spacetime-py env QT_QPA_PLATFORM=offscreen python -m pytest -q
 ```
 
-The expected current result is 19 passing tests. For GUI smoke checks, use
+The expected current result is 30 passing tests. For GUI smoke checks, use
 `QT_QPA_PLATFORM=offscreen` and instantiate `MainWindow` with a `Scenario`.
 Do not add new testing tools; use the existing pytest and Qt setup.
 
