@@ -218,6 +218,8 @@ class MainWindow(QMainWindow):
         self._modifier_name = "Cmd" if sys.platform == "darwin" else "Ctrl"
         root=QWidget(); layout=QVBoxLayout(root)
         split=QSplitter(Qt.Vertical); self.highway=HighwayView(scenario); self.diagram=SpacetimeDiagramView(scenario)
+        self.highway.setAccessibleName("Highway view")
+        self.diagram.setAccessibleName("Spacetime Diagram view")
         self.highway.history = self.history
         self.diagram.history = self.history
         self._apply_scroll_preferences()
@@ -252,14 +254,15 @@ class MainWindow(QMainWindow):
         self.event_table.interval_requested.connect(self.diagram._start_interval)
         self.object_table.changed.connect(self.mark_dirty)
         self.event_table.changed.connect(self.mark_dirty)
-        tabs=QTabWidget(); tabs.addTab(self.object_table, "Objects"); tabs.addTab(self.event_table, "Events");         self.comments=QTextEdit(); self.comments.setPlainText(scenario.comments); self.comments.textChanged.connect(self.mark_dirty)
+        tabs=QTabWidget(); tabs.setAccessibleName("Scenario information"); tabs.addTab(self.object_table, "Objects"); tabs.addTab(self.event_table, "Events");         self.comments=QTextEdit(); self.comments.setAccessibleName("Scenario notes"); self.comments.setPlainText(scenario.comments); self.comments.textChanged.connect(self.mark_dirty)
         tabs.addTab(self.comments, "Scenario")
         self.help_view = HelpView()
         self.shortcuts_view = ShortcutsView()
         tabs.addTab(self.shortcuts_view, "Shortcuts")
         self.tabs = tabs
-        self.table_dock=QDockWidget("Tables", self); self.table_dock.setWidget(tabs); self.addDockWidget(Qt.RightDockWidgetArea, self.table_dock)
+        self.table_dock=QDockWidget("Tables", self); self.table_dock.setAccessibleName("Tables panel"); self.table_dock.setWidget(tabs); self.addDockWidget(Qt.RightDockWidgetArea, self.table_dock)
         self.help_dock = QDockWidget("Help", self)
+        self.help_dock.setAccessibleName("Help panel")
         self.help_dock.setWidget(self.help_view)
         self.help_dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
         self.addDockWidget(Qt.RightDockWidgetArea, self.help_dock)
