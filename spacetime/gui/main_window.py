@@ -166,8 +166,9 @@ class _GettingStartedDialog(QDialog):
         message = QLabel(
             "<p>Welcome to the Spacetime special-relativity explorer!</p>"
             "<p>A clock has been placed here to show you how the two views work "
-            "together. The <b>Highway</b> shows where it is now; the "
-            "<b>Spacetime Diagram</b> shows its path through time.</p>"
+            "together. The <b>Highway</b> shows where each object is now and "
+            "how fast it is moving; the <b>Spacetime Diagram</b> shows each "
+            "object's path through time.</p>"
             "<p><b>Up / Down</b>: advance or rewind time<br>"
             "<b>Shift + Up / Down</b>: change the reference-frame velocity<br>"
             "<b>Left / Right</b>: move the view<br>"
