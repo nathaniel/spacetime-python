@@ -84,6 +84,19 @@ class _ShortcutDelegate(QStyledItemDelegate):
         parts = self._separator_pattern.split(text)
         return parts if len(parts) > 1 and len(text) <= 18 else None
 
+    def width_for(self, text, font):
+        """Return the width needed to draw a key combination on one line."""
+        parts = self._parts(text)
+        if parts is None:
+            return 0
+        metrics = QFontMetrics(font)
+        width = 12
+        for part_index, part in enumerate(parts):
+            if part:
+                width += metrics.horizontalAdvance(part.strip())
+                width += 12 if part_index % 2 else 17
+        return width
+
     def paint(self, painter, option, index):
         """Paint keycaps while retaining the cell's original text."""
         text = index.data()
@@ -154,7 +167,8 @@ class ShortcutsView(QWidget):
         layout.addWidget(title)
         table = QTableWidget(self)
         self.table = table
-        table.setItemDelegateForColumn(0, _ShortcutDelegate(table))
+        self.delegate = _ShortcutDelegate(table)
+        table.setItemDelegateForColumn(0, self.delegate)
         table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         layout.addWidget(table)
         note = QLabel(
@@ -195,9 +209,24 @@ class ShortcutsView(QWidget):
         for row, (input_text, action) in enumerate(rows):
             table.setItem(row, 0, QTableWidgetItem(input_text))
             table.setItem(row, 1, QTableWidgetItem(action))
+        self._resize_input_column(rows)
+
+    def _resize_input_column(self, rows=None):
+        """Keep key combinations on one line while leaving prose to wrap."""
+        if rows is None:
+            rows = [
+                (self.table.item(row, 0).text(), "")
+                for row in range(self.table.rowCount())
+            ]
+        width = max(
+            (self.delegate.width_for(text, self.font()) for text, _ in rows),
+            default=0,
+        )
+        self.table.setColumnWidth(0, width)
 
     def changeEvent(self, event):
         """Resize shortcut rows after a global font-size change."""
         super().changeEvent(event)
         if event.type() == QEvent.Type.FontChange:
+            self._resize_input_column()
             self.table.resizeRowsToContents()
