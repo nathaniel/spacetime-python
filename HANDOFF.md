@@ -14,7 +14,7 @@ currently includes:
   proper-time calculations.
 - Clocks, light flashes, free events, intersections, birth/termination events,
   programmed Delta beta events, and diagram decorations.
-- Java-compatible `.sce` loading and saving, including escaped Unicode and
+- Spacetime scenario `.sce` loading and saving, including escaped Unicode and
   multiline comments.
 - Synchronized Highway and spacetime diagrams.
 - Object and Event tables with editing, read-only cells, context menus, and
@@ -22,7 +22,7 @@ currently includes:
 - Undo/redo, scenario save/load, object programming, lifetime constraints,
   decorations, zooming, panning, time navigation, and frame changes.
 - Platform-aware menus, shortcuts, and Help content.
-- Focused regression tests; the current suite has 16 passing tests.
+- Focused regression tests; the current suite has 19 passing tests.
 
 The major remaining delivery work is native packaging and release hardening:
 Windows and macOS builds, packaged smoke tests, resource bundling, and
@@ -105,6 +105,15 @@ compatibility research.
 - Spacetime interval selection can be cancelled by pressing Esc or clicking
   empty space. While selection is active, its instruction takes priority over
   hover details.
+- Right-clicking a worldline intersection in the spacetime diagram offers
+  `Create event here`; the event is fixed to the exact intersection and is
+  synchronized if the intersecting worldlines change. All crossings are
+  considered, including crossings on semi-infinite segments before the first
+  recorded worldline point.
+- The Event table provides context actions equivalent to the spacetime
+  diagram: construct a light cone, construct an invariant hyperbola, start
+  spacetime-interval selection, or delete the event. These actions participate
+  in undo/redo history.
 - Help opens in a dockable panel with a dedicated shortcuts table. The Help
   content also documents mouse and trackpad interactions.
 
@@ -172,7 +181,7 @@ Use the existing Mamba environment:
 mamba run -n spacetime-py env QT_QPA_PLATFORM=offscreen python -m pytest -q
 ```
 
-The expected current result is 16 passing tests. For GUI smoke checks, use
+The expected current result is 19 passing tests. For GUI smoke checks, use
 `QT_QPA_PLATFORM=offscreen` and instantiate `MainWindow` with a `Scenario`.
 Do not add new testing tools; use the existing pytest and Qt setup.
 
@@ -205,8 +214,8 @@ intended ownership.
 
 1. Inspect and resolve the existing worktree changes without using destructive
    reset or checkout commands.
-2. Continue Java-vs-Python compatibility review for less-used table, context
-   menu, and decoration workflows.
+2. Continue Java-vs-Python compatibility review for less-used table and
+   decoration workflows.
 3. Add broader golden-scenario comparisons and packaged smoke tests.
 4. Implement native Windows and macOS packaging.
 5. Only then address signing, notarization, installers, and release metadata.
