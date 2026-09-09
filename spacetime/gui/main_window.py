@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 from PySide6.QtCore import QTimer, Qt
-from PySide6.QtGui import QAction, QFont, QKeySequence
+from PySide6.QtGui import QAction, QKeySequence
 from .tables import ObjectTable, EventTable
 from .help_view import HelpView, ShortcutsView
 
@@ -259,14 +259,12 @@ class MainWindow(QMainWindow):
         for widget in (
             self.highway,
             self.diagram,
+            self.object_table,
             self.event_table,
             self.help_view,
             self.shortcuts_view,
         ):
             widget.setFont(font)
-        table_font = QFont(font)
-        table_font.setPointSizeF(max(1.0, font.pointSizeF() * 0.9))
-        self.object_table.setFont(table_font)
         for panel in (self.highway_panel, self.diagram_panel):
             panel.title_label.setFont(font)
             panel.title_label.adjustSize()

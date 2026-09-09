@@ -25,9 +25,6 @@ class ObjectTable(QTableWidget):
         super().__init__(0, 6, parent); self.scenario=scenario
         self.history = None
         self._updating = False
-        font = self.font()
-        font.setPointSizeF(max(1.0, font.pointSizeF() * 0.9))
-        self.setFont(font)
         headers = ["Object", "x", "β", "γ", "reading", "notes"]
         self.setHorizontalHeaderLabels(headers)
         header = self.horizontalHeader()
