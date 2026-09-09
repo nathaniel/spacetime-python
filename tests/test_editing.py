@@ -64,6 +64,27 @@ def test_intersection_event_can_target_a_later_crossing():
     assert event.t == pytest.approx(6)
 
 
+def test_all_intersection_events_create_each_existing_crossing():
+    """Create fixed events for every crossing of two worldlines."""
+    scenario = Scenario()
+    stationary = scenario.add_clock(0, 0, 0.0)
+    reversing = scenario.add_clock(-1, 0, 0.5)
+    reversing.worldline = Worldline(
+        [
+            reversing.worldline.records[0],
+            WorldlineRecord(1, 4, 0.5, -0.5),
+        ]
+    )
+
+    events = scenario.all_intersection_events(stationary, reversing)
+
+    assert [(event.t, event.x) for event in events] == pytest.approx(
+        [(2, 0), (6, 0)]
+    )
+    assert all(event.fixed_at_intersection for event in events)
+    assert all(event.intersection_names == ("C1", "C2") for event in events)
+
+
 def test_worldline_event_snaps_to_current_simultaneity_line():
     """Create a worldline event at the exact current-frame time."""
     scenario = Scenario(beta_rel=0.6, time=2.0)

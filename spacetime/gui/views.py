@@ -594,6 +594,7 @@ class _View(QWidget):
                 )
                 title.setEnabled(False)
                 menu.addSeparator()
+                self._add_all_intersections_menu(menu, obj)
                 menu.addAction(
                     "Create event",
                     lambda: self._create_worldline_event(
@@ -606,6 +607,7 @@ class _View(QWidget):
                 title = menu.addAction(f"Worldline of {obj.label}")
                 title.setEnabled(False)
                 menu.addSeparator()
+                self._add_all_intersections_menu(menu, obj)
                 menu.addAction(
                     "Create event",
                     lambda: self._create_worldline_event(
@@ -615,6 +617,16 @@ class _View(QWidget):
                 )
             else: menu.addAction("Create event", lambda: self._create_event(point))
         menu.exec(self.mapToGlobal(point))
+
+    def _add_all_intersections_menu(self, menu, obj) -> None:
+        """Add actions for constructing all intersections with other objects."""
+        construct_menu = menu.addMenu("all intersections with . . .")
+        for other in self.scenario.objects:
+            if other is not obj:
+                construct_menu.addAction(
+                    other.label,
+                    lambda other=other: self._add_all_intersections(obj, other),
+                )
 
     def _create_intersection_event(
         self,
@@ -632,6 +644,16 @@ class _View(QWidget):
         if self.history is not None:
             self.scenario.events.remove(event)
             self.history.do(AddEvent(self.scenario, event))
+        self.changed.emit()
+        self.update()
+
+    def _add_all_intersections(self, first, second) -> None:
+        """Create fixed events at every crossing of two worldlines."""
+        mutation = lambda: self.scenario.all_intersection_events(first, second)
+        if self.history is None:
+            mutation()
+        else:
+            self.history.do(Snapshot(self.scenario, mutation))
         self.changed.emit()
         self.update()
 

@@ -408,6 +408,17 @@ class Scenario:
         event.fixed_at_intersection = True
         event.intersection_names = (first.name, second.name)
         return event
+    def all_intersection_events(
+        self,
+        first: STObject,
+        second: STObject,
+    ) -> list[Event]:
+        """Create fixed events at every existing-worldline intersection."""
+        events = []
+        for hit in first.worldline.intersections(second.worldline):
+            if first.exists(hit[0]) and second.exists(hit[0]):
+                events.append(self.intersection_event(first, second, hit=hit))
+        return events
     def worldline_event(
         self,
         obj: STObject,
