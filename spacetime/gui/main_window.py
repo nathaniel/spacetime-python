@@ -11,20 +11,25 @@ from ..model.scenario import Scenario
 from ..model.lorentz import transform
 from PySide6.QtWidgets import (
     QDockWidget,
+    QDialog,
+    QDialogButtonBox,
     QFrame,
+    QFormLayout,
     QApplication,
     QInputDialog,
     QLabel,
     QMainWindow,
     QMessageBox,
     QSplitter,
+    QDoubleSpinBox,
+    QSpinBox,
     QTabWidget,
     QVBoxLayout,
     QWidget,
     QFileDialog,
     QTextEdit,
 )
-from PySide6.QtCore import QTimer, Qt
+from PySide6.QtCore import QSettings, QTimer, Qt
 from PySide6.QtGui import QAction, QKeySequence
 from .tables import ObjectTable, EventTable
 from .help_view import HelpView, ShortcutsView
@@ -90,6 +95,38 @@ class _StatusPanel(QWidget):
         self.time_label.setGeometry(0, 0, 105, height)
         self.detail_label.setGeometry(105, 0, max(0, self.width() - 105), height)
 
+class _PreferencesDialog(QDialog):
+    """Edit persistent application preferences."""
+
+    def __init__(self, parent, font_size: int, trackpad: float, wheel: float):
+        """Build the preferences form with the current values."""
+        super().__init__(parent)
+        self.setWindowTitle("Preferences" if sys.platform == "darwin" else "Settings")
+        layout = QFormLayout(self)
+        self.font_size = QSpinBox()
+        self.font_size.setRange(6, 32)
+        self.font_size.setValue(font_size)
+        self.trackpad = QDoubleSpinBox()
+        self.trackpad.setRange(10, 500)
+        self.trackpad.setSingleStep(10)
+        self.trackpad.setSuffix("%")
+        self.trackpad.setValue(trackpad * 100)
+        self.wheel = QDoubleSpinBox()
+        self.wheel.setRange(10, 500)
+        self.wheel.setSingleStep(10)
+        self.wheel.setSuffix("%")
+        self.wheel.setValue(wheel * 100)
+        layout.addRow("Application font size:", self.font_size)
+        layout.addRow("Trackpad / pixel-scroll sensitivity:", self.trackpad)
+        layout.addRow("Mouse-wheel sensitivity:", self.wheel)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addRow(buttons)
+
 class MainWindow(QMainWindow):
     """Coordinate the editor views, controls, and scenario persistence."""
 
@@ -97,6 +134,9 @@ class MainWindow(QMainWindow):
         """Build the window around a scenario."""
         super().__init__(parent); self.scenario=scenario; self.history=History()
         self.path=Path(path) if path else None; self.dirty=False
+        self.settings = QSettings("Spacetime", "Spacetime")
+        self._trackpad_sensitivity = self._read_setting("trackpadSensitivity", 1.0)
+        self._mouse_wheel_sensitivity = self._read_setting("mouseWheelSensitivity", 1.0)
         self._saved_scenario = deepcopy(scenario)
         self.setWindowTitle("Spacetime"); self.resize(1100,700)
         self._instruction = ""
@@ -106,6 +146,7 @@ class MainWindow(QMainWindow):
         split=QSplitter(Qt.Vertical); self.highway=HighwayView(scenario); self.diagram=SpacetimeDiagramView(scenario)
         self.highway.history = self.history
         self.diagram.history = self.history
+        self._apply_scroll_preferences()
         self.diagram.center_current_time()
         self._syncing_horizontal_view = False
         self.highway.horizontal_view_changed.connect(
@@ -155,8 +196,58 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self.help_dock)
         self.help_dock.hide()
         self._add_actions()
+        self._apply_font_size(self._read_font_size())
         self._update_title()
         QTimer.singleShot(0, self._apply_scenario_horizontal_view)
+
+    def _read_setting(self, key: str, default: float) -> float:
+        """Read a bounded positive numeric preference."""
+        try:
+            value = float(self.settings.value(key, default))
+        except (TypeError, ValueError):
+            return default
+        return value if value > 0 else default
+
+    def _read_font_size(self) -> int:
+        """Read the persisted application font size."""
+        try:
+            value = int(self.settings.value("fontSize", QApplication.instance().font().pointSize()))
+        except (TypeError, ValueError):
+            return QApplication.instance().font().pointSize()
+        return max(6, min(32, value))
+
+    def _apply_scroll_preferences(self) -> None:
+        """Apply persisted scroll sensitivities to both diagram views."""
+        for view in (self.highway, self.diagram):
+            view.trackpad_sensitivity = self._trackpad_sensitivity
+            view.mouse_wheel_sensitivity = self._mouse_wheel_sensitivity
+
+    def _apply_font_size(self, point_size: int) -> None:
+        """Apply and persist an application-wide font size."""
+        app = QApplication.instance()
+        if app is None:
+            return
+        font = app.font()
+        font.setPointSize(point_size)
+        app.setFont(font)
+        for widget in (
+            self.highway,
+            self.diagram,
+            self.object_table,
+            self.event_table,
+            self.help_view,
+            self.shortcuts_view,
+        ):
+            widget.setFont(font)
+        for panel in (self.highway_panel, self.diagram_panel):
+            panel.title_label.setFont(font)
+            panel.title_label.adjustSize()
+            panel._position_title()
+        self.object_table.resizeRowsToContents()
+        self.event_table.resizeRowsToContents()
+        self.settings.setValue("fontSize", point_size)
+        self.highway.update()
+        self.diagram.update()
     def _add_actions(self):
         """Create menus and connect their actions."""
         menu=self.menuBar().addMenu("&Scenario")
@@ -185,6 +276,14 @@ class MainWindow(QMainWindow):
         add_clock.triggered.connect(self.create_clock)
         add_flash = edit_menu.addAction("Create Light Flash")
         add_flash.triggered.connect(self.create_flash)
+        preferences = QAction("Preferences..." if sys.platform == "darwin" else "Settings...", self)
+        preferences.setMenuRole(QAction.MenuRole.PreferencesRole)
+        preferences.triggered.connect(self.show_preferences)
+        if sys.platform == "darwin":
+            menu.addAction(preferences)
+        else:
+            edit_menu.addSeparator()
+            edit_menu.addAction(preferences)
 
         frames = self.menuBar().addMenu("&Reference frame")
         set_frame = frames.addAction("Set beta...")
@@ -253,26 +352,24 @@ class MainWindow(QMainWindow):
         app = QApplication.instance()
         if app is None:
             return
-        font = app.font()
-        font.setPointSize(max(1, font.pointSize() + delta))
-        app.setFont(font)
-        for widget in (
-            self.highway,
-            self.diagram,
-            self.object_table,
-            self.event_table,
-            self.help_view,
-            self.shortcuts_view,
-        ):
-            widget.setFont(font)
-        for panel in (self.highway_panel, self.diagram_panel):
-            panel.title_label.setFont(font)
-            panel.title_label.adjustSize()
-            panel._position_title()
-        self.highway.update()
-        self.diagram.update()
-        self.object_table.resizeRowsToContents()
-        self.event_table.resizeRowsToContents()
+        self._apply_font_size(max(6, min(32, app.font().pointSize() + delta)))
+
+    def show_preferences(self) -> None:
+        """Show and apply persistent application preferences."""
+        dialog = _PreferencesDialog(
+            self,
+            QApplication.instance().font().pointSize(),
+            self._trackpad_sensitivity,
+            self._mouse_wheel_sensitivity,
+        )
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        self._trackpad_sensitivity = dialog.trackpad.value() / 100
+        self._mouse_wheel_sensitivity = dialog.wheel.value() / 100
+        self.settings.setValue("trackpadSensitivity", self._trackpad_sensitivity)
+        self.settings.setValue("mouseWheelSensitivity", self._mouse_wheel_sensitivity)
+        self._apply_scroll_preferences()
+        self._apply_font_size(dialog.font_size.value())
 
     def show_help(self) -> None:
         """Reveal Help at half the height of the right dock area."""

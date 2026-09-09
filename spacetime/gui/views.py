@@ -37,6 +37,8 @@ class _View(QWidget):
         self._drag_moved = False
         self._interval_first_event = None
         self._intersection_first_object = None
+        self.trackpad_sensitivity = 1.0
+        self.mouse_wheel_sensitivity = 1.0
         self.history = None
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -134,25 +136,28 @@ class _View(QWidget):
                 vertical = 0
         if horizontal:
             if pixel_delta.x() and not angle_delta.x():
-                self.pan_horizontal(-pixel_delta.x() * 0.18)
+                self.pan_horizontal(-pixel_delta.x() * 0.18 * self.trackpad_sensitivity)
             else:
-                self.pan_horizontal(-10.0 if horizontal > 0 else 10.0)
+                self.pan_horizontal(
+                    (-10.0 if horizontal > 0 else 10.0)
+                    * self.mouse_wheel_sensitivity
+                )
         if vertical:
             if isinstance(self, HighwayView):
                 step = (
-                    0.0025 * abs(pixel_delta.y())
+                    0.0025 * abs(pixel_delta.y()) * self.trackpad_sensitivity
                     if pixel_delta.y() and not angle_delta.y()
-                    else 0.025
+                    else 0.025 * self.mouse_wheel_sensitivity
                 )
                 self._transform_by(step if vertical > 0 else -step)
             else:
                 if pixel_delta.y() and not angle_delta.y():
-                    step = 0.005 * abs(pixel_delta.y())
+                    step = 0.005 * abs(pixel_delta.y()) * self.trackpad_sensitivity
                     self.scenario.time += step if vertical > 0 else -step
                 else:
                     self.scenario.time = self.scenario.stepped_time(
                         1 if vertical > 0 else -1,
-                        step=0.05,
+                        step=0.05 * self.mouse_wheel_sensitivity,
                     )
                 self.changed.emit()
                 self.update()
