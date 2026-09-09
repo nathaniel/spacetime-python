@@ -159,7 +159,7 @@ class _GettingStartedDialog(QDialog):
         self.setWindowTitle("Getting Started with Spacetime")
         layout = QVBoxLayout(self)
         message = QLabel(
-            "<p>Welcome to the Spacetime special-relativity simulator!</p>"
+            "<p>Welcome to the Spacetime special-relativity explorer!</p>"
             "<p>Explore the default clock in the <b>Highway</b> and "
             "<b>Spacetime Diagram</b>.</p>"
             "<p><b>Up / Down</b>: advance or rewind time<br>"
