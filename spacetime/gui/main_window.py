@@ -586,7 +586,7 @@ class MainWindow(QMainWindow):
             return
         self.history.do(AddObject(self.scenario, obj))
         self.refresh()
-        self._announce(f"Created {obj.label}.")
+        self._announce_after_action(f"Created {obj.label}.")
 
     def create_flash(self) -> None:
         """Prompt for and create a light flash."""
@@ -606,7 +606,7 @@ class MainWindow(QMainWindow):
         obj = self.scenario.add_flash_in_frame(x, self.scenario.time, 1 if direction.startswith("Right") else -1)
         self.history.do(AddObject(self.scenario, obj))
         self.refresh()
-        self._announce(f"Created {obj.label}.")
+        self._announce_after_action(f"Created {obj.label}.")
 
     def create_event(self) -> None:
         """Prompt for and create an event."""
@@ -616,7 +616,7 @@ class MainWindow(QMainWindow):
         event = self.scenario.add_event(x=x, t=self.scenario.time)
         self.history.do(AddEvent(self.scenario, event))
         self.refresh()
-        self._announce(f"Created {event.label}.")
+        self._announce_after_action(f"Created {event.label}.")
 
     def set_frame(self) -> None:
         """Prompt for a relative velocity and transform the reference frame."""
@@ -709,6 +709,11 @@ class MainWindow(QMainWindow):
     def _announce(self, text: str) -> None:
         """Show a short-lived confirmation without replacing hover details."""
         self.statusBar().showMessage(text, 3000)
+
+    def _announce_after_action(self, text: str) -> None:
+        """Show a confirmation after a menu or dialog finishes its cleanup."""
+        QTimer.singleShot(0, lambda message=text: self._announce(message))
+
     def mark_dirty(self):
         """Mark the scenario modified and refresh dependent widgets."""
         self.scenario.comments=self.comments.toPlainText()
