@@ -446,6 +446,7 @@ class MainWindow(QMainWindow):
             QApplication.instance().font().pointSize(),
             self._trackpad_sensitivity,
             self._mouse_wheel_sensitivity,
+            self._show_getting_started,
         )
 
         def values():
