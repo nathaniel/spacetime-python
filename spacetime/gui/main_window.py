@@ -405,6 +405,7 @@ class MainWindow(QMainWindow):
             self.settings.setValue("fontSize", font_size)
             self.settings.setValue("trackpadSensitivity", trackpad)
             self.settings.setValue("mouseWheelSensitivity", wheel)
+            dialog.accept()
 
         def cancel():
             font_size, trackpad, wheel = committed
