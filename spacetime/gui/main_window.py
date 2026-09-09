@@ -160,8 +160,9 @@ class _GettingStartedDialog(QDialog):
         layout = QVBoxLayout(self)
         message = QLabel(
             "<p>Welcome to the Spacetime special-relativity explorer!</p>"
-            "<p>Explore the default clock in the <b>Highway</b> and "
-            "<b>Spacetime Diagram</b>.</p>"
+            "<p>A clock has been placed here to show you how the two views work "
+            "together. The <b>Highway</b> shows where it is now; the "
+            "<b>Spacetime Diagram</b> shows its path through time.</p>"
             "<p><b>Up / Down</b>: advance or rewind time<br>"
             "<b>Shift + Up / Down</b>: change the reference frame<br>"
             "<b>Left / Right</b>: move the view<br>"
