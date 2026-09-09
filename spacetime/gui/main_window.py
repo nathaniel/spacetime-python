@@ -86,6 +86,11 @@ class _StatusPanel(QWidget):
         """Set or clear the prioritized hover detail."""
         self.detail_label.setText(text)
         self.detail_label.setVisible(bool(text))
+        self.detail_label.setStyleSheet(
+            "QLabel { border-left: 1px solid #b0b0b0; padding-left: 8px; }"
+            if text
+            else ""
+        )
         if text:
             self.detail_label.raise_()
 
