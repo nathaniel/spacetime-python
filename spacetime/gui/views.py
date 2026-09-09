@@ -153,12 +153,19 @@ class _View(QWidget):
                 self._transform_by(step if vertical > 0 else -step)
             else:
                 if trackpad and pixel_delta.y():
-                    step = 0.005 * abs(pixel_delta.y()) * self.trackpad_sensitivity
+                    step = (
+                        0.005
+                        * abs(pixel_delta.y())
+                        * (60.0 / self.scale)
+                        * self.trackpad_sensitivity
+                    )
                     self.scenario.time += step if vertical > 0 else -step
                 else:
                     self.scenario.time = self.scenario.stepped_time(
                         1 if vertical > 0 else -1,
-                        step=0.05 * self.mouse_wheel_sensitivity,
+                        step=0.05
+                        * (60.0 / self.scale)
+                        * self.mouse_wheel_sensitivity,
                     )
                 self.changed.emit()
                 self.update()

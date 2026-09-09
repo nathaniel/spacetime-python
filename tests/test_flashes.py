@@ -150,3 +150,24 @@ def test_pixel_scroll_uses_trackpad_sensitivity(qt_app):
     view.wheelEvent(wheel)
 
     assert scenario.time == pytest.approx(0.2)
+
+
+def test_spacetime_vertical_scroll_scales_with_zoom(qt_app):
+    """Advance farther in time per screen gesture when zoomed out."""
+    scenario = Scenario()
+    view = SpacetimeDiagramView(scenario)
+    view.scale = 30.0
+    wheel = QWheelEvent(
+        QPointF(10, 10),
+        QPointF(10, 10),
+        QPoint(0, 20),
+        QPoint(0, 0),
+        Qt.MouseButton.NoButton,
+        Qt.KeyboardModifier.NoModifier,
+        Qt.ScrollPhase.ScrollUpdate,
+        False,
+    )
+
+    view.wheelEvent(wheel)
+
+    assert scenario.time == pytest.approx(0.2)
