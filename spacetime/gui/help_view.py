@@ -1,6 +1,7 @@
 """Help browser widget for the editor."""
 
 from pathlib import Path
+import re
 import sys
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -13,9 +14,10 @@ from PySide6.QtWidgets import (
     QTextBrowser,
     QVBoxLayout,
     QWidget,
+    QStyledItemDelegate,
 )
-from PySide6.QtCore import QEvent, QUrl
-from PySide6.QtGui import QDesktopServices, QFont, QFontDatabase
+from PySide6.QtCore import QEvent, QSize, QUrl
+from PySide6.QtGui import QDesktopServices, QFont, QFontDatabase, QFontMetrics
 
 def installed_ui_font() -> QFont:
     """Return a common installed sans-serif font without using Qt aliases."""
@@ -73,6 +75,69 @@ class HelpView(QTextBrowser):
             self.document().setDefaultFont(self.font())
 
 
+class _ShortcutDelegate(QStyledItemDelegate):
+    """Render short shortcut inputs as keycaps with plain separators."""
+
+    _separator_pattern = re.compile(r"(\s+\+\s+|\s+/\s+)")
+
+    def _parts(self, text):
+        parts = self._separator_pattern.split(text)
+        return parts if len(parts) > 1 and len(text) <= 18 else None
+
+    def paint(self, painter, option, index):
+        """Paint keycaps while retaining the cell's original text."""
+        text = index.data()
+        parts = self._parts(text)
+        if parts is None:
+            return super().paint(painter, option, index)
+        painter.save()
+        painter.setFont(option.font)
+        metrics = painter.fontMetrics()
+        x = option.rect.left() + 6
+        center_y = option.rect.center().y()
+        for part in parts:
+            if not part:
+                continue
+            if part.isspace() or part.strip() in ("+", "/"):
+                painter.setPen(option.palette.text().color())
+                painter.drawText(
+                    int(x),
+                    int(center_y + metrics.ascent() / 2),
+                    part.strip(),
+                )
+                x += metrics.horizontalAdvance(part.strip()) + 6
+                continue
+            width = metrics.horizontalAdvance(part) + 12
+            height = min(24, max(20, option.rect.height() - 6))
+            top = center_y - height / 2
+            painter.setPen(option.palette.mid().color())
+            painter.setBrush(option.palette.alternateBase())
+            painter.drawRoundedRect(int(x), int(top), int(width), int(height), 4, 4)
+            painter.setPen(option.palette.text().color())
+            painter.drawText(
+                int(x + 6),
+                int(center_y + metrics.ascent() / 2),
+                part,
+            )
+            x += width + 5
+        painter.restore()
+
+    def sizeHint(self, option, index):
+        """Reserve enough width and height for the rendered keycaps."""
+        size = super().sizeHint(option, index)
+        parts = self._parts(index.data())
+        if parts is None:
+            return size
+        metrics = QFontMetrics(option.font)
+        width = 12
+        for part in parts:
+            if not part:
+                continue
+            text = part.strip()
+            width += metrics.horizontalAdvance(text) + (12 if text in ("+", "/") else 17)
+        return size.expandedTo(QSize(width, 26))
+
+
 class ShortcutsView(QWidget):
     """Display keyboard, mouse, and trackpad controls in a compact table."""
 
@@ -89,6 +154,7 @@ class ShortcutsView(QWidget):
         layout.addWidget(title)
         table = QTableWidget(self)
         self.table = table
+        table.setItemDelegateForColumn(0, _ShortcutDelegate(table))
         table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         layout.addWidget(table)
         note = QLabel(
