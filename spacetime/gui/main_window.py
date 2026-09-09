@@ -329,7 +329,7 @@ class MainWindow(QMainWindow):
         new=menu.addAction("&New"); new.setShortcut("Ctrl+N"); new.triggered.connect(self.new_scenario)
         open_action=menu.addAction("&Open…"); open_action.setShortcut("Ctrl+R"); open_action.triggered.connect(self.open_scenario)
         save=menu.addAction("&Save"); save.setShortcut("Ctrl+S"); save.triggered.connect(self.save)
-        save_as=menu.addAction("Save &As…"); save_as.triggered.connect(self.save_as)
+        save_as=menu.addAction("Save &As…"); save_as.setShortcut(QKeySequence.StandardKey.SaveAs); save_as.triggered.connect(self.save_as)
         menu.addSeparator()
         quit_action=menu.addAction("&Quit"); quit_action.setShortcut("Ctrl+Q"); quit_action.triggered.connect(self.close)
         advance_fast = QAction(self)
