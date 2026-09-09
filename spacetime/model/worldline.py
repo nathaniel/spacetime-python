@@ -87,7 +87,13 @@ class Worldline:
         return total
     def intersection(self, other: "Worldline", start: float = -math.inf, end: float = math.inf) -> tuple[float,float] | None:
         """Return the first intersection with another worldline, if any."""
+        intersections = self.intersections(other, start, end)
+        return intersections[0] if intersections else None
+
+    def intersections(self, other: "Worldline", start: float = -math.inf, end: float = math.inf) -> list[tuple[float, float]]:
+        """Return all finite intersections with another worldline."""
         boundaries = sorted({start, end, *[r.t for r in self.records], *[r.t for r in other.records]})
+        intersections = []
         for a, b in zip(boundaries, boundaries[1:]):
             if not (math.isfinite(a) and (b > a)): continue
             ta = max(a, start); tb = min(b, end)
@@ -95,8 +101,12 @@ class Worldline:
             va, vb = self.velocity((ta+tb)/2), other.velocity((ta+tb)/2)
             xa, xb = self.position(ta), other.position(ta)
             if abs(va-vb) < 1e-12:
-                if abs(xa-xb) < 1e-9: return ta, xa
+                if abs(xa-xb) < 1e-9:
+                    intersections.append((ta, xa))
                 continue
             t = ta + (xb-xa)/(va-vb)
-            if ta-1e-9 <= t <= tb+1e-9: return t, self.position(t)
-        return None
+            if ta-1e-9 <= t <= tb+1e-9:
+                hit = (t, self.position(t))
+                if not intersections or abs(intersections[-1][0] - hit[0]) > 1e-9:
+                    intersections.append(hit)
+        return intersections

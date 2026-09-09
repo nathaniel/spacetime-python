@@ -106,6 +106,7 @@ class Scenario:
             original_beta = max(-MAX_OBJECT_BETA, min(MAX_OBJECT_BETA, original_beta))
         from .worldline import Worldline, WorldlineRecord
         obj.worldline = Worldline([WorldlineRecord(original_x, original_t, original_beta, original_beta)])
+        self.synchronize_intersection_events()
 
     def _object_state_in_original_frame(self, obj: STObject) -> tuple[float, float, float]:
         """Return an object's current state in the original frame."""
@@ -263,6 +264,7 @@ class Scenario:
             )
         )
         self.relabel_beta_change_events(obj)
+        self.synchronize_intersection_events()
 
     def relabel_beta_change_events(self, obj: STObject) -> None:
         """Renumber beta-change events belonging to an object."""
@@ -277,6 +279,28 @@ class Scenario:
         for index, event in enumerate(changes, start=1):
             event.label = f"{obj.label}-Δβ{index}"
             event.name = f"eDBeta{obj.name}{index}"
+
+    def synchronize_intersection_events(self) -> None:
+        """Move constrained events to their current matching intersections."""
+        for event in self.events:
+            if (
+                not event.fixed_at_intersection
+                or event.boundary
+                or event.beta_change
+                or not event.intersection_names
+            ):
+                continue
+            try:
+                first = self.object(event.intersection_names[0])
+                second = self.object(event.intersection_names[1])
+            except KeyError:
+                continue
+            hits = first.worldline.intersections(second.worldline)
+            if hits:
+                event.t, event.x = min(
+                    hits,
+                    key=lambda hit: abs(hit[0] - event.t),
+                )
     def add_clock_in_frame(self, x: float, time: float, beta: float, name: str | None = None) -> Clock:
         """Add a clock using coordinates and velocity in the current frame."""
         original_x, original_t = inverse_transform(x, time, self.beta_rel)
@@ -357,9 +381,15 @@ class Scenario:
         """Add and return a hyperbola decoration."""
         d = Hyperbola(name=f"H{len(self.decorations)+1:02d}", event=event)
         self.decorations.append(d); return d
-    def intersection_event(self, first: STObject, second: STObject, name: str | None = None) -> Event:
-        """Create an event at the first intersection of two objects."""
-        hit = first.worldline.intersection(second.worldline)
+    def intersection_event(
+        self,
+        first: STObject,
+        second: STObject,
+        name: str | None = None,
+        hit: tuple[float, float] | None = None,
+    ) -> Event:
+        """Create an event at an intersection of two objects."""
+        hit = hit or first.worldline.intersection(second.worldline)
         if hit is None:
             raise ValueError("worldlines do not intersect")
         t, x = hit

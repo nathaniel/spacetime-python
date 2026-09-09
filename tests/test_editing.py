@@ -4,6 +4,7 @@ import pytest
 
 from spacetime.commands.undo_redo import History, Snapshot
 from spacetime.model.scenario import Scenario
+from spacetime.model.worldline import Worldline, WorldlineRecord
 
 
 def test_intersection_and_decorations_are_model_only():
@@ -17,6 +18,32 @@ def test_intersection_and_decorations_are_model_only():
     assert scenario.add_interval(event, event).squared == pytest.approx(0)
     assert scenario.add_light_cone(event).event is event
     assert scenario.add_hyperbola(event).point(0) == pytest.approx((0, 3))
+
+
+def test_intersection_event_can_target_a_later_crossing():
+    """Keep a constrained event at the selected crossing of two worldlines."""
+    scenario = Scenario()
+    stationary = scenario.add_clock(0, 0, 0.0)
+    reversing = scenario.add_clock(-1, 0, 0.5)
+    reversing.worldline = Worldline(
+        [
+            reversing.worldline.records[0],
+            WorldlineRecord(1, 4, 0.5, -0.5),
+        ]
+    )
+
+    intersections = reversing.worldline.intersections(stationary.worldline)
+    assert intersections == pytest.approx([(2, 0), (6, 0)])
+    event = scenario.intersection_event(
+        stationary,
+        reversing,
+        hit=intersections[1],
+    )
+
+    assert event.fixed_at_intersection
+    assert event.intersection_names == ("C1", "C2")
+    assert event.x == pytest.approx(0)
+    assert event.t == pytest.approx(6)
 
 
 def test_snapshot_history_supports_redo():

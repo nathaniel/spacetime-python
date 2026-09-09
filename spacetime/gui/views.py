@@ -364,25 +364,24 @@ class _View(QWidget):
         origin = self.origin
         for index, first in enumerate(self.scenario.objects):
             for second in self.scenario.objects[index + 1:]:
-                hit = first.worldline.intersection(second.worldline)
-                if hit is None:
-                    continue
-                original_t, original_x = hit
-                if not first.exists(original_t) or not second.exists(original_t):
-                    continue
-                frame_x, frame_t = transform(
-                    original_x,
-                    original_t,
-                    self.scenario.beta_rel,
-                )
-                screen_x = origin.x() + frame_x * self.scale
-                screen_y = origin.y() - frame_t * self.scale
-                if (
-                    (point.x() - screen_x) ** 2
-                    + (point.y() - screen_y) ** 2
-                    <= 14 ** 2
+                for original_t, original_x in first.worldline.intersections(
+                    second.worldline
                 ):
-                    return first, second
+                    if not first.exists(original_t) or not second.exists(original_t):
+                        continue
+                    frame_x, frame_t = transform(
+                        original_x,
+                        original_t,
+                        self.scenario.beta_rel,
+                    )
+                    screen_x = origin.x() + frame_x * self.scale
+                    screen_y = origin.y() - frame_t * self.scale
+                    if (
+                        (point.x() - screen_x) ** 2
+                        + (point.y() - screen_y) ** 2
+                        <= 14 ** 2
+                    ):
+                        return first, second, original_t, original_x
         return None
 
     def _drag_to(self, point, modifiers):
@@ -415,8 +414,9 @@ class _View(QWidget):
                 obj=self.scenario.object(self.dragged.object_name); x=obj.position(t)
             if self.dragged.fixed_at_intersection and self.dragged.intersection_names:
                 a=self.scenario.object(self.dragged.intersection_names[0]); b=self.scenario.object(self.dragged.intersection_names[1])
-                hit=a.worldline.intersection(b.worldline)
-                if hit: t,x=hit
+                hits = a.worldline.intersections(b.worldline)
+                if hits:
+                    t,x = min(hits, key=lambda hit: abs(hit[0] - self.dragged.t))
             if modifiers & Qt.KeyboardModifier.ControlModifier: x,t=round(x,1),round(t,1)
             self.dragged.x,self.dragged.t=x,t
 
@@ -483,7 +483,7 @@ class _View(QWidget):
                 )
                 menu.addAction("Delete", lambda: self._delete_event(selected_event))
             elif intersection is not None:
-                first, second = intersection
+                first, second, original_t, original_x = intersection
                 title = menu.addAction(
                     f"Intersection of {first.label} and {second.label}"
                 )
@@ -491,14 +491,29 @@ class _View(QWidget):
                 menu.addSeparator()
                 menu.addAction(
                     "Create event",
-                    lambda: self._create_intersection_event(first, second),
+                    lambda: self._create_intersection_event(
+                        first,
+                        second,
+                        original_t,
+                        original_x,
+                    ),
                 )
             else: menu.addAction("Create event", lambda: self._create_event(point))
         menu.exec(self.mapToGlobal(point))
 
-    def _create_intersection_event(self, first, second) -> None:
+    def _create_intersection_event(
+        self,
+        first,
+        second,
+        original_t: float,
+        original_x: float,
+    ) -> None:
         """Create an event constrained to two intersecting worldlines."""
-        event = self.scenario.intersection_event(first, second)
+        event = self.scenario.intersection_event(
+            first,
+            second,
+            hit=(original_t, original_x),
+        )
         if self.history is not None:
             self.scenario.events.remove(event)
             self.history.do(AddEvent(self.scenario, event))
