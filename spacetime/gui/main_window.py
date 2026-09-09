@@ -275,9 +275,19 @@ class MainWindow(QMainWindow):
         self.event_table.resizeRowsToContents()
 
     def show_help(self) -> None:
-        """Reveal the dockable Help panel."""
+        """Reveal Help at half the height of the right dock area."""
         self.help_dock.show()
         self.help_dock.raise_()
+        total_height = (
+            self.table_dock.geometry().height()
+            + self.help_dock.geometry().height()
+        )
+        half_height = max(1, total_height // 2)
+        self.resizeDocks(
+            [self.table_dock, self.help_dock],
+            [half_height, total_height - half_height],
+            Qt.Orientation.Vertical,
+        )
 
     def _step_time(self, direction: int, step: float) -> None:
         """Advance or rewind time using the requested step size."""

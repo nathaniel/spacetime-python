@@ -47,6 +47,7 @@ class HelpView(QTextBrowser):
             "__UI_FONT__", font.family()
         )
         self._help_path = html
+        self.setOpenLinks(False)
         self.anchorClicked.connect(self._open_help_link)
         self.setHtml(html_text)
 
