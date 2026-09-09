@@ -6,9 +6,12 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QHeaderView,
+    QLabel,
     QTableWidget,
     QTableWidgetItem,
     QTextBrowser,
+    QVBoxLayout,
+    QWidget,
 )
 from PySide6.QtCore import QEvent, QUrl
 from PySide6.QtGui import QDesktopServices, QFont, QFontDatabase
@@ -69,12 +72,21 @@ class HelpView(QTextBrowser):
             self.document().setDefaultFont(self.font())
 
 
-class ShortcutsView(QTableWidget):
+class ShortcutsView(QWidget):
     """Display keyboard, mouse, and trackpad controls in a compact table."""
 
     def __init__(self, parent=None):
         """Build the platform-aware shortcuts table."""
         super().__init__(parent)
+        layout = QVBoxLayout(self)
+        title = QLabel("Keyboard Shortcuts & Gestures", self)
+        title_font = self.font()
+        title_font.setBold(True)
+        title.setFont(title_font)
+        layout.addWidget(title)
+        table = QTableWidget(self)
+        self.table = table
+        layout.addWidget(table)
         modifier = "Cmd" if sys.platform == "darwin" else "Ctrl"
         rows = [
             ("↑ / ↓", "Advance / rewind time by 0.1"),
@@ -93,30 +105,23 @@ class ShortcutsView(QTableWidget):
             ),
             ("Pinch", "Zoom both views"),
         ]
-        self.setColumnCount(2)
-        self.setHorizontalHeaderLabels(["Input", "Action"])
-        self.setRowCount(len(rows) + 1)
-        self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
-        self.setWordWrap(True)
-        self.verticalHeader().setVisible(False)
-        self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
-        self.horizontalHeader().setStretchLastSection(True)
-        self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
-        self.setColumnWidth(0, 150)
-        title = QTableWidgetItem("Keyboard Shortcuts & Gestures")
-        title_font = self.font()
-        title_font.setBold(True)
-        title.setFont(title_font)
-        self.setItem(0, 0, title)
-        self.setSpan(0, 0, 1, 2)
+        table.setColumnCount(2)
+        table.setHorizontalHeaderLabels(["Input", "Action"])
+        table.setRowCount(len(rows))
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        table.setWordWrap(True)
+        table.verticalHeader().setVisible(False)
+        table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setStretchLastSection(True)
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
+        table.setColumnWidth(0, 150)
         for row, (input_text, action) in enumerate(rows):
-            table_row = row + 1
-            self.setItem(table_row, 0, QTableWidgetItem(input_text))
-            self.setItem(table_row, 1, QTableWidgetItem(action))
+            table.setItem(row, 0, QTableWidgetItem(input_text))
+            table.setItem(row, 1, QTableWidgetItem(action))
 
     def changeEvent(self, event):
         """Resize shortcut rows after a global font-size change."""
         super().changeEvent(event)
         if event.type() == QEvent.Type.FontChange:
-            self.resizeRowsToContents()
+            self.table.resizeRowsToContents()
