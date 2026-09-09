@@ -136,14 +136,15 @@ class _PreferencesDialog(QDialog):
         layout.addRow("Application font size:", self.font_size)
         layout.addRow("Trackpad / pixel-scroll sensitivity (10–500%):", self.trackpad)
         layout.addRow("Mouse-wheel sensitivity (10–500%):", self.wheel)
-        layout.addRow("", self.show_getting_started)
-        for field in (self.font_size, self.trackpad, self.wheel):
-            layout.setAlignment(field, Qt.AlignmentFlag.AlignRight)
         note = QLabel(
-            "Note: Some devices may combine or interpret trackpad and mouse-wheel input differently."
+            "Scroll behavior varies by device. Your device or operating system "
+            "may determine which sensitivity setting applies."
         )
         note.setWordWrap(True)
         layout.addRow(note)
+        layout.addRow("", self.show_getting_started)
+        for field in (self.font_size, self.trackpad, self.wheel):
+            layout.setAlignment(field, Qt.AlignmentFlag.AlignRight)
         self.reset_defaults = QPushButton("Reset to Defaults")
         self.reset_defaults.clicked.connect(self._reset_defaults)
         layout.addRow(self.reset_defaults)
