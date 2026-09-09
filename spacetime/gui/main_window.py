@@ -104,6 +104,7 @@ class _StatusPanel(QWidget):
         layout.addSpacing(3)
         layout.addWidget(self.detail_label, 1)
         layout.addWidget(self.announcement_separator)
+        layout.addSpacing(5)
         layout.addWidget(self.announcement_label)
 
     def set_time(self, text: str) -> None:
