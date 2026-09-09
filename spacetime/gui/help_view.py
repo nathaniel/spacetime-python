@@ -58,6 +58,10 @@ class HelpView(QTextBrowser):
             return
         self.setSource(url)
 
+    def show_section(self, anchor: str) -> None:
+        """Scroll the loaded help document to an internal section."""
+        self.scrollToAnchor(anchor)
+
     def changeEvent(self, event):
         """Keep the rich-text document synchronized with the app font."""
         super().changeEvent(event)

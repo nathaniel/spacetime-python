@@ -359,6 +359,13 @@ class MainWindow(QMainWindow):
         help_action = help_menu.addAction("&Help")
         help_action.setShortcut("F1")
         help_action.triggered.connect(self.show_help)
+        help_menu.addSeparator()
+        getting_started = help_menu.addAction("Getting Started")
+        getting_started.triggered.connect(lambda: self.show_help("getting_started"))
+        tutorial = help_menu.addAction("Tutorial")
+        tutorial.triggered.connect(lambda: self.show_help("tutorial"))
+        shortcuts = help_menu.addAction("Keyboard Shortcuts")
+        shortcuts.triggered.connect(self.show_shortcuts)
         about=help_menu.addAction("&About"); about.triggered.connect(lambda: QMessageBox.about(self,"About Spacetime","Spacetime — special relativity scenario editor"))
 
     def increase_font_size(self) -> None:
@@ -429,7 +436,7 @@ class MainWindow(QMainWindow):
         dialog.rejected.connect(cancel)
         dialog.exec()
 
-    def show_help(self) -> None:
+    def show_help(self, anchor: str | None = None) -> None:
         """Reveal Help at half the height of the right dock area."""
         self.help_dock.show()
         self.help_dock.raise_()
@@ -443,6 +450,14 @@ class MainWindow(QMainWindow):
             [half_height, total_height - half_height],
             Qt.Orientation.Vertical,
         )
+        if anchor:
+            QTimer.singleShot(0, lambda: self.help_view.show_section(anchor))
+
+    def show_shortcuts(self) -> None:
+        """Show the keyboard and pointing-device shortcut reference."""
+        self.table_dock.show()
+        self.table_dock.raise_()
+        self.tabs.setCurrentWidget(self.shortcuts_view)
 
     def _step_time(self, direction: int, step: float) -> None:
         """Advance or rewind time using the requested step size."""
