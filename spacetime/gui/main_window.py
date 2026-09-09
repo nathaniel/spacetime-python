@@ -230,6 +230,8 @@ class MainWindow(QMainWindow):
             lambda scale, offset: self._sync_horizontal_view(self.diagram, scale, offset)
         )
         self.highway.changed.connect(self.mark_dirty); self.diagram.changed.connect(self.mark_dirty)
+        self.highway.action_message.connect(self._announce)
+        self.diagram.action_message.connect(self._announce)
         self.highway.hover_changed.connect(lambda item: self._show_hover_detail(item))
         self.diagram.hover_changed.connect(lambda item: self._show_hover_detail(item))
         self.diagram.instruction_changed.connect(self._set_instruction)
@@ -578,6 +580,7 @@ class MainWindow(QMainWindow):
             return
         self.history.do(AddObject(self.scenario, obj))
         self.refresh()
+        self._announce(f"Created {obj.label}.")
 
     def create_flash(self) -> None:
         """Prompt for and create a light flash."""
@@ -597,6 +600,7 @@ class MainWindow(QMainWindow):
         obj = self.scenario.add_flash_in_frame(x, self.scenario.time, 1 if direction.startswith("Right") else -1)
         self.history.do(AddObject(self.scenario, obj))
         self.refresh()
+        self._announce(f"Created {obj.label}.")
 
     def create_event(self) -> None:
         """Prompt for and create an event."""
@@ -606,6 +610,7 @@ class MainWindow(QMainWindow):
         event = self.scenario.add_event(x=x, t=self.scenario.time)
         self.history.do(AddEvent(self.scenario, event))
         self.refresh()
+        self._announce(f"Created {event.label}.")
 
     def set_frame(self) -> None:
         """Prompt for and set the reference frame."""
@@ -685,6 +690,10 @@ class MainWindow(QMainWindow):
         self.status_panel.set_time(f"Time t = {self.scenario.time:.3f}")
         if self._hovered_item is None:
             self.status_panel.set_detail(self._instruction)
+
+    def _announce(self, text: str) -> None:
+        """Show a short-lived confirmation without replacing hover details."""
+        self.statusBar().showMessage(text, 3000)
     def mark_dirty(self):
         """Mark the scenario modified and refresh dependent widgets."""
         self.scenario.comments=self.comments.toPlainText()
@@ -712,7 +721,7 @@ class MainWindow(QMainWindow):
     def save(self):
         """Save the current scenario to its associated path."""
         if not self.path: return self.save_as()
-        self.scenario.comments=self.comments.toPlainText(); save_scenario(self.scenario,self.path); self._saved_scenario=deepcopy(self.scenario); self.dirty=False; self._update_title()
+        self.scenario.comments=self.comments.toPlainText(); save_scenario(self.scenario,self.path); self._saved_scenario=deepcopy(self.scenario); self.dirty=False; self._update_title(); self._announce(f"Saved {self.path.name}.")
     def save_as(self):
         """Choose a path and save the current scenario."""
         path,_=QFileDialog.getSaveFileName(self,"Save scenario","","Scenario files (*.sce)")

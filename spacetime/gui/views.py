@@ -19,6 +19,7 @@ class _View(QWidget):
 
     changed = Signal()
     instruction_changed = Signal(str)
+    action_message = Signal(str)
     hover_changed = Signal(object)
     horizontal_view_changed = Signal(float, float)
     def __init__(self, scenario, parent=None):
@@ -879,6 +880,7 @@ class _View(QWidget):
         else:
             self.history.do(ProgramObject(self.scenario, obj))
         self.changed.emit()
+        self.action_message.emit(f"{obj.label} is ready for velocity programming.")
         self.update()
 
     def _screen_to_beta(self, y):
