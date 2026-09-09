@@ -78,17 +78,22 @@ class _StatusPanel(QWidget):
         self.time_label = QLabel(self)
         self.detail_label = QLabel(self)
         self.separator = QFrame(self)
+        self.announcement_separator = QFrame(self)
         self.announcement_label = QLabel(self)
         self.separator.setFrameShape(QFrame.Shape.VLine)
         self.separator.setFrameShadow(QFrame.Shadow.Sunken)
+        self.announcement_separator.setFrameShape(QFrame.Shape.VLine)
+        self.announcement_separator.setFrameShadow(QFrame.Shadow.Sunken)
         self.time_label.setFixedWidth(105)
         self.setSizePolicy(
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Preferred,
         )
         self.separator.setFixedWidth(2)
-        self.announcement_label.setAutoFillBackground(True)
+        self.announcement_separator.setFixedWidth(2)
+        self.announcement_label.setMinimumWidth(0)
         self.separator.hide()
+        self.announcement_separator.hide()
         self.announcement_label.hide()
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -96,8 +101,11 @@ class _StatusPanel(QWidget):
         layout.addWidget(self.time_label)
         layout.addSpacing(3)
         layout.addWidget(self.separator)
-        layout.addSpacing(5)
+        layout.addSpacing(3)
         layout.addWidget(self.detail_label, 1)
+        layout.addWidget(self.announcement_separator)
+        layout.addSpacing(5)
+        layout.addWidget(self.announcement_label)
 
     def set_time(self, text: str) -> None:
         """Set the fixed-width time display."""
@@ -111,10 +119,15 @@ class _StatusPanel(QWidget):
     def set_announcement(self, text: str) -> None:
         """Set or clear a transient confirmation after the detail section."""
         self.announcement_label.setText(text)
-        self.announcement_label.setVisible(bool(text))
         if text:
-            self.announcement_label.raise_()
-            self._position_announcement()
+            self.announcement_label.adjustSize()
+            self.announcement_label.setMinimumWidth(
+                self.announcement_label.sizeHint().width() + 12
+            )
+        else:
+            self.announcement_label.setMinimumWidth(0)
+        self.announcement_label.setVisible(bool(text))
+        self.announcement_separator.setVisible(bool(text))
         self._update_separator_visibility()
 
     def _update_separator_visibility(self) -> None:
@@ -122,22 +135,6 @@ class _StatusPanel(QWidget):
         self.separator.setVisible(
             bool(self.detail_label.text()) or bool(self.announcement_label.text())
         )
-
-    def _position_announcement(self) -> None:
-        """Overlay temporary messages across the detail area without covering time."""
-        left = self.time_label.width() + 3 + self.separator.width() + 5
-        self.announcement_label.setGeometry(
-            left,
-            0,
-            max(0, self.width() - left),
-            self.height(),
-        )
-
-    def resizeEvent(self, event):
-        """Keep the temporary message overlay aligned after resizing."""
-        super().resizeEvent(event)
-        if self.announcement_label.isVisible():
-            self._position_announcement()
 
 class _PreferencesDialog(QDialog):
     """Edit persistent application preferences."""
