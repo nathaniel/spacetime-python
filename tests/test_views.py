@@ -263,6 +263,27 @@ def test_hover_cursor_only_marks_draggable_events(qt_app):
 
     assert view.cursor().shape() == Qt.CursorShape.ArrowCursor
 
+
+def test_diagram_worldline_click_does_not_enter_drag_state(qt_app):
+    """Clicking a diagram worldline must not imply that it can be dragged."""
+    scenario = Scenario()
+    scenario.add_clock(0.0, 0.0, 0.5)
+    view = SpacetimeDiagramView(scenario)
+    view.resize(800, 400)
+    point = QPoint(round(view.origin.x()), round(view.origin.y()))
+    event = QMouseEvent(
+        QEvent.Type.MouseButtonPress,
+        point,
+        Qt.MouseButton.LeftButton,
+        Qt.MouseButton.LeftButton,
+        Qt.KeyboardModifier.NoModifier,
+    )
+
+    view.mousePressEvent(event)
+
+    assert view.dragged is None
+    assert view.cursor().shape() == Qt.CursorShape.ArrowCursor
+
     scenario.add_clock(2.0, 0.0, 0.0)
     view._intersection_first_object = scenario.objects[0]
     second_worldline_point = QPoint(

@@ -324,17 +324,7 @@ class _View(QWidget):
             self._intersection_first_object = None
             self.instruction_changed.emit("")
             return
-        self.dragged = candidate
-        if (
-            isinstance(self, SpacetimeDiagramView)
-            and self.dragged in self.scenario.events
-            and (
-                self.dragged.fixed_at_intersection
-                or self.dragged.placed_at_worldline
-            )
-        ):
-            self.dragged = None
-            return
+        self.dragged = candidate if self._can_drag(candidate) else None
         self._drag_before_scenario = (
             isinstance(self, HighwayView)
             and self.dragged is not None
