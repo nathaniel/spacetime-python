@@ -131,6 +131,7 @@ Objects table is in the Tables panel on the right. Double-click the Object
 cell in the first row, type <code>Earth</code>, and press Enter. The label
 changes in both diagrams. To add a note, edit the Notes cell in the same row;
 if the Notes column is not visible, use the table's horizontal scrollbar.
+For this tutorial, enter <code>This is the Earth.</code> as the note.
 Move the pointer over the clock in the Highway or over its worldline in the
 spacetime diagram to see the label, current coordinates, beta, gamma, and note
 in the status bar.</p>
@@ -149,7 +150,8 @@ The x and beta values are displayed in the current reference frame.</p>
 
 <h3>3. Create the rocket</h3>
 <p>Create another clock at position 0. Set its gamma factor to 2, then label it
-<code>Rocket</code> and add a note. The table accepts beta and formats the
+<code>Rocket</code>. In its Notes cell, enter
+<code>This is the ship. Astronaut is inside.</code> The table accepts beta and formats the
 corresponding gamma value. You can create the clock approximately on the
 center lane, then edit its x and beta in the Objects table. To set gamma
 directly, edit the gamma cell and press Enter; the corresponding beta is
@@ -163,8 +165,9 @@ speed less than light in either direction.</p>
 event and limits the displayed rocket worldline to begin at that time. The
 action changes to <strong>Cancel birth</strong> after it is set. Select the
 Events tab in the Tables panel to find the generated event. You may change its
-label and note, but its coordinates are controlled by the rocket and cannot be
-dragged or edited in the table.</p>
+label and note; rename it <code>Departure</code> and enter
+<code>Departure from Earth</code> as its note. Its coordinates are controlled
+by the rocket and cannot be dragged or edited in the table.</p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python08.png" alt="Python Spacetime Events table at departure"></td></tr><tr><td align="center" class="caption">The Events table displays the departure event.</td></tr></table>
 
 <h3>5. Create the turning event</h3>
@@ -233,13 +236,17 @@ coordinates. Right-click at that crossing and choose
 <strong>Create event</strong>. Because the pointer is on the simultaneity line,
 the new event is placed at exactly the current displayed time. Rename it
 <code>S1</code> and add a note describing the outbound frame.</p>
+<p>For the S1 note, enter
+<code>Event simultaneous with turning event in the frame of outgoing rocket.</code></p>
 <p>Return to the original frame with <strong>Reference frame &rarr; Return to
 original frame</strong>. Set the time near the post-turnaround leg, jump to the
 rocket again, and repeat the operation to create <code>S2</code>. The two
 events are different because simultaneity depends on the reference frame.
 Clicking near a worldline away from the blue line creates an event on that
 worldline at the selected time instead; clicking empty diagram space creates a
-free event.</p>
+free event. Rename the second event <code>S2</code> and enter
+<code>Event simultaneous with turning event in the frame of incoming rocket.</code>
+as its note.</p>
 
 <h3>10. Comment and save</h3>
 <p>Use the Comments tab in the Tables panel to add scenario notes. Choose
@@ -247,7 +254,9 @@ free event.</p>
 scenario <code>.sce</code> file. Save after completing the tutorial so that the
 objects, events, programmed worldline, decorations, comments, and synchronized
 view position can be reopened later. If the window title begins with an
-asterisk, the scenario has unsaved changes.</p>
+asterisk, the scenario has unsaved changes. For this tutorial's comment, enter
+<code>Trip from Earth to Alpha Centauri and back; compare simultaneity before
+and after the turnaround.</code></p>
 <table align="center" cellspacing="0" cellpadding="0"><tr><td align="center"><img src="screenshots/python04.png" alt="Python Spacetime hover details"></td></tr><tr><td align="center" class="caption">Hover details include object notes in the status area.</td></tr></table>
 
 <p><strong>Congratulations.</strong> You have created a complete spacetime
