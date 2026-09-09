@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QInputDialog,
     QLabel,
+    QHBoxLayout,
     QMainWindow,
     QMessageBox,
     QPushButton,
@@ -68,7 +69,7 @@ class _TitledPanel(QFrame):
         self._position_title()
 
 class _StatusPanel(QWidget):
-    """Java-style bottom status area with prioritized hover details."""
+    """Java-style bottom status area with separate transient confirmations."""
 
     def __init__(self, parent=None):
         """Create the time and detail labels."""
@@ -76,11 +77,30 @@ class _StatusPanel(QWidget):
         self.time_label = QLabel(self)
         self.detail_label = QLabel(self)
         self.separator = QFrame(self)
+        self.announcement_separator = QFrame(self)
+        self.announcement_label = QLabel(self)
         self.separator.setFrameShape(QFrame.Shape.VLine)
         self.separator.setFrameShadow(QFrame.Shadow.Sunken)
+        self.announcement_separator.setFrameShape(QFrame.Shape.VLine)
+        self.announcement_separator.setFrameShadow(QFrame.Shadow.Sunken)
         self.time_label.setFixedWidth(105)
+        self.separator.setFixedWidth(2)
+        self.announcement_separator.setFixedWidth(2)
+        self.announcement_label.setMinimumWidth(180)
         self.detail_label.hide()
         self.separator.hide()
+        self.announcement_separator.hide()
+        self.announcement_label.hide()
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(self.time_label)
+        layout.addSpacing(3)
+        layout.addWidget(self.separator)
+        layout.addSpacing(3)
+        layout.addWidget(self.detail_label, 1)
+        layout.addWidget(self.announcement_separator)
+        layout.addWidget(self.announcement_label)
 
     def set_time(self, text: str) -> None:
         """Set the fixed-width time display."""
@@ -91,16 +111,20 @@ class _StatusPanel(QWidget):
         self.detail_label.setText(text)
         self.detail_label.setVisible(bool(text))
         self.separator.setVisible(bool(text))
-        if text:
-            self.detail_label.raise_()
+        self._update_separator_visibility()
 
-    def resizeEvent(self, event):
-        """Keep the time and detail labels positioned."""
-        super().resizeEvent(event)
-        height = self.height()
-        self.time_label.setGeometry(0, 0, 105, height)
-        self.separator.setGeometry(108, 0, 2, height)
-        self.detail_label.setGeometry(112, 0, max(0, self.width() - 112), height)
+    def set_announcement(self, text: str) -> None:
+        """Set or clear a transient confirmation after the detail section."""
+        self.announcement_label.setText(text)
+        self.announcement_label.setVisible(bool(text))
+        self.announcement_separator.setVisible(bool(text))
+        self._update_separator_visibility()
+
+    def _update_separator_visibility(self) -> None:
+        """Show the time divider whenever either right-hand section is used."""
+        self.separator.setVisible(
+            self.detail_label.isVisible() or self.announcement_label.isVisible()
+        )
 
 class _PreferencesDialog(QDialog):
     """Edit persistent application preferences."""
@@ -217,6 +241,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Spacetime"); self.resize(1100,700)
         self._instruction = ""
         self._hovered_item = None
+        self._announcement = ""
         self._modifier_name = "Cmd" if sys.platform == "darwin" else "Ctrl"
         root=QWidget(); layout=QVBoxLayout(root)
         split=QSplitter(Qt.Vertical); self.highway=HighwayView(scenario); self.diagram=SpacetimeDiagramView(scenario)
@@ -703,12 +728,23 @@ class MainWindow(QMainWindow):
     def _update_status(self) -> None:
         """Refresh the bottom time and interaction details."""
         self.status_panel.set_time(f"Time t = {self.scenario.time:.3f}")
-        if self._hovered_item is None:
+        if self._instruction:
+            self.status_panel.set_detail(self._instruction)
+        elif self._hovered_item is None:
             self.status_panel.set_detail(self._instruction)
 
     def _announce(self, text: str) -> None:
-        """Show a short-lived confirmation without replacing hover details."""
-        self.statusBar().showMessage(text, 3000)
+        """Show a short-lived confirmation in its own status-bar section."""
+        self._announcement = text
+        self.status_panel.set_announcement(text)
+        QTimer.singleShot(3000, lambda message=text: self._clear_announcement(message))
+
+    def _clear_announcement(self, text: str) -> None:
+        """Restore the status detail that was visible before a confirmation."""
+        if self._announcement != text:
+            return
+        self._announcement = ""
+        self.status_panel.set_announcement("")
 
     def _announce_after_action(self, text: str) -> None:
         """Show a confirmation after a menu or dialog finishes its cleanup."""
