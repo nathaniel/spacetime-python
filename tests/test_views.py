@@ -76,6 +76,7 @@ def test_all_intersections_selection_uses_partner_worldline(qt_app):
     first = scenario.add_clock(0.0, 0.0, 0.5)
     second = scenario.add_clock(2.0, 0.0, -0.5)
     view = SpacetimeDiagramView(scenario)
+    view.history = History()
     view.resize(800, 400)
     view._start_all_intersections(first)
 
@@ -95,6 +96,10 @@ def test_all_intersections_selection_uses_partner_worldline(qt_app):
     assert view._intersection_first_object is None
     assert len(scenario.events) == 1
     assert scenario.events[0].intersection_names == (first.name, second.name)
+    assert view.history.undo()
+    assert not scenario.events
+    assert view.history.redo()
+    assert len(scenario.events) == 1
 
 
 def test_loaded_crossing_lines_fixture_hits_c2_after_initial_change(qt_app):
