@@ -95,10 +95,10 @@ class _ShortcutDelegate(QStyledItemDelegate):
         metrics = painter.fontMetrics()
         x = option.rect.left() + 6
         center_y = option.rect.center().y()
-        for part in parts:
+        for part_index, part in enumerate(parts):
             if not part:
                 continue
-            if part.isspace() or part.strip() in ("+", "/"):
+            if part_index % 2:
                 painter.setPen(option.palette.text().color())
                 painter.drawText(
                     int(x),
@@ -130,11 +130,11 @@ class _ShortcutDelegate(QStyledItemDelegate):
             return size
         metrics = QFontMetrics(option.font)
         width = 12
-        for part in parts:
+        for part_index, part in enumerate(parts):
             if not part:
                 continue
             text = part.strip()
-            width += metrics.horizontalAdvance(text) + (12 if text in ("+", "/") else 17)
+            width += metrics.horizontalAdvance(text) + (12 if part_index % 2 else 17)
         return size.expandedTo(QSize(width, 26))
 
 
