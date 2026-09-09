@@ -29,7 +29,9 @@ currently includes:
 
 The major remaining delivery work is native packaging and release hardening:
 Windows and macOS builds, packaged smoke tests, resource bundling, and
-optional signing/notarization.
+optional signing/notarization. A longer-term design task is to consider
+retooling scenario files as a versioned structured format, while retaining
+Java-style `.sce` import compatibility.
 
 ## Repository layout
 
