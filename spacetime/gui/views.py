@@ -357,6 +357,34 @@ class _View(QWidget):
                 if abs(point.x()-(origin.x()+x*self.scale))<10 and abs(point.y()-(origin.y()-self.scenario.time*self.scale))<10:return obj
         return None
 
+    def _intersection_at(self, point):
+        """Return two objects whose first intersection is under ``point``."""
+        if not isinstance(self, SpacetimeDiagramView):
+            return None
+        origin = self.origin
+        for index, first in enumerate(self.scenario.objects):
+            for second in self.scenario.objects[index + 1:]:
+                hit = first.worldline.intersection(second.worldline)
+                if hit is None:
+                    continue
+                original_t, original_x = hit
+                if not first.exists(original_t) or not second.exists(original_t):
+                    continue
+                frame_x, frame_t = transform(
+                    original_x,
+                    original_t,
+                    self.scenario.beta_rel,
+                )
+                screen_x = origin.x() + frame_x * self.scale
+                screen_y = origin.y() - frame_t * self.scale
+                if (
+                    (point.x() - screen_x) ** 2
+                    + (point.y() - screen_y) ** 2
+                    <= 14 ** 2
+                ):
+                    return first, second
+        return None
+
     def _drag_to(self, point, modifiers):
         """Apply a drag position to the selected model item."""
         if isinstance(self, HighwayView) and self.dragged in self.scenario.objects:
@@ -434,6 +462,7 @@ class _View(QWidget):
                 transform_menu.addAction("Down", self._transform_down)
                 transform_menu.addAction("Original frame", self._original_frame)
         else:
+            intersection = self._intersection_at(point)
             if self.hovered in self.scenario.events:
                 selected_event = self.hovered
                 title = menu.addAction(f"Event {selected_event.label}")
@@ -453,8 +482,28 @@ class _View(QWidget):
                     lambda: self._start_interval(selected_event),
                 )
                 menu.addAction("Delete", lambda: self._delete_event(selected_event))
+            elif intersection is not None:
+                first, second = intersection
+                title = menu.addAction(
+                    f"Intersection of {first.label} and {second.label}"
+                )
+                title.setEnabled(False)
+                menu.addSeparator()
+                menu.addAction(
+                    "Create event",
+                    lambda: self._create_intersection_event(first, second),
+                )
             else: menu.addAction("Create event", lambda: self._create_event(point))
         menu.exec(self.mapToGlobal(point))
+
+    def _create_intersection_event(self, first, second) -> None:
+        """Create an event constrained to two intersecting worldlines."""
+        event = self.scenario.intersection_event(first, second)
+        if self.history is not None:
+            self.scenario.events.remove(event)
+            self.history.do(AddEvent(self.scenario, event))
+        self.changed.emit()
+        self.update()
 
     def _add_decoration(self, kind: str, event) -> None:
         """Add a light cone or invariant hyperbola around an event."""
