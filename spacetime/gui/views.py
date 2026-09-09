@@ -135,7 +135,7 @@ class _View(QWidget):
             if vertical_size < horizontal_size * 1.5:
                 vertical = 0
         if horizontal:
-            if pixel_delta.x() and not angle_delta.x():
+            if pixel_delta.x():
                 self.pan_horizontal(-pixel_delta.x() * 0.18 * self.trackpad_sensitivity)
             else:
                 self.pan_horizontal(
@@ -146,12 +146,12 @@ class _View(QWidget):
             if isinstance(self, HighwayView):
                 step = (
                     0.0025 * abs(pixel_delta.y()) * self.trackpad_sensitivity
-                    if pixel_delta.y() and not angle_delta.y()
+                    if pixel_delta.y()
                     else 0.025 * self.mouse_wheel_sensitivity
                 )
                 self._transform_by(step if vertical > 0 else -step)
             else:
-                if pixel_delta.y() and not angle_delta.y():
+                if pixel_delta.y():
                     step = 0.005 * abs(pixel_delta.y()) * self.trackpad_sensitivity
                     self.scenario.time += step if vertical > 0 else -step
                 else:
