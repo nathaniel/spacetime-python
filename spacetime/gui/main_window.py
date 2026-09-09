@@ -384,7 +384,7 @@ class MainWindow(QMainWindow):
         move_right.setShortcut("Right")
         move_right.triggered.connect(lambda: self._move_view(-20))
         help_menu=self.menuBar().addMenu("&Help")
-        help_action = help_menu.addAction("&Help")
+        help_action = help_menu.addAction("&Help Contents")
         help_action.setShortcut("F1")
         help_action.triggered.connect(self.show_help)
         help_menu.addSeparator()
