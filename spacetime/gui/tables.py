@@ -5,7 +5,7 @@ import math
 from PySide6.QtWidgets import QHeaderView, QMenu, QTableWidget, QTableWidgetItem, QMessageBox
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor
-from ..commands.undo_redo import DeleteObject, ProgramObject, Snapshot
+from ..commands.undo_redo import DeleteEvent, DeleteObject, ProgramObject, Snapshot
 from ..model.lorentz import _check_beta, inverse_transform
 
 class ObjectTable(QTableWidget):
@@ -181,13 +181,17 @@ class EventTable(QTableWidget):
     """Table showing and editing scenario events."""
 
     changed = Signal()
+    interval_requested = Signal(object)
     _read_only_color = QColor(232, 232, 232)
     def __init__(self, scenario, parent=None):
         """Create a table bound to a scenario."""
         super().__init__(0, 4, parent); self.scenario=scenario
+        self.history = None
         self._updating = False
         self.setHorizontalHeaderLabels(["Event", "x", "t", "Note"]); self.itemChanged.connect(self._edited)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._context_menu)
         header = self.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
         for column, width in enumerate((100, 65, 65)):
@@ -210,6 +214,53 @@ class EventTable(QTableWidget):
                 self.setItem(row,col,item)
         self.resizeColumnToContents(3)
         self._updating = False
+
+    def _context_menu(self, position) -> None:
+        """Show the same construction and deletion actions as the diagram."""
+        item = self.itemAt(position)
+        if item is None:
+            return
+        event = self.scenario.events[item.row()]
+        menu = QMenu(self)
+        title = menu.addAction(f"Event {event.label}")
+        title.setEnabled(False)
+        menu.addSeparator()
+        construct_menu = menu.addMenu("Construct")
+        construct_menu.addAction(
+            "Light cone",
+            lambda: self._add_decoration("lightcone", event),
+        )
+        construct_menu.addAction(
+            "Invariant hyperbola",
+            lambda: self._add_decoration("hyperbola", event),
+        )
+        construct_menu.addAction(
+            "Spacetime interval to . . .",
+            lambda: self.interval_requested.emit(event),
+        )
+        menu.addAction("Delete", lambda: self._delete_event(event))
+        menu.exec(self.viewport().mapToGlobal(position))
+
+    def _add_decoration(self, kind: str, event) -> None:
+        """Add a light cone or invariant hyperbola around an event."""
+        if kind == "lightcone":
+            mutation = lambda: self.scenario.add_light_cone(event)
+        else:
+            mutation = lambda: self.scenario.add_hyperbola(event)
+        if self.history is None:
+            mutation()
+        else:
+            self.history.do(Snapshot(self.scenario, mutation))
+        self.changed.emit()
+
+    def _delete_event(self, event) -> None:
+        """Delete an event and its dependent decorations."""
+        if self.history is None:
+            self.scenario.remove_event(event)
+        else:
+            self.history.do(DeleteEvent(self.scenario, event))
+        self.changed.emit()
+
     def _edited(self,item):
         """Apply an edited event cell to the model."""
         if self._updating or not 0 <= item.row() < len(self.scenario.events): return

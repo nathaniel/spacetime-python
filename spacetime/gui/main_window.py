@@ -137,7 +137,9 @@ class MainWindow(QMainWindow):
         self.object_table = ObjectTable(scenario)
         self.event_table = EventTable(scenario)
         self.object_table.history = self.history
+        self.event_table.history = self.history
         self.object_table.jump_requested.connect(self.highway._jump_to_object)
+        self.event_table.interval_requested.connect(self.diagram._start_interval)
         self.object_table.changed.connect(self.mark_dirty)
         self.event_table.changed.connect(self.mark_dirty)
         tabs=QTabWidget(); tabs.addTab(self.object_table, "Objects"); tabs.addTab(self.event_table, "Events");         self.comments=QTextEdit(); self.comments.setPlainText(scenario.comments); self.comments.textChanged.connect(self.mark_dirty)
@@ -510,7 +512,7 @@ class MainWindow(QMainWindow):
         self.scenario=scenario
         for view in (self.highway, self.diagram): view.scenario=scenario
         self.object_table.scenario=scenario; self.object_table.history=self.history
-        self.event_table.scenario=scenario
+        self.event_table.scenario=scenario; self.event_table.history=self.history
         self.comments.blockSignals(True); self.comments.setPlainText(scenario.comments); self.comments.blockSignals(False)
     def zoom(self, factor):
         """Zoom both synchronized views by a scale factor."""
