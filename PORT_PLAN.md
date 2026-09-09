@@ -15,6 +15,8 @@ feature-complete desktop-beta stage described in Phase 9.
 Remaining work is release-oriented: expand golden-scenario compatibility
 checks, build native Windows and macOS artifacts, bundle resources and example
 scenarios, run packaged smoke tests, and add signing/notarization as needed.
+A longer-term format-design task is to consider a versioned structured scenario
+format while retaining Java-compatible `.sce` import/export.
 
 ## Recommended technology
 
@@ -148,7 +150,7 @@ Recommended strategy:
 2. Preserve unknown properties when possible.
 3. Write files in a stable, documented format.
 4. Add round-trip tests for every bundled scenario.
-5. Optionally introduce a new versioned JSON format later while retaining `.sce` import/export.
+5. Consider introducing a versioned JSON format while retaining `.sce` import/export.
 
 ## Phase 5: Recreate the desktop interface — substantially complete
 
