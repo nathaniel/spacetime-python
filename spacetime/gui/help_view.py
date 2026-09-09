@@ -95,7 +95,7 @@ class ShortcutsView(QTableWidget):
         ]
         self.setColumnCount(2)
         self.setHorizontalHeaderLabels(["Input", "Action"])
-        self.setRowCount(len(rows))
+        self.setRowCount(len(rows) + 1)
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.setWordWrap(True)
@@ -104,9 +104,16 @@ class ShortcutsView(QTableWidget):
         self.horizontalHeader().setStretchLastSection(True)
         self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
         self.setColumnWidth(0, 150)
+        title = QTableWidgetItem("Keyboard Shortcuts & Gestures")
+        title_font = self.font()
+        title_font.setBold(True)
+        title.setFont(title_font)
+        self.setItem(0, 0, title)
+        self.setSpan(0, 0, 1, 2)
         for row, (input_text, action) in enumerate(rows):
-            self.setItem(row, 0, QTableWidgetItem(input_text))
-            self.setItem(row, 1, QTableWidgetItem(action))
+            table_row = row + 1
+            self.setItem(table_row, 0, QTableWidgetItem(input_text))
+            self.setItem(table_row, 1, QTableWidgetItem(action))
 
     def changeEvent(self, event):
         """Resize shortcut rows after a global font-size change."""
