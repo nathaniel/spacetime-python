@@ -151,10 +151,10 @@ class _View(QWidget):
                 )
         if vertical:
             if isinstance(self, HighwayView):
-                step = (
-                    0.0025 * abs(pixel_delta.y()) * self.trackpad_sensitivity
-                    if trackpad and pixel_delta.y()
-                    else 0.025 * self.mouse_wheel_sensitivity
+                step = 0.025 * (
+                    self.trackpad_sensitivity
+                    if trackpad
+                    else self.mouse_wheel_sensitivity
                 )
                 self._transform_by(step if vertical > 0 else -step)
             else:

@@ -9,6 +9,7 @@ from spacetime.commands.undo_redo import History
 from spacetime.gui.tables import EventTable, ObjectTable
 from spacetime.gui.views import SpacetimeDiagramView
 from spacetime.gui.views import HighwayView
+from spacetime.model.lorentz import velocity_add
 from spacetime.model.scenario import Scenario
 from spacetime.persistence.scenario_file import load_scenario
 
@@ -173,6 +174,41 @@ def test_spacetime_vertical_scroll_scales_with_zoom(qt_app):
     view.wheelEvent(wheel)
 
     assert scenario.time == pytest.approx(0.2)
+
+
+def test_highway_vertical_pixel_scroll_uses_fixed_frame_step(qt_app):
+    """Do not amplify Highway frame changes by trackpad gesture distance."""
+    scenario = Scenario()
+    view = HighwayView(scenario)
+    view.trackpad_sensitivity = 1.0
+    first = QWheelEvent(
+        QPointF(10, 10),
+        QPointF(10, 10),
+        QPoint(0, 20),
+        QPoint(0, 0),
+        Qt.MouseButton.NoButton,
+        Qt.KeyboardModifier.NoModifier,
+        Qt.ScrollPhase.ScrollUpdate,
+        False,
+    )
+    second = QWheelEvent(
+        QPointF(10, 10),
+        QPointF(10, 10),
+        QPoint(0, 100),
+        QPoint(0, 0),
+        Qt.MouseButton.NoButton,
+        Qt.KeyboardModifier.NoModifier,
+        Qt.ScrollPhase.ScrollUpdate,
+        False,
+    )
+
+    view.wheelEvent(first)
+    first_beta = scenario.beta_rel
+    view.wheelEvent(second)
+    second_delta = scenario.beta_rel - first_beta
+
+    assert first_beta == pytest.approx(0.025)
+    assert second_delta == pytest.approx(velocity_add(first_beta, 0.025) - first_beta)
 
 
 def test_object_table_edit_is_undoable(qt_app):
