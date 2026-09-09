@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QHeaderView,
     QLabel,
+    QSizePolicy,
     QTableWidget,
     QTableWidgetItem,
     QTextBrowser,
@@ -79,6 +80,8 @@ class ShortcutsView(QWidget):
         """Build the platform-aware shortcuts table."""
         super().__init__(parent)
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         title = QLabel("Keyboard Shortcuts & Gestures", self)
         title_font = self.font()
         title_font.setBold(True)
@@ -86,6 +89,7 @@ class ShortcutsView(QWidget):
         layout.addWidget(title)
         table = QTableWidget(self)
         self.table = table
+        table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         layout.addWidget(table)
         note = QLabel(
             "Mouse-wheel and trackpad sensitivity can be adjusted in Preferences.",
