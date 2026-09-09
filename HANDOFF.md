@@ -110,6 +110,10 @@ compatibility research.
 - Spacetime interval selection can be cancelled by pressing Esc or clicking
   empty space. While selection is active, its instruction takes priority over
   hover details.
+- Interactive views provide cursor affordances, and the Create menu exposes
+  Clock, Light Flash, and Event actions directly. Brief confirmations appear
+  after creation, programming, and saving; major views and panels have
+  accessible names.
 - Right-clicking a worldline intersection in the Spacetime Diagram offers
   `Create event`; the two intersecting worldlines become visibly thicker on
   hover, and the event is fixed to the exact intersection. It is synchronized
