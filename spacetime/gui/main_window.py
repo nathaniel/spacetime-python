@@ -791,8 +791,23 @@ class MainWindow(QMainWindow):
             except Exception as exc: QMessageBox.critical(self,"Open failed",str(exc))
     def save(self):
         """Save the current scenario to its associated path."""
-        if not self.path: return self.save_as()
+        if not self.path or self._is_bundled_scenario(self.path):
+            return self.save_as()
         self.scenario.comments=self.comments.toPlainText(); save_scenario(self.scenario,self.path); self._saved_scenario=deepcopy(self.scenario); self.dirty=False; self._update_title(); self._announce(f"Saved {self.path.name}.")
+
+    @staticmethod
+    def _is_bundled_scenario(path: Path) -> bool:
+        """Return whether a scenario came from the read-only app bundle."""
+        bundle_root = getattr(sys, "_MEIPASS", None)
+        if bundle_root is None:
+            return False
+        try:
+            return path.resolve().is_relative_to(
+                (Path(bundle_root) / "scenarios").resolve()
+            )
+        except FileNotFoundError:
+            return False
+
     def save_as(self):
         """Choose a path and save the current scenario."""
         path,_=QFileDialog.getSaveFileName(self,"Save scenario","","Scenario files (*.sce)")
