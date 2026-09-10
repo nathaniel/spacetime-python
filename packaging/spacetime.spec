@@ -1,6 +1,7 @@
 # PyInstaller spec: run from the repository root with
 #   pyinstaller python/packaging/spacetime.spec
 from pathlib import Path
+import sys
 
 root = Path(SPECPATH).parent
 a = Analysis(
@@ -19,8 +20,9 @@ exe = EXE(
     name="Spacetime", debug=False, strip=False, upx=True,
     console=False,
 )
-app = BUNDLE(
-    exe,
-    name="Spacetime.app",
-    bundle_identifier="org.spacetime.simulator",
-)
+if sys.platform == "darwin":
+    app = BUNDLE(
+        exe,
+        name="Spacetime.app",
+        bundle_identifier="org.spacetime.simulator",
+    )
