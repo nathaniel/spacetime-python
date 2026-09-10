@@ -364,7 +364,7 @@ class MainWindow(QMainWindow):
         menu=self.menuBar().addMenu("&Scenario")
         new=menu.addAction("&New"); new.setShortcut("Ctrl+N"); new.triggered.connect(self.new_scenario)
         open_action=menu.addAction("&Open…"); open_action.setShortcut("Ctrl+R"); open_action.triggered.connect(self.open_scenario)
-        menu.addAction("Open &Example…").triggered.connect(self.open_example_scenario)
+        menu.addAction("Open &Built-in Scenario…").triggered.connect(self.open_example_scenario)
         save=menu.addAction("&Save"); save.setShortcut("Ctrl+S"); save.triggered.connect(self.save)
         save_as=menu.addAction("Save &As…"); save_as.setShortcut(QKeySequence.StandardKey.SaveAs); save_as.triggered.connect(self.save_as)
         menu.addSeparator()
@@ -808,14 +808,14 @@ class MainWindow(QMainWindow):
         if not paths:
             QMessageBox.warning(
                 self,
-                "Examples unavailable",
+                "Built-in scenarios unavailable",
                 "No bundled scenario files were found.",
             )
             return
         names = [path.name for path in paths]
         name, accepted = QInputDialog.getItem(
             self,
-            "Open example scenario",
+            "Open built-in scenario",
             "Scenario:",
             names,
             0,
@@ -844,21 +844,54 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def _is_bundled_scenario(path: Path) -> bool:
-        """Return whether a scenario came from the read-only app bundle."""
-        bundle_root = getattr(sys, "_MEIPASS", None)
-        if bundle_root is None:
-            return False
+        """Return whether a scenario came from the built-in scenario set."""
         try:
             return path.resolve().is_relative_to(
-                (Path(bundle_root) / "scenarios").resolve()
+                MainWindow._example_scenario_dir().resolve()
             )
         except FileNotFoundError:
             return False
 
+    @staticmethod
+    def _application_save_directory() -> Path:
+        """Return the directory beside the executable or application bundle."""
+        if getattr(sys, "frozen", False):
+            executable = Path(sys.executable).resolve()
+            if sys.platform == "darwin":
+                return executable.parents[3]
+            return executable.parent
+        return MainWindow._example_scenario_dir().parent
+
+    def _save_dialog_path(self) -> Path:
+        """Return the initial filename and directory for saving a scenario."""
+        if self.path is not None:
+            filename = self.path.name
+            directory = (
+                self._application_save_directory()
+                if self._is_bundled_scenario(self.path)
+                else self.path.parent
+            )
+        else:
+            filename = "Untitled.sce"
+            directory = self._application_save_directory()
+        if Path(filename).suffix.casefold() != ".sce":
+            filename += ".sce"
+        return directory / filename
+
     def save_as(self):
         """Choose a path and save the current scenario."""
-        path,_=QFileDialog.getSaveFileName(self,"Save scenario","","Scenario files (*.sce)")
-        if path: self.path=Path(path); self.save()
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save scenario",
+            str(self._save_dialog_path()),
+            "Scenario files (*.sce)",
+        )
+        if path:
+            selected_path = Path(path)
+            if selected_path.suffix.casefold() != ".sce":
+                selected_path = selected_path.with_suffix(".sce")
+            self.path = selected_path
+            self.save()
     def maybe_save(self, next_action: str = "quitting"):
         """Prompt to save dirty changes before the next application action."""
         if not self.dirty: return True
