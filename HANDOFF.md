@@ -2,8 +2,8 @@
 
 This document is a compact continuation guide for future work on the Python
 reimplementation of the Java **Spacetime** special-relativity application.
-The Java implementation under `../spacetime/` remains the behavioral reference;
-the Python implementation under this directory is the active product.
+This repository contains the active Python implementation. The original Java
+implementation is maintained separately as a behavioral reference.
 
 ## Current state
 
@@ -37,7 +37,7 @@ Java-style `.sce` import compatibility.
 
 ```text
 spacetime/                 Java reference implementation
-python/
+spacetime/
   spacetime/
     model/                 Physics and scenario state
     persistence/           Java .sce reader/writer and Properties codec

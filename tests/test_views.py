@@ -1,5 +1,7 @@
 """Tests for light flashes and Qt views."""
 
+from pathlib import Path
+
 import pytest
 from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
 from PySide6.QtGui import QImage, QMouseEvent, QWheelEvent
@@ -105,7 +107,7 @@ def test_all_intersections_selection_uses_partner_worldline(qt_app):
 
 def test_loaded_crossing_lines_fixture_hits_c2_after_initial_change(qt_app):
     """Detect C2's post-change horizontal worldline from the scenario fixture."""
-    scenario = load_scenario("spacetime/model/crossing-lines.sce")
+    scenario = load_scenario(Path(__file__).parents[1] / "spacetime/model/crossing-lines.sce")
     view = SpacetimeDiagramView(scenario)
     view.resize(800, 400)
     clock = scenario.object("C2")

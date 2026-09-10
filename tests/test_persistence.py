@@ -5,7 +5,7 @@ import pytest
 from spacetime.persistence.scenario_file import load_scenario, save_scenario
 from spacetime.model.scenario import Scenario
 
-ROOT=Path(__file__).parents[2]
+ROOT=Path(__file__).parents[1]
 def test_bundled_scenarios_load():
     """Verify every bundled scenario loads with valid worldlines."""
     files=list((ROOT/"scenarios").glob("*.sce"))

@@ -1,5 +1,5 @@
 # PyInstaller spec: run from the repository root with
-#   pyinstaller python/packaging/spacetime.spec
+#   pyinstaller packaging/spacetime.spec
 from pathlib import Path
 import sys
 
@@ -8,7 +8,7 @@ a = Analysis(
     [str(root / "main.py")],
     pathex=[str(root)],
     datas=[
-        (str(root.parent / "scenarios"), "scenarios"),
+        (str(root / "scenarios"), "scenarios"),
         (str(root / "README.md"), "."),
         (str(root / "spacetime" / "resources"), "spacetime/resources"),
     ],

@@ -17,7 +17,7 @@ deliverables are pre-built applications for Windows and macOS.
 ### 1. Establish the project structure
 
 - Preserved the original Java implementation under `spacetime/`.
-- Placed all Python implementation work under `python/`.
+- Placed the Python implementation at the repository root.
 - Created a dedicated `spacetime-py` environment.
 - Added package metadata, a console entry point, test configuration, and
   packaging configuration.
@@ -181,7 +181,7 @@ bundled scenarios in both source and packaged forms.
 ## Current implementation organization
 
 ```text
-python/
+spacetime/
   spacetime/
     model/
     persistence/
