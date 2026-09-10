@@ -10,13 +10,12 @@ are intentionally omitted.
 Reimplement the Java desktop application in Python while preserving its
 physics, scenario-file compatibility, major interaction behavior, and visual
 relationship between the Highway and Spacetime Diagrams. The eventual
-deliverables are pre-built applications for Windows and macOS.
+deliverables are pre-built applications for Windows, macOS, and Linux.
 
 ## Steps completed so far
 
 ### 1. Establish the project structure
 
-- Preserved the original Java implementation under `spacetime/`.
 - Placed the Python implementation at the repository root.
 - Created a dedicated `spacetime-py` environment.
 - Added package metadata, a console entry point, test configuration, and
@@ -226,5 +225,5 @@ Phases 1 through 7 are substantially implemented for the core desktop beta:
 the model, Java-compatible persistence, synchronized GUI, editing workflows,
 undo/redo, menus, Help content, and focused regression coverage are in place.
 The remaining work is primarily release hardening: broader scenario golden
-checks, packaging on native Windows and macOS runners, bundled-application
+checks, packaging on native Windows, macOS, and Linux runners, bundled-application
 smoke tests, and optional signing/notarization.

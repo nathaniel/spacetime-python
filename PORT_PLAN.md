@@ -2,7 +2,7 @@
 
 ## Objective
 
-Create a Python reimplementation of the Java **Spacetime** application that preserves its special-relativity functionality, supports existing `.sce` scenario files, and can be distributed as pre-built applications for Windows and macOS.
+Create a Python reimplementation of the Java **Spacetime** application that preserves its special-relativity functionality, supports existing `.sce` scenario files, and can be distributed as pre-built applications for Windows, macOS, and Linux.
 
 ## Current status
 
@@ -13,7 +13,7 @@ content, and focused regression tests. The project is currently at the
 feature-complete desktop-beta stage described in Phase 9.
 
 Remaining work is release-oriented: expand golden-scenario compatibility
-checks, build native Windows and macOS artifacts, bundle resources and example
+checks, build native Windows, macOS, and Linux artifacts, bundle resources and example
 scenarios, run packaged smoke tests, and add signing/notarization as needed.
 A longer-term format-design task is to consider a versioned structured scenario
 format while retaining Java-compatible `.sce` import/export.
@@ -25,7 +25,7 @@ format while retaining Java-compatible `.sce` import/export.
 - Custom Qt painting or PyQtGraph for the Highway and Spacetime Diagram
 - `pytest` for physics, persistence, and integration tests
 - PyInstaller for self-contained application bundles
-- GitHub Actions for Windows and macOS release builds
+- GitHub Actions for Windows, macOS, and Linux release builds
 
 ## Phase 1: Define existing behavior — substantially complete
 
@@ -218,7 +218,7 @@ After core behavior is correct:
 
 Avoid changing physics or interaction semantics during this phase unless the change is intentional and documented.
 
-## Phase 8: Package for Windows and macOS — remaining
+## Phase 8: Package for Windows, macOS, and Linux — remaining
 
 Use a single source tree with platform-specific GitHub Actions jobs.
 

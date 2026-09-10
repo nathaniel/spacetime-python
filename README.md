@@ -9,6 +9,6 @@ event editing, programming and lifetime events, decorations, undo/redo,
 platform-aware menus and shortcuts, and bundled Help content. Focused tests
 cover physics, persistence, editing, and light flashes.
 
-Packaging is the remaining major delivery stage. Windows and macOS application
-artifacts still need to be built and smoke-tested on their native runners,
-with signing and notarization added if distribution requires them.
+Packaging is partly complete: an unsigned macOS application builds locally and
+a Windows GitHub Actions workflow is configured. Linux packaging, packaged
+smoke tests, and signing or notarization remain if distribution requires them.

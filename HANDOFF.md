@@ -25,34 +25,33 @@ currently includes:
   decorations, zooming, panning, time navigation, and frame changes.
 - Platform-aware menus, persistent preferences, first-launch Getting Started,
   shortcuts and gestures, and Help content.
-- Focused regression tests; the current suite has 33 passing tests.
+- Focused regression tests; the current suite has 37 passing tests.
 
-The major remaining delivery work is native packaging and release hardening:
-Windows and macOS builds, packaged smoke tests, resource bundling, and
-optional signing/notarization. A longer-term design task is to consider
+The major remaining delivery work is Linux packaging and release hardening:
+packaged smoke tests, optional signing/notarization, and installers. A
+longer-term design task is to consider
 retooling scenario files as a versioned structured format, while retaining
 Java-style `.sce` import compatibility.
 
 ## Repository layout
 
 ```text
-spacetime/                 Java reference implementation
 spacetime/
-  spacetime/
-    model/                 Physics and scenario state
-    persistence/           Java .sce reader/writer and Properties codec
-    commands/              Undo/redo commands
-    gui/                   Main window, views, tables, Help
-    resources/help/        Bundled HTML Help
-  tests/                   pytest coverage
-  PORT_PLAN.md             Original port and release plan
-  IMPLEMENTATION_SUMMARY.md Implementation history and status
-  README.md                Python-area overview
-  HANDOFF.md               This continuation guide
+  model/                   Physics and scenario state
+  persistence/             Java .sce reader/writer and Properties codec
+  commands/                Undo/redo commands
+  gui/                     Main window, views, tables, Help
+  resources/help/          Bundled HTML Help
+tests/                     pytest coverage
+scenarios/                 Bundled example .sce files
+packaging/                 PyInstaller configuration and build script
+PORT_PLAN.md               Original port and release plan
+IMPLEMENTATION_SUMMARY.md  Implementation history and status
+README.md                  Project overview
+HANDOFF.md                 This continuation guide
 ```
 
-Do not modify the Java source unless explicitly required for comparison or
-compatibility research.
+The original Java implementation is maintained in a separate repository.
 
 ## Important compatibility rules
 
@@ -201,41 +200,26 @@ Use the existing Mamba environment:
 mamba run -n spacetime-py env QT_QPA_PLATFORM=offscreen python -m pytest -q
 ```
 
-The expected current result is 33 passing tests. For GUI smoke checks, use
+The expected current result is 37 passing tests. For GUI smoke checks, use
 `QT_QPA_PLATFORM=offscreen` and instantiate `MainWindow` with a `Scenario`.
 Do not add new testing tools; use the existing pytest and Qt setup.
 
 ## Packaging status
 
-Packaging is planned but not yet completed:
+Packaging is partly complete:
 
-1. Build a Windows executable with PyInstaller on a native Windows runner.
-2. Build a macOS `.app` with PyInstaller on a native macOS runner.
-3. Bundle Help, resources, and representative example scenarios.
-4. Run a smoke test against each packaged application.
+1. A local unsigned Apple Silicon macOS `.app` builds successfully.
+2. The Windows PyInstaller workflow is ready in GitHub Actions.
+3. Help, resources, and representative example scenarios are bundled.
+4. Run a smoke test against the Windows artifact.
 5. Add code signing/notarization for macOS and executable signing or an
    installer for Windows if distribution requires it.
 
 The source implementation should be stabilized further before release builds.
 
-## Worktree caution
-
-Generated artifacts should not be committed, including Java `.class` files,
-`Spacetime.jar`, Python caches, egg-info directories, and generated scenario
-artifacts.
-
-At the time this handoff was written, the worktree also contained changes
-outside the documentation and current feature edits, including an
-`undo_redo.py` modification and a generated scenario-file modification. Do not
-discard or reset those changes without inspecting them and confirming their
-intended ownership.
-
 ## Recommended next steps
 
-1. Inspect and resolve the existing worktree changes without using destructive
-   reset or checkout commands.
-2. Continue Java-vs-Python compatibility review for less-used table and
-   decoration workflows.
-3. Add broader golden-scenario comparisons and packaged smoke tests.
-4. Implement native Windows and macOS packaging.
-5. Only then address signing, notarization, installers, and release metadata.
+1. Run the Windows workflow and inspect the uploaded artifact.
+2. Add broader golden-scenario comparisons and packaged smoke tests.
+3. Add Linux packaging, likely through a GitHub-hosted Ubuntu runner.
+4. Address signing, notarization, installers, and release metadata.
