@@ -364,6 +364,7 @@ class MainWindow(QMainWindow):
         menu=self.menuBar().addMenu("&Scenario")
         new=menu.addAction("&New"); new.setShortcut("Ctrl+N"); new.triggered.connect(self.new_scenario)
         open_action=menu.addAction("&Open…"); open_action.setShortcut("Ctrl+R"); open_action.triggered.connect(self.open_scenario)
+        menu.addAction("Open &Example…").triggered.connect(self.open_example_scenario)
         save=menu.addAction("&Save"); save.setShortcut("Ctrl+S"); save.triggered.connect(self.save)
         save_as=menu.addAction("Save &As…"); save_as.setShortcut(QKeySequence.StandardKey.SaveAs); save_as.triggered.connect(self.save_as)
         menu.addSeparator()
@@ -785,10 +786,56 @@ class MainWindow(QMainWindow):
         path,_=QFileDialog.getOpenFileName(self,"Open scenario","","Scenario files (*.sce);;All files (*)")
         if path:
             try:
-                self.history = History()
-                self._set_scenario(load_scenario(path))
-                self.path=Path(path); self._saved_scenario=deepcopy(self.scenario); self.dirty=False; self._apply_scenario_horizontal_view(); self.refresh()
+                self._load_scenario_path(Path(path))
             except Exception as exc: QMessageBox.critical(self,"Open failed",str(exc))
+
+    @staticmethod
+    def _example_scenario_dir() -> Path:
+        """Return the directory containing the scenarios bundled with the app."""
+        bundle_root = getattr(sys, "_MEIPASS", None)
+        if bundle_root is not None:
+            return Path(bundle_root) / "scenarios"
+        return Path(__file__).resolve().parents[2] / "scenarios"
+
+    def open_example_scenario(self):
+        """Open one of the scenarios distributed with the application."""
+        if not self.maybe_save("reading a new one"):
+            return
+        paths = sorted(
+            self._example_scenario_dir().glob("*.sce"),
+            key=lambda path: path.name.casefold(),
+        )
+        if not paths:
+            QMessageBox.warning(
+                self,
+                "Examples unavailable",
+                "No bundled scenario files were found.",
+            )
+            return
+        names = [path.name for path in paths]
+        name, accepted = QInputDialog.getItem(
+            self,
+            "Open example scenario",
+            "Scenario:",
+            names,
+            0,
+            False,
+        )
+        if accepted:
+            try:
+                self._load_scenario_path(paths[names.index(name)])
+            except Exception as exc:
+                QMessageBox.critical(self, "Open failed", str(exc))
+
+    def _load_scenario_path(self, path: Path):
+        """Load a scenario and update the editor state for its document."""
+        self.history = History()
+        self._set_scenario(load_scenario(path))
+        self.path = path
+        self._saved_scenario = deepcopy(self.scenario)
+        self.dirty = False
+        self._apply_scenario_horizontal_view()
+        self.refresh()
     def save(self):
         """Save the current scenario to its associated path."""
         if not self.path or self._is_bundled_scenario(self.path):
