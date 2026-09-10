@@ -16,5 +16,8 @@ build = ["PyInstaller>=6.0"]
 [project.scripts]
 spacetime = "spacetime.app:main"
 
+[tool.setuptools.packages.find]
+include = ["spacetime*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
