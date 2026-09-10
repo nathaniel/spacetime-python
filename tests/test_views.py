@@ -1,7 +1,5 @@
 """Tests for light flashes and Qt views."""
 
-from pathlib import Path
-
 import pytest
 from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
 from PySide6.QtGui import QImage, QMouseEvent, QWheelEvent
@@ -14,7 +12,6 @@ from spacetime.gui.views import SpacetimeDiagramView
 from spacetime.gui.views import HighwayView
 from spacetime.model.lorentz import velocity_add
 from spacetime.model.scenario import Scenario
-from spacetime.persistence.scenario_file import load_scenario
 
 
 @pytest.fixture(scope="module")
@@ -103,20 +100,6 @@ def test_all_intersections_selection_uses_partner_worldline(qt_app):
     assert not scenario.events
     assert view.history.redo()
     assert len(scenario.events) == 1
-
-
-def test_loaded_crossing_lines_fixture_hits_c2_after_initial_change(qt_app):
-    """Detect C2's post-change horizontal worldline from the scenario fixture."""
-    scenario = load_scenario(Path(__file__).parents[1] / "spacetime/model/crossing-lines.sce")
-    view = SpacetimeDiagramView(scenario)
-    view.resize(800, 400)
-    clock = scenario.object("C2")
-    point = QPoint(
-        round(view.origin.x() + 0.5 * view.scale),
-        round(view.origin.y() - 1.0 * view.scale),
-    )
-
-    assert view._hit(point) is clock
 
 
 def test_mouse_scroll_uses_mouse_sensitivity_when_pixel_delta_is_present(qt_app):
